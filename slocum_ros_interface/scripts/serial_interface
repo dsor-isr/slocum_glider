@@ -49,10 +49,15 @@ class topic(object):
         self._name = name
         if (out):
             # publish things coming from the glider
-            self.publisher = rospy.Publisher(name, get_msg_type(units), queue_size=10)
+            self.publisher = rospy.Publisher('from_glider/' + name,
+                                             get_msg_type(units),
+                                             queue_size=10,
+                                             latch=True)
         else:
             # subscribe things going to the glider
-            self.listener = rospy.Subscriber(name, get_msg_type(units), self.sender)
+            self.listener = rospy.Subscriber('to_glider/' + name,
+                                             get_msg_type(units),
+                                             self.sender)
 
     def index(self):
         return self._index
