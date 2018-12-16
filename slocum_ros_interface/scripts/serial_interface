@@ -16,7 +16,6 @@ from pprint import pprint
 import rospy
 import std_msgs.msg
 
-serdev = '/dev/ttyS0'
 port = None
 
 appdir = os.path.dirname(sys.argv[0])
@@ -74,11 +73,11 @@ class topic(object):
 # Topics collection, we look up by index
 class topics(object):
     # read .ini file and create a topic per sensor
-    def __init__(self, fn):
+    def __init__(self):
         self.byindex = []
         state = None
         index = 0
-        for rline in open(fn).readlines():
+        for rline in rospy.get_param('extctl').splitlines():
             line = rline.strip()
             # section header
             if line == 'os' or line == 'is':
@@ -99,13 +98,12 @@ class topics(object):
 
 # handle communications with backseat serial interface
 class extctl_io(object):
-    def __init__(self, inifn):
+    def __init__(self):
         global port
         self.running = True
         self.receive_thread = threading.Thread(target = self.listener)
         self.receive_thread.start()
-        rospy.init_node('slocum')
-        self.topics = topics(inifn)
+        self.topics = topics()
 
     def shutdown(self):
         self.receive_thread.join()
@@ -128,7 +126,9 @@ class extctl_io(object):
                     self.topics.publish(int(index), value)
 
 if __name__ == '__main__':
-    port = serial.Serial(serdev, baudrate=9600, timeout=1.0)
-    glider = extctl_io(os.path.join(appdir, 'extctl.ini'))
+    rospy.init_node('slocum')
+    serial_port_name = rospy.get_param('~serial_port')
+    port = serial.Serial(serial_port_name, baudrate=9600, timeout=1.0)
+    glider = extctl_io()
     rospy.spin()
     glider.shutdown()
