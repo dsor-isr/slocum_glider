@@ -10,8 +10,6 @@ import os
 import serial
 import sys
 import threading
-import time
-from pprint import pprint
 
 import rospy
 import std_msgs.msg
