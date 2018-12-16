@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>slocum_ros_launch</name>
+  <version>0.0.1</version>
+  <description>The slocum_ros_launch package</description>
+
+  <maintainer email="etimmons@mit.edu">Eric Timmons</maintainer>
+
+  <license>TODO</license>
+
+  <author email="etimmons@mit.edu">Eric Timmons</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export/>
+</package>

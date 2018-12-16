@@ -1,0 +1,13 @@
+<!-- Launch file for the Slocum Glider Serial<->ROS interface. -->
+<launch>
+    <arg name="extctl_file" doc="path to extctl.ini file listing the sensors being reported and controlled." />
+    <arg name="serial_port" doc="Serial port designator." />
+
+    <!-- Load the extctl file into the parameter server. -->
+    <param name="extctl" textfile="$(arg extctl_file)" />
+
+    <!-- Launch the serial interface. -->
+    <node name="glider_serial_interface" pkg="slocum_ros_glider_interface" type="slocum_interface">
+        <param name="serial_port" value="$(arg serial_port)" />
+    </node>
+</launch>
