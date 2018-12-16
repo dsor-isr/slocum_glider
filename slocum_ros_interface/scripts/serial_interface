@@ -1,0 +1,134 @@
+#!/usr/bin/env python
+
+# serial_interface.py:
+# create ROS topics for everything over the Slocum back seat driver
+# interface. Publish what comes from, subscribe to what goes to, the
+# glider.
+# 2018-12-15 dpingal@teledyne.com Initial
+
+import os
+import serial
+import sys
+import threading
+import time
+from pprint import pprint
+
+import rospy
+import std_msgs.msg
+
+serdev = '/dev/ttyS0'
+port = None
+
+appdir = os.path.dirname(sys.argv[0])
+
+# add delimiters and checksum to name an NMEA sentence
+def nmea(s):
+    result = 0
+    for c in s:
+        result ^= ord(c)
+    return '$' + s + '*' + '%02X' % result
+
+# Translation from glider "units" to ROS message types.
+glider_msgs = {
+    'bool' : std_msgs.msg.Bool,
+    'byte' : std_msgs.msg.Byte,
+    'enum' : std_msgs.msg.Byte,
+    'lat'  : std_msgs.msg.Float64,
+    'lon'  : std_msgs.msg.Float64,
+    'timestamp' : std_msgs.msg.Float64
+    }
+
+def get_msg_type(units):
+    if units in glider_msgs:
+        return glider_msgs[units]
+    return std_msgs.msg.Float32
+
+# A single sensor / topic
+class topic(object):
+    def __init__(self, index, name, units, out):
+        self._index = index
+        self._name = name
+        if (out):
+            # publish things coming from the glider
+            self.publisher = rospy.Publisher(name, get_msg_type(units), queue_size=10)
+        else:
+            # subscribe things going to the glider
+            self.listener = rospy.Subscriber(name, get_msg_type(units), self.sender)
+
+    def index(self):
+        return self._index
+
+    def name(self):
+        return self._name
+
+    # Send subscribed messages.  Each event sends a sentence: be gentle
+    # we discard all type information
+    def sender(self, value):
+        sentence = nmea('SW,%d:%g' % (self.index(), float(value.data)))
+        port.write(sentence)
+        port.write('\r\n')
+
+    def publish(self, value):
+        self.publisher.publish(value)
+
+# Topics collection, we look up by index
+class topics(object):
+    # read .ini file and create a topic per sensor
+    def __init__(self, fn):
+        self.byindex = []
+        state = None
+        index = 0
+        for rline in open(fn).readlines():
+            line = rline.strip()
+            # section header
+            if line == 'os' or line == 'is':
+                state = line
+                continue
+            # sensor definitions must be in a section
+            elif state:
+                (name, units) = line.split()
+                t = topic(index, name, units, state == 'is')
+                self.byindex.append(t)
+                index += 1
+            else:
+                raise ValueError
+    def i2n(self, index):
+        return self.byindex[index].name()
+    def publish(self, index, value):
+        return self.byindex[index].publish(value)
+
+# handle communications with backseat serial interface
+class extctl_io(object):
+    def __init__(self, inifn):
+        global port
+        self.running = True
+        self.receive_thread = threading.Thread(target = self.listener)
+        self.receive_thread.start()
+        rospy.init_node('slocum')
+        self.topics = topics(inifn)
+
+    def shutdown(self):
+        self.receive_thread.join()
+        port.close()
+
+    # read lines and publish what's in 'em
+    def listener(self):
+        while not rospy.is_shutdown():
+            got = port.readline()
+            if not got:
+                continue
+            body = got[:got.index('*')]
+            fields = body.split(',')
+            if fields[0] == '$SD':
+                del fields[0]
+                for s in fields:
+                    (index, valstr) = s.split(':')
+                    name = self.topics.i2n(int(index))
+                    value = float(valstr)
+                    self.topics.publish(int(index), value)
+
+if __name__ == '__main__':
+    port = serial.Serial(serdev, baudrate=9600, timeout=1.0)
+    glider = extctl_io(os.path.join(appdir, 'extctl.ini'))
+    rospy.spin()
+    glider.shutdown()
