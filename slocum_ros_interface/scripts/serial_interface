@@ -80,7 +80,7 @@ class topics(object):
         self.byindex = []
         state = None
         index = 0
-        for rline in rospy.get_param('extctl').splitlines():
+        for rline in rospy.get_param('~extctl').splitlines():
             line = rline.strip()
             # section header
             if line == 'os' or line == 'is':
@@ -128,8 +128,22 @@ class extctl_io(object):
                     value = float(valstr)
                     self.topics.publish(int(index), value)
 
+
+def ensure_extctl_file():
+    if len(sys.argv) > 1:
+        # The user has provided a extctl file on the command line. Read it in
+        # and send it off to the param server.
+        with open(sys.argv[1], 'r') as f:
+            rospy.set_param('~extctl', f.read())
+    elif not rospy.has_param('~extctl'):
+        # User has not provided a extctl file so it must be on the parameter
+        # server already. Check and yell if it is not.
+        raise KeyError('You must provide a extctl.ini file as either the firt argument or on the ROS param server under the ~extctl key')
+
+
 if __name__ == '__main__':
     rospy.init_node('slocum')
+    ensure_extctl_file()
     serial_port_name = rospy.get_param('~serial_port')
     port = serial.Serial(serial_port_name, baudrate=9600, timeout=1.0)
     glider = extctl_io()
