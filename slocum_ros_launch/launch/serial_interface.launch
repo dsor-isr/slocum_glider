@@ -4,7 +4,7 @@
     <arg name="serial_port" doc="Serial port designator." />
 
     <!-- Launch the serial interface. -->
-    <node name="glider_serial_interface" pkg="slocum_ros_glider_interface" type="serial_interface">
+    <node name="glider_serial_interface" pkg="slocum_ros_interface" type="serial_interface">
         <param name="extctl" textfile="$(arg extctl_file)" />
         <param name="serial_port" value="$(arg serial_port)" />
     </node>
