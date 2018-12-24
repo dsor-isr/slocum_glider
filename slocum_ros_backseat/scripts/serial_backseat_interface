@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-# serial_interface.py:
+# serial_backseat_interface.py:
 # create ROS topics for everything over the Slocum back seat driver
-# interface. Publish what comes from, subscribe to what goes to, the
+# backseat. Publish what comes from, subscribe to what goes to, the
 # glider.
 # 2018-12-15 dpingal@teledyne.com Initial
 
@@ -115,18 +115,21 @@ class extctl_io(object):
     # read lines and publish what's in 'em
     def listener(self):
         while not rospy.is_shutdown():
-            got = port.readline()
-            if not got:
+            try:
+                got = port.readline()
+                if not got:
+                    continue
+                body = got[:got.index('*')]
+                fields = body.split(',')
+                if fields[0] == '$SD':
+                    del fields[0]
+                    for s in fields:
+                        (index, valstr) = s.split(':')
+                        name = self.topics.i2n(int(index))
+                        value = float(valstr)
+                        self.topics.publish(int(index), value)
+            except:
                 continue
-            body = got[:got.index('*')]
-            fields = body.split(',')
-            if fields[0] == '$SD':
-                del fields[0]
-                for s in fields:
-                    (index, valstr) = s.split(':')
-                    name = self.topics.i2n(int(index))
-                    value = float(valstr)
-                    self.topics.publish(int(index), value)
 
 
 def ensure_extctl_file():

@@ -13,7 +13,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <exec_depend>slocum_ros_interface</exec_depend>
+  <exec_depend>slocum_ros_backseat</exec_depend>
   <exec_depend>slocum_ros_launch</exec_depend>
 
   <export>

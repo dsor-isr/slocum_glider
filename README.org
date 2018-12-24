@@ -1,1 +1,7 @@
 #+TITLE: Slocum Glider ROS Interface
+#+AUTHOR: Eric Timmons
+
+This repo contains the =slocum-ros= ROS metapackage. This metapackage consists
+of several packages to facilitate communicating with (and controlling) a
+Teledyne Webb Research Slocum Glider via a computer connected to the onboard
+science computer using a serial connection.

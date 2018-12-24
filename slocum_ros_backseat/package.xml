@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>slocum_ros_interface</name>
+  <name>slocum_ros_backseat</name>
   <version>0.0.1</version>
-  <description>The slocum_ros_interface package</description>
+  <description>The slocum_ros_backseat package</description>
 
   <maintainer email="etimmons@mit.edu">Eric Timmons</maintainer>
 

@@ -11,6 +11,6 @@ catkin_package()
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 install(FILES
-  launch/serial_interface.launch
+  launch/serial_backseat_interface.launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
