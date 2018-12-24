@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>slocum_ros</name>
+  <name>slocum_backseat</name>
   <version>0.0.1</version>
-  <description>The slocum_ros package</description>
+  <description>The slocum_backseat package</description>
 
   <maintainer email="etimmons@mit.edu">Eric Timmons</maintainer>
 
@@ -13,10 +13,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <exec_depend>slocum_ros_backseat</exec_depend>
-  <exec_depend>slocum_ros_launch</exec_depend>
+  <exec_depend>message_runtime</exec_depend>
 
-  <export>
-    <metapackage/>
-  </export>
+  <export/>
 </package>

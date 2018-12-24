@@ -1,9 +1,33 @@
 #!/usr/bin/env python
 
-# serial_backseat_interface.py:
+# serial_backseat_interface:
+#
+# This node is the interface between the glider and the programs running on the
+# secondary science computer, typically a Raspberry Pi or similar. This
+# secondary computer is called the "backseat driver" because it can get
+# visibility into the glider state and has (limited) ability to change the
+# behavior of the glider as it is executing a mission.
+#
+# The backseat interface requires the use of the extctl proglet on the glider
+# science computer. The proglet communicates with this node over a serial line
+# at a baud rate of 9600. All communication with the proglet is performed using
+# NMEA sentences. Additionally, this node is designed to allow other processes
+# to connect to it over the Glider external communications link. This can be
+# done by connecting to the science computer (with `consci`) and then
+# connecting over the serial link (with `u4stalk SERIAL_PORT_NUMBER
+# 9600`). Note that while u4stalk is in use the extctl proglet is idle.
+#
+# When communicating with the extctl proglet, all glider sensors are referenced
+# by only an index. This index is determined by the extctl.ini file on the
+# science computer. The format of this file is
+#
 # create ROS topics for everything over the Slocum back seat driver
 # backseat. Publish what comes from, subscribe to what goes to, the
 # glider.
+#
+# This backseat interface requires the use of the extctl proglet on the science
+# computer.
+#
 # 2018-12-15 dpingal@teledyne.com Initial
 
 import serial

@@ -1,19 +1,16 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>slocum_ros_backseat</name>
+  <name>slocum_launch</name>
   <version>0.0.1</version>
-  <description>The slocum_ros_backseat package</description>
+  <description>The slocum_launch package</description>
 
   <maintainer email="etimmons@mit.edu">Eric Timmons</maintainer>
 
   <license>TODO</license>
 
-  <author email="David.Pingal@Teledyne.com">David Pingal</author>
   <author email="etimmons@mit.edu">Eric Timmons</author>
 
   <buildtool_depend>catkin</buildtool_depend>
-
-  <exec_depend>message_runtime</exec_depend>
 
   <export/>
 </package>

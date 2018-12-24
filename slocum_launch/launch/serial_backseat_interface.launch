@@ -4,7 +4,7 @@
     <arg name="serial_port" doc="Serial port designator." />
 
     <!-- Launch the serial interface. -->
-    <node name="glider_serial_backseat_interface" pkg="slocum_ros_backseat" type="serial_backseat_interface"
+    <node name="glider_serial_backseat_interface" pkg="slocum_backseat" type="serial_backseat_interface"
           respawn="true" >
         <param name="extctl" textfile="$(arg extctl_file)" />
         <param name="serial_port" value="$(arg serial_port)" />

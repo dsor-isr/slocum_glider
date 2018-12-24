@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>slocum_ros_pkgs</name>
+  <version>0.0.1</version>
+  <description>The slocum_ros_pkgs package</description>
+
+  <maintainer email="etimmons@mit.edu">Eric Timmons</maintainer>
+
+  <license>TODO</license>
+
+  <author email="David.Pingal@Teledyne.com">David Pingal</author>
+  <author email="etimmons@mit.edu">Eric Timmons</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>slocum_backseat</exec_depend>
+  <exec_depend>slocum_launch</exec_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+</package>
