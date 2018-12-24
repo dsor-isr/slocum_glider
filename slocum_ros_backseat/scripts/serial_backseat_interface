@@ -153,7 +153,6 @@ class ExtctlIo(object):
                 del fields[0]
                 for s in fields:
                     (index, valstr) = s.split(':')
-                    name = self.topics.i2n(int(index))
                     value = float(valstr)
                     self.topics.publish(int(index), value)
 
