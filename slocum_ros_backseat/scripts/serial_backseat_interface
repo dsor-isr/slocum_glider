@@ -145,7 +145,7 @@ class ExtctlIo(object):
             if not got:
                 continue
             if not is_valid_nmea_sentence(got):
-                rospy.ERROR('Rejecting invalid NMEA sentence ' + got)
+                rospy.WARN('Rejecting invalid NMEA sentence: %s', got)
                 continue
             body = got[:got.index('*')]
             fields = body.split(',')
@@ -155,6 +155,8 @@ class ExtctlIo(object):
                     (index, valstr) = s.split(':')
                     value = float(valstr)
                     self.topics.publish(int(index), value)
+            else:
+                rospy.WARN('Ignoring unknown sentence type: %s', fields[0])
 
 
 def ensure_extctl_file():
