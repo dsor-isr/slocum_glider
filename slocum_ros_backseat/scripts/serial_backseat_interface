@@ -6,42 +6,42 @@
 # glider.
 # 2018-12-15 dpingal@teledyne.com Initial
 
-import os
 import serial
-import sys
 import threading
 
 import rospy
-import std_msgs.msg
+from std_msgs.msg import Bool, Byte, Float64, Float32
 
 port = None
 
-appdir = os.path.dirname(sys.argv[0])
+# Translation from glider "units" to ROS message types.
+GLIDER_MSG_TYPES = {
+    'bool':      Bool,
+    'byte':      Byte,
+    'enum':      Byte,
+    'lat':       Float64,
+    'lon':       Float64,
+    'timestamp': Float64
+    }
 
-# add delimiters and checksum to name an NMEA sentence
+
 def nmea(s):
+    """Add delimiters and checksum to name an NMEA sentence"""
     result = 0
     for c in s:
         result ^= ord(c)
     return '$' + s + '*' + '%02X' % result
 
-# Translation from glider "units" to ROS message types.
-glider_msgs = {
-    'bool' : std_msgs.msg.Bool,
-    'byte' : std_msgs.msg.Byte,
-    'enum' : std_msgs.msg.Byte,
-    'lat'  : std_msgs.msg.Float64,
-    'lon'  : std_msgs.msg.Float64,
-    'timestamp' : std_msgs.msg.Float64
-    }
 
 def get_msg_type(units):
-    if units in glider_msgs:
-        return glider_msgs[units]
-    return std_msgs.msg.Float32
+    """Convert a glider unit to a ROS message type."""
+    if units in GLIDER_MSG_TYPES:
+        return GLIDER_MSG_TYPES[units]
+    return Float32
+
 
 # A single sensor / topic
-class topic(object):
+class Topic(object):
     def __init__(self, index, name, units, out):
         self._index = index
         self._name = name
@@ -73,8 +73,9 @@ class topic(object):
     def publish(self, value):
         self.publisher.publish(value)
 
+
 # Topics collection, we look up by index
-class topics(object):
+class Topics(object):
     # read .ini file and create a topic per sensor
     def __init__(self):
         self.byindex = []
@@ -89,24 +90,27 @@ class topics(object):
             # sensor definitions must be in a section
             elif state:
                 (name, units) = line.split()
-                t = topic(index, name, units, state == 'is')
+                t = Topic(index, name, units, state == 'is')
                 self.byindex.append(t)
                 index += 1
             else:
                 raise ValueError
+
     def i2n(self, index):
         return self.byindex[index].name()
+
     def publish(self, index, value):
         return self.byindex[index].publish(value)
 
+
 # handle communications with backseat serial interface
-class extctl_io(object):
+class ExtctlIo(object):
     def __init__(self):
         global port
         self.running = True
-        self.receive_thread = threading.Thread(target = self.listener)
+        self.receive_thread = threading.Thread(target=self.listener)
         self.receive_thread.start()
-        self.topics = topics()
+        self.topics = Topics()
 
     def shutdown(self):
         self.receive_thread.join()
@@ -141,7 +145,8 @@ def ensure_extctl_file():
     elif not rospy.has_param('~extctl'):
         # User has not provided a extctl file so it must be on the parameter
         # server already. Check and yell if it is not.
-        raise KeyError('You must provide a extctl.ini file as either the firt argument or on the ROS param server under the ~extctl key')
+        raise KeyError('You must provide a extctl.ini file as either the first \
+argument or on the ROS param server under the ~extctl key')
 
 
 if __name__ == '__main__':
@@ -149,6 +154,6 @@ if __name__ == '__main__':
     ensure_extctl_file()
     serial_port_name = rospy.get_param('~serial_port')
     port = serial.Serial(serial_port_name, baudrate=9600, timeout=1.0)
-    glider = extctl_io()
+    glider = ExtctlIo()
     rospy.spin()
     glider.shutdown()
