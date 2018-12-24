@@ -25,12 +25,34 @@ GLIDER_MSG_TYPES = {
     }
 
 
-def nmea(s):
-    """Add delimiters and checksum to name an NMEA sentence"""
+def nmea_checksum(s):
+    """Return the checksum for the data part of a NMEA sentence as a string."""
     result = 0
     for c in s:
         result ^= ord(c)
-    return '$' + s + '*' + '%02X' % result
+    return '%02X' % result
+
+
+def nmea(s):
+    """Add delimiters and checksum to name an NMEA sentence"""
+    checksum = nmea_checksum(s)
+    return '$' + s + '*' + checksum
+
+
+def is_valid_nmea_sentence(line):
+    """Returns True iff line is a valid NMEA sentence."""
+    if len(line) < 4:
+        return False
+    if line[0] != '$':
+        return False
+    if line[-3] != '*':
+        return False
+    got_checksum = line[-2:]
+    body = line[1:-3]
+    checksum = nmea_checksum(body)
+    if checksum != got_checksum:
+        return False
+    return True
 
 
 def get_msg_type(units):
@@ -119,21 +141,21 @@ class ExtctlIo(object):
     # read lines and publish what's in 'em
     def listener(self):
         while not rospy.is_shutdown():
-            try:
-                got = port.readline()
-                if not got:
-                    continue
-                body = got[:got.index('*')]
-                fields = body.split(',')
-                if fields[0] == '$SD':
-                    del fields[0]
-                    for s in fields:
-                        (index, valstr) = s.split(':')
-                        name = self.topics.i2n(int(index))
-                        value = float(valstr)
-                        self.topics.publish(int(index), value)
-            except:
+            got = port.readline()
+            if not got:
                 continue
+            if not is_valid_nmea_sentence(got):
+                rospy.ERROR('Rejecting invalid NMEA sentence ' + got)
+                continue
+            body = got[:got.index('*')]
+            fields = body.split(',')
+            if fields[0] == '$SD':
+                del fields[0]
+                for s in fields:
+                    (index, valstr) = s.split(':')
+                    name = self.topics.i2n(int(index))
+                    value = float(valstr)
+                    self.topics.publish(int(index), value)
 
 
 def ensure_extctl_file():
