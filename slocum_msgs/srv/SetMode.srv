@@ -1,0 +1,5 @@
+uint8[] modes_to_activate
+uint8[] modes_to_deactivate
+---
+bool success
+string message

@@ -1,0 +1,6 @@
+string name
+bool block
+---
+bool success
+string message
+string contents

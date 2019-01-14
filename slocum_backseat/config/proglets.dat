@@ -1,0 +1,7 @@
+#------------------------------------------------------------------------
+# Enable the extctl proglet for communicating with the backseat driver.
+proglet = extctl
+    uart       = 6		# Update with the appropriate port number
+    bit        = 0      # We draw no power from the science computer
+    start_snsr = c_extctl_on(sec)
+#------------------------------------------------------------------------

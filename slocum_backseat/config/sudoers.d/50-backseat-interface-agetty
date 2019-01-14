@@ -1,0 +1,5 @@
+# Add this to the backseat driver's sudoers file. Typically as easy as placing
+# it in /etc/sudoers.d/
+
+# Let the pi user run agetty without needing a password.
+pi ALL=(ALL) NOPASSWD: /sbin/agetty
