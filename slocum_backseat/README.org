@@ -36,8 +36,7 @@ glider as it is executing a mission.
   The serial port to listen on is configured by the following parameter:
 
   + =~serial_port/device= :: String naming the path to the serial port device
-       used to communicate with the glider. Defaults to null, *must* be
-       provided.
+    used to communicate with the glider. Defaults to null, *must* be provided.
 
 ** extctl
 
@@ -60,72 +59,72 @@ glider as it is executing a mission.
    The extctl feature is configured by the following parameters:
 
    + =~extctl/enabled= :: Defaults to =True=. If true, the extctl feature will
-        be enabled.
-   + =~extctl/auto/on_hi= :: Defaults to =True=. If true, the extctl feature will
-        automatically fetch the extctl.ini file from the science computer upon
-        receipt of any =HI= message.
+     be enabled.
+   + =~extctl/auto/on_hi= :: Defaults to =True=. If true, the extctl feature
+     will automatically fetch the extctl.ini file from the science computer upon
+     receipt of any =HI= message.
    + =~extctl/auto/when_missing= :: Defaults to =True=. If true, the extctl
-        feature will automatically fetch the extctl.ini file from the science
-        computer if the =~extctl/mappings= key is not set.
+     feature will automatically fetch the extctl.ini file from the science
+     computer if the =~extctl/mappings= key is not set.
    + =~extctl/file_store= :: Defaults to =null=. If a string, it must be an
-        absolute path to a directory that is used to resolve relative path names
-        for file transfers.
+     absolute path to a directory that is used to resolve relative path names
+     for file transfers.
    + =~extctl/mappings= :: A list of objects naming the sensors read or written
-        over this interface. The index in the list corresponds to the index used
-        to name the sensor over the wire. The keys of each object are
-        =writeable= (bool), =name= (string), and =units= (string). This must
-        be provided on node start or =~extctl/auto/when_missing= must be true.
+     over this interface. The index in the list corresponds to the index used to
+     name the sensor over the wire. The keys of each object are =writeable=
+     (bool), =name= (string), and =units= (string). This must be provided on
+     node start or =~extctl/auto/when_missing= must be true.
 
 *** Topics
 
     The following topics are published by this node.
 
     + =extctl/active= :: (=std_msgs/Bool=) True iff the extctl proglet is
-         active.
+      active.
     + =extctl/active_sensors= :: (=slocum_msgs/ActiveSensors=) Describes the
-         sensors that are readable and writeable over the extctl interface.
+      sensors that are readable and writeable over the extctl interface.
     + =extctl/sensors/SENSOR_NAME= :: Every sensor in the =is= section of
-         extctl.ini has its value published to the corresponding topic when a
-         new value for it is received. The message type is one of
-         =slocum_msgs/StampedFloat32=, =slocum_msgs/StampedFloat64=,
-         =slocum_msgs/StampedBool=, or =slocum_msgs/StampedByte=, depending on
-         the units of the underlying sensor.
+      extctl.ini has its value published to the corresponding topic when a new
+      value for it is received. The message type is one of
+      =slocum_msgs/StampedFloat32=, =slocum_msgs/StampedFloat64=,
+      =slocum_msgs/StampedBool=, or =slocum_msgs/StampedByte=, depending on the
+      units of the underlying sensor.
 
 *** Services
 
     The following services are provided by this node.
 
     + =extctl/load_extctl_ini= :: (=std_srvs/Trigger=) Forces the node to fetch
-         and parse the extctl.ini file from the science computer.
+      and parse the extctl.ini file from the science computer.
     + =extctl/sensors/set_SENSOR_NAME= :: Set the value of the sensor on the
-         glider. The sensor must appear in the =os= section of extctl.ini. The
-         service type is one of =slocum_msgs/SetByte=, =slocum_msgs/SetBool=,
-         =slocum_msgs/SetFloat32=, =slocum_msgs/SetFloat64=, depending on the
-         units of the underlying sensor.
+      glider. The sensor must appear in the =os= section of extctl.ini. The
+      service type is one of =slocum_msgs/SetByte=, =slocum_msgs/SetBool=,
+      =slocum_msgs/SetFloat32=, =slocum_msgs/SetFloat64=, depending on the units
+      of the underlying sensor.
     + =extctl/get_file= :: (=slocum_msgs/GetFile=) Retrieve a file from the
-         science computer's config directory and save it to the local
-         filesystem. The =name= field must be the (8+3) name of a file on the
-         glider. The =path= denotes where to save the file. If relative, the
-         path name is resolved relative to the =from_glider= directory inside
-         =~extctl/file_store=. If =block= is false, the service immediately
-         returns a failure if a file transfer is already in progress, otherwise
-         the file transfer is queued.
+      science computer's config directory and save it to the local
+      filesystem. The =name= field must be the (8+3) name of a file on the
+      glider. The =path= denotes where to save the file. If relative, the path
+      name is resolved relative to the =from_glider= directory inside
+      =~extctl/file_store=. If =block= is false, the service immediately returns
+      a failure if a file transfer is already in progress, otherwise the file
+      transfer is queued.
     + =extctl/get_file_contents= :: (=slocum_msgs/GetFileContents=) Similar to
-         =extctl/get_file=, except the file is not saved to the
-         filesystem. Instead, it is returned in the response.
+      =extctl/get_file=, except the file is not saved to the
+      filesystem. Instead, it is returned in the response.
     + =extctl/send_file= :: (=slocum_msgs/SendFile=) Send a file to the glider's
-         logs directory from the local filesystem. The =name= field must be the
-         (8+3) name of the file to write on the glider. The =path= denotes where
-         to save the file. If relative, the path name is resolved relative to
-         the =to_glider= directory inside =~extctl/file_store=. If =block= is
-         false, the service immediately returns a failure if a file transfer is
-         already in progress, otherwise the file transfer is queued.
+      logs directory from the local filesystem. The =name= field must be the
+      (8+3) name of the file to write on the glider. The =path= denotes where to
+      save the file. If relative, the path name is resolved relative to the
+      =to_glider= directory inside =~extctl/file_store=. If =block= is false,
+      the service immediately returns a failure if a file transfer is already in
+      progress, otherwise the file transfer is queued.
     + =extctl/send_file_contents= :: (=slocum_msgs/SendFileContents=) Similar to
-         =extctl/send_file=, except the contents of the file are contained in
-         the service request.
+      =extctl/send_file=, except the contents of the file are contained in the
+      service request.
     + =extctl/set_mode= :: (=slocum_msgs/SetMode=) Toggle several mission modes
-         simultaneously. =modes_to_activate= is a list of mode indices to enable
-         and =modes_to_deactivate= is a list of mode indices to disable.
+      simultaneously. =modes_to_activate= is a list of mode indices to enable
+      and =modes_to_deactivate= is a list of mode indices to disable.
 
 *** TODOs
 
@@ -154,13 +153,13 @@ glider as it is executing a mission.
    This feature is configured by the following parameters:
 
    + =~tty/enabled= :: If true, the serial terminal feature is enabled. Defaults
-                       to =True=.
+     to =True=.
    + =~tty/agetty= :: Command to run when launching an agetty instance. Defaults
-                      to ="agetty"=.
+     to ="agetty"=.
    + =~tty/auto/enabled= :: Should agetty auto log in to a user
-        account. Defaults to =False=
+     account. Defaults to =False=
    + =~tty/auto/username= :: The user agetty should auto log in to. Defaults to
-        the user running the node.
+     the user running the node.
 
    To trigger this feature, connect to the science computer (using =consci=) and
    run the command:
