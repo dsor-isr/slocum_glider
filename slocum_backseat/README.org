@@ -66,9 +66,6 @@ glider as it is executing a mission.
    + =~extctl/auto/when_missing= :: Defaults to =True=. If true, the extctl
      feature will automatically fetch the extctl.ini file from the science
      computer if the =~extctl/mappings= key is not set.
-   + =~extctl/file_store= :: Defaults to =null=. If a string, it must be an
-     absolute path to a directory that is used to resolve relative path names
-     for file transfers.
    + =~extctl/mappings= :: A list of objects naming the sensors read or written
      over this interface. The index in the list corresponds to the index used to
      name the sensor over the wire. The keys of each object are =writeable=
@@ -102,44 +99,19 @@ glider as it is executing a mission.
       =slocum_msgs/SetFloat32=, =slocum_msgs/SetFloat64=, depending on the units
       of the underlying sensor.
     + =extctl/get_file= :: (=slocum_msgs/GetFile=) Retrieve a file from the
-      science computer's config directory and save it to the local
-      filesystem. The =name= field must be the (8+3) name of a file on the
-      glider. The =path= denotes where to save the file. If relative, the path
-      name is resolved relative to the =from_glider= directory inside
-      =~extctl/file_store=. If =block= is false, the service immediately returns
-      a failure if a file transfer is already in progress, otherwise the file
-      transfer is queued.
-    + =extctl/get_file_contents= :: (=slocum_msgs/GetFileContents=) Similar to
-      =extctl/get_file=, except the file is not saved to the
-      filesystem. Instead, it is returned in the response.
+      science computer's config directory and return it. The =name= field must
+      be the (8+3) name of a file on the glider. The =contents= field will
+      contain the contents of the file. If =block= is false, the service
+      immediately returns a failure if a file transfer is already in progress,
+      otherwise the file transfer is queued.
     + =extctl/send_file= :: (=slocum_msgs/SendFile=) Send a file to the glider's
-      logs directory from the local filesystem. The =name= field must be the
-      (8+3) name of the file to write on the glider. The =path= denotes where to
-      save the file. If relative, the path name is resolved relative to the
-      =to_glider= directory inside =~extctl/file_store=. If =block= is false,
-      the service immediately returns a failure if a file transfer is already in
-      progress, otherwise the file transfer is queued.
-    + =extctl/send_file_contents= :: (=slocum_msgs/SendFileContents=) Similar to
-      =extctl/send_file=, except the contents of the file are contained in the
-      service request.
+      logs directory. The =name= field must be the (8+3) name of the file to
+      write on the glider. The =contents= contains the file contents. If =block=
+      is false, the service immediately returns a failure if a file transfer is
+      already in progress, otherwise the file transfer is queued.
     + =extctl/set_mode= :: (=slocum_msgs/SetMode=) Toggle several mission modes
       simultaneously. =modes_to_activate= is a list of mode indices to enable
       and =modes_to_deactivate= is a list of mode indices to disable.
-
-*** TODOs
-
-    1. Is it really necessary to have both the extctl/get_file and
-       extctl/get_file_contents services? Same thing with sending. The
-       *_contents versions fit in nicer with ROS as a whole as they're usable
-       when the nodes don't share a filesystem - like having multiple computers
-       (highly unlikely on the glider) or each node is in a Docker container
-       without shared volumes (reasonably likely). Additionally, files from the
-       glider are likely to be small and subject to change at any point (since
-       we can only read from the config folder), meaning we're unlikely to want
-       to cache them on the filesystem. However, files *to* the glider are
-       likely to be sensor logs that it makes the most sense to write to disk as
-       they're being collected... Sleep on it for a bit, but I'm leaning toward
-       keeping only the *_contents versions (but renamed).
 
 ** Serial Console
 
