@@ -1,6 +1,6 @@
 string name
-string path
 bool block
 ---
 bool success
 string message
+string contents
