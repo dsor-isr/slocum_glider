@@ -74,7 +74,7 @@ def is_valid_nmea_sentence(line):
     got_checksum = line[-2:]
     body = line[1:-3]
     checksum = nmea_checksum(body)
-    if checksum != got_checksum:
+    if checksum.lower() != got_checksum.lower():
         return False
     return True
 
@@ -168,8 +168,9 @@ class ExtctlIo(object):
             got = port.readline()
             if not got:
                 continue
+            got = got.strip()
             if not is_valid_nmea_sentence(got):
-                rospy.WARN('Rejecting invalid NMEA sentence: %s', got)
+                rospy.logwarn('Rejecting invalid NMEA sentence: %s', got)
                 continue
             body = got[:got.index('*')]
             fields = body.split(',')
@@ -180,7 +181,7 @@ class ExtctlIo(object):
                     value = float(valstr)
                     self.topics.publish(int(index), value)
             else:
-                rospy.WARN('Ignoring unknown sentence type: %s', fields[0])
+                rospy.logwarn('Ignoring unknown sentence type: %s', fields[0])
 
 
 def ensure_extctl_file():
