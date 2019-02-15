@@ -27,161 +27,9 @@
 #
 # This backseat interface requires the use of the extctl proglet on the science
 # computer.
-#
-# 2018-12-15 dpingal@teledyne.com Initial
-
-import serial
-import threading
 
 import rospy
-from std_msgs.msg import Bool, Byte, Float64, Float32
-
-port = None
-
-# Translation from glider "units" to ROS message types.
-GLIDER_MSG_TYPES = {
-    'bool':      Bool,
-    'byte':      Byte,
-    'enum':      Byte,
-    'lat':       Float64,
-    'lon':       Float64,
-    'timestamp': Float64
-    }
-
-
-def nmea_checksum(s):
-    """Return the checksum for the data part of a NMEA sentence as a string."""
-    result = 0
-    for c in s:
-        result ^= ord(c)
-    return '%02X' % result
-
-
-def nmea(s):
-    """Add delimiters and checksum to name an NMEA sentence"""
-    checksum = nmea_checksum(s)
-    return '$' + s + '*' + checksum
-
-
-def is_valid_nmea_sentence(line):
-    """Returns True iff line is a valid NMEA sentence."""
-    if len(line) < 4:
-        return False
-    if line[0] != '$':
-        return False
-    if line[-3] != '*':
-        return False
-    got_checksum = line[-2:]
-    body = line[1:-3]
-    checksum = nmea_checksum(body)
-    if checksum.lower() != got_checksum.lower():
-        return False
-    return True
-
-
-def get_msg_type(units):
-    """Convert a glider unit to a ROS message type."""
-    if units in GLIDER_MSG_TYPES:
-        return GLIDER_MSG_TYPES[units]
-    return Float32
-
-
-# A single sensor / topic
-class Topic(object):
-    def __init__(self, index, name, units, out):
-        self._index = index
-        self._name = name
-        if (out):
-            # publish things coming from the glider
-            self.publisher = rospy.Publisher('from_glider/' + name,
-                                             get_msg_type(units),
-                                             queue_size=10,
-                                             latch=True)
-        else:
-            # subscribe things going to the glider
-            self.listener = rospy.Subscriber('to_glider/' + name,
-                                             get_msg_type(units),
-                                             self.sender)
-
-    def index(self):
-        return self._index
-
-    def name(self):
-        return self._name
-
-    # Send subscribed messages.  Each event sends a sentence: be gentle
-    # we discard all type information
-    def sender(self, value):
-        sentence = nmea('SW,%d:%g' % (self.index(), float(value.data)))
-        port.write(sentence)
-        port.write('\r\n')
-
-    def publish(self, value):
-        self.publisher.publish(value)
-
-
-# Topics collection, we look up by index
-class Topics(object):
-    # read .ini file and create a topic per sensor
-    def __init__(self):
-        self.byindex = []
-        state = None
-        index = 0
-        for rline in rospy.get_param('~extctl').splitlines():
-            line = rline.strip()
-            # section header
-            if line == 'os' or line == 'is':
-                state = line
-                continue
-            # sensor definitions must be in a section
-            elif state:
-                (name, units) = line.split()
-                t = Topic(index, name, units, state == 'is')
-                self.byindex.append(t)
-                index += 1
-            else:
-                raise ValueError
-
-    def i2n(self, index):
-        return self.byindex[index].name()
-
-    def publish(self, index, value):
-        return self.byindex[index].publish(value)
-
-
-# handle communications with backseat serial interface
-class ExtctlIo(object):
-    def __init__(self):
-        global port
-        self.running = True
-        self.receive_thread = threading.Thread(target=self.listener)
-        self.receive_thread.start()
-        self.topics = Topics()
-
-    def shutdown(self):
-        self.receive_thread.join()
-        port.close()
-
-    # read lines and publish what's in 'em
-    def listener(self):
-        while not rospy.is_shutdown():
-            got = port.readline()
-            if not got:
-                continue
-            got = got.strip()
-            if not is_valid_nmea_sentence(got):
-                rospy.logwarn('Rejecting invalid NMEA sentence: %s', got)
-                continue
-            body = got[:got.index('*')]
-            fields = body.split(',')
-            if fields[0] == '$SD':
-                del fields[0]
-                for s in fields:
-                    (index, valstr) = s.split(':')
-                    value = float(valstr)
-                    self.topics.publish(int(index), value)
-            else:
-                rospy.logwarn('Ignoring unknown sentence type: %s', fields[0])
+from slocum_backseat import BackseatInterface
 
 
 def ensure_extctl_file():
@@ -189,19 +37,18 @@ def ensure_extctl_file():
         # The user has provided a extctl file on the command line. Read it in
         # and send it off to the param server.
         with open(rospy.myargv()[1], 'r') as f:
-            rospy.set_param('~extctl', f.read())
-    elif not rospy.has_param('~extctl'):
+            rospy.set_param('~extctl_ini', f.read())
+    elif not rospy.has_param('~extctl_ini'):
         # User has not provided a extctl file so it must be on the parameter
         # server already. Check and yell if it is not.
         raise KeyError('You must provide a extctl.ini file as either the first \
-argument or on the ROS param server under the ~extctl key')
+argument or on the ROS param server under the ~extctl_ini key')
 
 
 if __name__ == '__main__':
-    rospy.init_node('slocum')
+    rospy.init_node('slocum_backseat')
     ensure_extctl_file()
-    serial_port_name = rospy.get_param('~serial_port')
-    port = serial.Serial(serial_port_name, baudrate=9600, timeout=1.0)
-    glider = ExtctlIo()
+    interface = BackseatInterface()
+    interface.start()
     rospy.spin()
-    glider.shutdown()
+    interface.stop()
