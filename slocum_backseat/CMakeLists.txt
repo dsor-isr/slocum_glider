@@ -1,11 +1,18 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(slocum_backseat)
 
-find_package(catkin REQUIRED)
+find_package(
+  catkin REQUIRED
+  COMPONENTS
+  roslint
+)
 
 catkin_package()
 
 catkin_python_setup()
+
+file(GLOB_RECURSE ${PROJECT_NAME}_PYTHON_SRCS *.py)
+roslint_python(${${PROJECT_NAME}_PYTHON_SRCS} scripts/serial_backseat_interface)
 
 #############
 ## Install ##

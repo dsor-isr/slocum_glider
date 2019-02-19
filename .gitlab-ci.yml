@@ -1,0 +1,17 @@
+variables:
+  ROS_VERSION: lunar
+
+image: ros:${ROS_VERSION}-ros-base
+
+roslint:
+  stage: test
+  script:
+    - apt-get update
+    - apt-get install ros-${ROS_VERSION}-roslint
+    - mkdir -p /catkin_ws/src
+    - ln -s $(pwd) /catkin_ws/src/${CI_PROJECT_NAME}
+    - cd /catkin_ws/src
+    - catkin_init_workspace
+    - cd ..
+    - catkin_make
+    - catkin_make roslint
