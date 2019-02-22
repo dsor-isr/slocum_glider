@@ -121,7 +121,7 @@ class Extctl:
     def handle_serial_msg(self, msg):
         if msg.startswith('SD,'):
             self.sensors.handle_serial_msg(msg)
-        elif msg.startswith('FI,'):
+        elif msg.startswith('FI'):
             self.file_getter.handle_serial_msg(msg)
         else:
             rospy.logwarn('Ignoring unknown sentence: %s', msg)

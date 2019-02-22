@@ -5,7 +5,7 @@
 
     <!-- Launch the serial interface. -->
     <node name="glider_serial_backseat_interface" pkg="slocum_backseat" type="serial_backseat_interface"
-          respawn="true" >
+          respawn="true" output="screen" >
         <param name="extctl_ini" textfile="$(arg extctl_ini_file)" />
         <param name="serial_port" value="$(arg serial_port)" />
     </node>
