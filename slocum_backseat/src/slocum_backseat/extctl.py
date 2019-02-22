@@ -2,6 +2,7 @@ import rospy
 
 from sensors import SensorInterface
 from get_file_service import GetFileService
+from send_file_service import SendFileService
 
 import serial
 import threading
@@ -115,6 +116,7 @@ class Extctl:
         self.sensors = SensorInterface(writeable, readable, self.ser)
 
         self.file_getter = GetFileService(self.ser)
+        self.file_sender = SendFileService(self.ser)
 
         self.ser.add_message_cb(self.handle_serial_msg)
 
