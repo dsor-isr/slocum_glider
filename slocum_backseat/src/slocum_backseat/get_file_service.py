@@ -4,6 +4,11 @@ from threading import Event, Semaphore
 import base64
 
 
+class FileTransferFailed(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
 class GetFileService:
     def __init__(self, ser):
         self.s = rospy.Service('extctl/get_file',
@@ -21,20 +26,27 @@ class GetFileService:
 
         self.base64 = ''
 
-    def get_file(self, req):
+    def file_handler(self, req):
 
         file_name = req.name
         block = req.block
 
+        try:
+            message = self.get_file(file_name, block)
+        except FileTransferFailed as ex:
+            return GetFileResponse(success=False, message=ex.message)
+
+        return GetFileResponse(success=True, contents=message)
+
+    def get_file(self, file_name, block):
         rospy.lodgebug('Got request: %s, %s', file_name, block)
         acquired = self.transfer_semaphore.acquire(block)
 
         if not acquired:
             # If the semaphore has not been acquired then another transfer is
-            # in progress and the caller has asked us to not block. Return
-            # immediately.
-            return GetFileResponse(success=False,
-                                   message="another transfer is in progress")
+            # in progress and the caller has asked us to not block.
+            raise FileTransferFailed('another transfer is in progress')
+
         self.base64 = ''
 
         # If we get here, then there is no file transfer in progress. Send a
@@ -42,7 +54,7 @@ class GetFileService:
         # release the semaphore, and return the result.
         self.transfer_finished_event.clear()
         # Send the request to the glider to start transferring the file here:
-        self.ser.send_message('FR,'+file_name)
+        self.ser.send_message('FR,' + file_name)
         # Wait for the transfer to finish
         self.transfer_finished_event.wait()
 
@@ -51,7 +63,7 @@ class GetFileService:
         # Takes the base64 message and decodes it
         s64 = base64.b64decode(self.base64).decode('utf-8')
         # Return the results.
-        return GetFileResponse(success=True, contents=s64)
+        return s64
 
     def handle_serial_msg(self, msg):
         """Called when a sentence of type FI is received over the serial port.
