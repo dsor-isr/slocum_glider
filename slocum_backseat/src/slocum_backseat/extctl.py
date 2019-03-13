@@ -111,7 +111,7 @@ def parse_extctl_ini(s):
 class Extctl:
     def __init__(self):
         # Create the serial interface to the glider.
-        serial_port_name = rospy.get_param('~serial_port')
+        serial_port_name = rospy.get_param('~serial_port/device')
         self.ser = SerialInterface(serial_port_name)
 
         # Start the file getter and sender services. These are independent of
