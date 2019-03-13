@@ -1,12 +1,19 @@
+import rospy
+
 from extctl import Extctl
 
 
 class BackseatInterface:
     def __init__(self):
-        self.extctl_interface = Extctl()
+        if rospy.get_param('~extctl/enabled'):
+            self.extctl_interface = Extctl()
+        else:
+            self.extctl_interface = None
 
     def start(self):
-        self.extctl_interface.start()
+        if self.extctl_interface:
+            self.extctl_interface.start()
 
     def stop(self):
-        self.extctl_interface.stop()
+        if self.extctl_interface:
+            self.extctl_interface.stop()
