@@ -126,20 +126,6 @@ class Extctl:
         # Start processing messages from the glider.
         self.ser.add_message_cb(self.handle_serial_msg)
 
-        # Almost everything is spun up except the sensor interface. Before we
-        # can do that we need to make sure we have a valid extctl.ini file.
-        sensor_descriptions = self.ensure_extctl_ini()
-
-        # Now instantiate the sensor handler
-        writeable = []
-        readable = []
-        for d in sensor_descriptions:
-            if d['writeable']:
-                writeable.append((d['name'], d['units']))
-            else:
-                writeable.append((d['name'], d['units']))
-        self.sensors = SensorInterface(writeable, readable, self.ser)
-
     def ensure_extctl_ini(self):
         """Ensures that a copy of the data from the extctl.ini file is stored on the
         parameter server under the ~extctl/mappings key (see README for
@@ -185,6 +171,19 @@ class Extctl:
 
     def start(self):
         self.ser.start()
+        # Almost everything is spun up except the sensor interface. Before we
+        # can do that we need to make sure we have a valid extctl.ini file.
+        sensor_descriptions = self.ensure_extctl_ini()
+
+        # Now instantiate the sensor handler
+        writeable = []
+        readable = []
+        for d in sensor_descriptions:
+            if d['writeable']:
+                writeable.append((d['name'], d['units']))
+            else:
+                writeable.append((d['name'], d['units']))
+        self.sensors = SensorInterface(writeable, readable, self.ser)
 
     def stop(self):
         self.ser.stop()
