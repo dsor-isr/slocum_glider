@@ -13,7 +13,7 @@ class GetFileService:
     def __init__(self, ser):
         self.s = rospy.Service('extctl/get_file',
                                GetFile,
-                               self.get_file)
+                               self.file_handler)
         # Save a reference to the serial port object.
         self.ser = ser
 
