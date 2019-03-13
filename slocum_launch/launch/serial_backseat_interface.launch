@@ -1,12 +1,12 @@
 <!-- Launch file for the Slocum Glider Serial<->ROS interface. -->
 <launch>
-    <arg name="extctl_ini_file" doc="path to extctl.ini file listing the sensors being reported and controlled." />
-    <arg name="serial_port" doc="Serial port designator." />
+    <arg name="serial_port_device" doc="Serial port designator." />
 
     <!-- Launch the serial interface. -->
     <node name="glider_serial_backseat_interface" pkg="slocum_backseat" type="serial_backseat_interface"
           respawn="true" output="screen" >
-        <param name="extctl_ini" textfile="$(arg extctl_ini_file)" />
-        <param name="serial_port" value="$(arg serial_port)" />
+        <param name="extctl/enabled" value="true" />
+        <param name="extctl/auto/when_missing" value="true" />
+        <param name="serial_port/device" value="$(arg serial_port_device)" />
     </node>
 </launch>
