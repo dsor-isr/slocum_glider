@@ -159,7 +159,7 @@ class Extctl:
         # Copy of extctl.ini stored under ~extctl/mappings
 
         if not rospy.has_param('~extctl/mappings'):
-            if rospy.get_param('extctl/auto/when_missing'):
+            if rospy.get_param('~extctl/auto/when_missing'):
                 temp = self.fetch_extctl_ini()
                 return parse_extctl_ini(temp)
             else:
