@@ -182,7 +182,7 @@ class Extctl:
             if d['writeable']:
                 writeable.append((d['name'], d['units']))
             else:
-                writeable.append((d['name'], d['units']))
+                readable.append((d['name'], d['units']))
         self.sensors = SensorInterface(writeable, readable, self.ser)
 
     def stop(self):
