@@ -32,22 +32,8 @@ import rospy
 from slocum_backseat import BackseatInterface
 
 
-def ensure_extctl_file():
-    if len(rospy.myargv()) > 1:
-        # The user has provided a extctl file on the command line. Read it in
-        # and send it off to the param server.
-        with open(rospy.myargv()[1], 'r') as f:
-            rospy.set_param('~extctl_ini', f.read())
-    elif not rospy.has_param('~extctl_ini'):
-        # User has not provided a extctl file so it must be on the parameter
-        # server already. Check and yell if it is not.
-        raise KeyError('You must provide a extctl.ini file as either the first \
-argument or on the ROS param server under the ~extctl_ini key')
-
-
 if __name__ == '__main__':
     rospy.init_node('slocum_backseat')
-    ensure_extctl_file()
     interface = BackseatInterface()
     interface.start()
     rospy.spin()
