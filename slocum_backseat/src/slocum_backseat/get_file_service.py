@@ -39,7 +39,7 @@ class GetFileService:
         return GetFileResponse(success=True, contents=message)
 
     def get_file(self, file_name, block):
-        rospy.lodgebug('Got request: %s, %s', file_name, block)
+        rospy.logdebug('Got request: %s, %s', file_name, block)
         acquired = self.transfer_semaphore.acquire(block)
 
         if not acquired:
