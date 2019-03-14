@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(slocum_backseat)
+project(slocum_glider_backseat)
 
 find_package(
   catkin REQUIRED

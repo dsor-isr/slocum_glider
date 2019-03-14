@@ -19,21 +19,14 @@
 #
 # When communicating with the extctl proglet, all glider sensors are referenced
 # by only an index. This index is determined by the extctl.ini file on the
-# science computer. The format of this file is
-#
-# create ROS topics for everything over the Slocum back seat driver
-# backseat. Publish what comes from, subscribe to what goes to, the
-# glider.
-#
-# This backseat interface requires the use of the extctl proglet on the science
-# computer.
+# science computer.
 
 import rospy
-from slocum_backseat import BackseatInterface
+from slocum_glider_backseat import BackseatInterface
 
 
 if __name__ == '__main__':
-    rospy.init_node('slocum_backseat')
+    rospy.init_node('slocum_glider_backseat')
     interface = BackseatInterface()
     interface.start()
     rospy.spin()
