@@ -13,7 +13,7 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <exec_depend>slocum_glider_backseat</exec_depend>
-  <exec_depend>slocum_launch</exec_depend>
+  <exec_depend>slocum_glider_launch</exec_depend>
   <exec_depend>slocum_glider_msgs</exec_depend>
 
   <export>

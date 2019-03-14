@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(slocum_launch)
+project(slocum_glider_launch)
 
 find_package(catkin REQUIRED)
 

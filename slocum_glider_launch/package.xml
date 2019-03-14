@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>slocum_launch</name>
+  <name>slocum_glider_launch</name>
   <version>0.0.1</version>
-  <description>The slocum_launch package</description>
+  <description>The slocum_glider_launch package</description>
 
   <maintainer email="etimmons@mit.edu">Eric Timmons</maintainer>
 
