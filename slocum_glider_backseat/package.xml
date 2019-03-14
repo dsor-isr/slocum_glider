@@ -9,6 +9,7 @@
   <license>TODO</license>
 
   <author email="etimmons@mit.edu">Eric Timmons</author>
+  <author email="mohamedm@mit.edu">Mohamed Mohamed</author>
 
   <buildtool_depend>catkin</buildtool_depend>
 
