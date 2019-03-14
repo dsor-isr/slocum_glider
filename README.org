@@ -80,13 +80,13 @@ mission.
 
     + =extctl/active= :: (=std_msgs/Bool=) True iff the extctl proglet is
       active.
-    + =extctl/active_sensors= :: (=slocum_msgs/ActiveSensors=) Describes the
+    + =extctl/active_sensors= :: (=slocum_glider_msgs/ActiveSensors=) Describes the
       sensors that are readable and writeable over the extctl interface.
     + =extctl/sensors/SENSOR_NAME= :: Every sensor in the =is= section of
       extctl.ini has its value published to the corresponding topic when a new
       value for it is received. The message type is one of
-      =slocum_msgs/StampedFloat32=, =slocum_msgs/StampedFloat64=,
-      =slocum_msgs/StampedBool=, or =slocum_msgs/StampedByte=, depending on the
+      =slocum_glider_msgs/StampedFloat32=, =slocum_glider_msgs/StampedFloat64=,
+      =slocum_glider_msgs/StampedBool=, or =slocum_glider_msgs/StampedByte=, depending on the
       units of the underlying sensor.
 
 *** Services
@@ -97,23 +97,24 @@ mission.
       and parse the extctl.ini file from the science computer.
     + =extctl/sensors/set_SENSOR_NAME= :: Set the value of the sensor on the
       glider. The sensor must appear in the =os= section of extctl.ini. The
-      service type is one of =slocum_msgs/SetByte=, =slocum_msgs/SetBool=,
-      =slocum_msgs/SetFloat32=, =slocum_msgs/SetFloat64=, depending on the units
-      of the underlying sensor.
-    + =extctl/get_file= :: (=slocum_msgs/GetFile=) Retrieve a file from the
-      science computer's config directory and return it. The =name= field must
-      be the (8+3) name of a file on the glider. The =contents= field will
+      service type is one of =slocum_glider_msgs/SetByte=,
+      =slocum_glider_msgs/SetBool=, =slocum_glider_msgs/SetFloat32=,
+      =slocum_glider_msgs/SetFloat64=, depending on the units of the underlying
+      sensor.
+    + =extctl/get_file= :: (=slocum_glider_msgs/GetFile=) Retrieve a file from
+      the science computer's config directory and return it. The =name= field
+      must be the (8+3) name of a file on the glider. The =contents= field will
       contain the contents of the file. If =block= is false, the service
       immediately returns a failure if a file transfer is already in progress,
       otherwise the file transfer is queued.
-    + =extctl/send_file= :: (=slocum_msgs/SendFile=) Send a file to the glider's
-      logs directory. The =name= field must be the (8+3) name of the file to
-      write on the glider. The =contents= contains the file contents. If =block=
-      is false, the service immediately returns a failure if a file transfer is
-      already in progress, otherwise the file transfer is queued.
-    + =extctl/set_mode= :: (=slocum_msgs/SetMode=) Toggle several mission modes
-      simultaneously. =modes_to_activate= is a list of mode indices to enable
-      and =modes_to_deactivate= is a list of mode indices to disable.
+    + =extctl/send_file= :: (=slocum_glider_msgs/SendFile=) Send a file to the
+      glider's logs directory. The =name= field must be the (8+3) name of the
+      file to write on the glider. The =contents= contains the file contents. If
+      =block= is false, the service immediately returns a failure if a file
+      transfer is already in progress, otherwise the file transfer is queued.
+    + =extctl/set_mode= :: (=slocum_glider_msgs/SetMode=) Toggle several mission
+      modes simultaneously. =modes_to_activate= is a list of mode indices to
+      enable and =modes_to_deactivate= is a list of mode indices to disable.
 
 ** Serial Console
 

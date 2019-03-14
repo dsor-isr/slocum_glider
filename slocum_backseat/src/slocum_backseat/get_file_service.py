@@ -1,5 +1,5 @@
 import rospy
-from slocum_msgs.srv import GetFile, GetFileResponse
+from slocum_glider_msgs.srv import GetFile, GetFileResponse
 from threading import Event, Semaphore
 import base64
 

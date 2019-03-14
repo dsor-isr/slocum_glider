@@ -1,6 +1,6 @@
 import rospy
 
-from slocum_msgs.srv import SendFile, SendFileResponse
+from slocum_glider_msgs.srv import SendFile, SendFileResponse
 from threading import Semaphore
 import base64
 

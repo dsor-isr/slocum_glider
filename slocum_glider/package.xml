@@ -14,7 +14,7 @@
 
   <exec_depend>slocum_backseat</exec_depend>
   <exec_depend>slocum_launch</exec_depend>
-  <exec_depend>slocum_msgs</exec_depend>
+  <exec_depend>slocum_glider_msgs</exec_depend>
 
   <export>
     <metapackage/>
