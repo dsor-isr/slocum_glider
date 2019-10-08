@@ -5,6 +5,7 @@ import serial
 from get_file_service import GetFileService
 from send_file_service import SendFileService
 from sensors import SensorInterface
+from tty import SerialConsole
 
 
 def nmea_checksum(s):
@@ -112,6 +113,7 @@ class Extctl:
     def __init__(self):
         # Create the serial interface to the glider.
         serial_port_name = rospy.get_param('~serial_port/device')
+        self.serial_port_name = serial_port_name
         self.ser = SerialInterface(serial_port_name)
 
         # Start the file getter and sender services. These are independent of
@@ -166,6 +168,13 @@ class Extctl:
             self.sensors.handle_serial_msg(msg)
         elif msg.startswith('FI'):
             self.file_getter.handle_serial_msg(msg)
+        elif msg == 'TT':
+            self.ser.send_message('TS,S')
+            serial_console = SerialConsole(self.serial_port_name)
+            self.ser.ser.close()
+            serial_console.run()
+            self.ser.ser = serial.Serial(self.serial_port_name, baudrate=9600,
+                                         timeout=1.0)
         else:
             rospy.logwarn('Ignoring unknown sentence: %s', msg)
 

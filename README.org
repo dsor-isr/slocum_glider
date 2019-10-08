@@ -143,7 +143,7 @@ mission.
      u4stalk $SERIAL_PORT_NUMBER 9600
    #+end_src
 
-   then send the sentence: =$TT*06=. If the node can start a serial console, you
+   then send the sentence: =$TT*00=. If the node can start a serial console, you
    will receive =$TS,S*7f= and agetty will be started based on the configuration
    provided through the parameter server. Otherwise, you will receive the
    sentence =$TS,F*6a= and no serial terminal will be started.
