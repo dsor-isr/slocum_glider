@@ -67,6 +67,7 @@ add_service_files(
   SetFloat32.srv
   SetFloat64.srv
   SetMode.srv
+  SetString.srv
 )
 
 ## Generate actions in the 'action' folder

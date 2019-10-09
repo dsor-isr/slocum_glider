@@ -6,6 +6,8 @@ from get_file_service import GetFileService
 from send_file_service import SendFileService
 from sensors import SensorInterface
 from tty import SerialConsole
+from set_mode_service import SetModeService
+from set_string_service import SetStringService
 
 
 def nmea_checksum(s):
@@ -68,6 +70,7 @@ class SerialInterface:
     def send_message(self, msg):
         sentence = nmea(msg)
         with self.send_lock:
+            rospy.logdebug('Sending serial message: %s', sentence)
             self.ser.write(sentence)
             self.ser.write('\r\n')
 
@@ -120,6 +123,12 @@ class Extctl:
         # information in extctl.ini
         self.file_getter = GetFileService(self.ser)
         self.file_sender = SendFileService(self.ser)
+
+        # Start the sciense mission mode service
+        self.mode_setter = SetModeService(self.ser)
+
+        # Start the string setting service for debugging purposes
+        self.string_setter = SetStringService(self.ser)
 
         # We don't necessarily have the extctl.ini file yet, so set
         # self.sensors to None to let the message processor know that.
