@@ -34,7 +34,7 @@ def get_srv_type(units):
     """Convert a glider unit to a ROS service type."""
     if units in GLIDER_SRV_TYPES:
         return GLIDER_SRV_TYPES[units]
-    return SetFloat64
+    return SetFloat32
 
 
 class ReadableSensor:
