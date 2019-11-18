@@ -9,7 +9,8 @@ GLIDER_MSG_TYPES = {
     'enum':      Byte,
     'lat':       Float64,
     'lon':       Float64,
-    'timestamp': Float64
+    'timestamp': Float64,
+    'X':         Float64
     }
 
 
@@ -19,7 +20,8 @@ GLIDER_SRV_TYPES = {
     'enum':      SetByte,
     'lat':       SetFloat64,
     'lon':       SetFloat64,
-    'timestamp': SetFloat64
+    'timestamp': SetFloat64,
+    'X':         SetFloat64
 }
 
 
