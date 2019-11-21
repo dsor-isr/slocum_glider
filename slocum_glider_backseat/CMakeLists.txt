@@ -22,5 +22,6 @@ roslint_python(${${PROJECT_NAME}_PYTHON_SRCS} scripts/serial_backseat_interface)
 ## in contrast to setup.py, you can choose the destination
 install(PROGRAMS
   scripts/serial_backseat_interface
+  scripts/bottom_follow
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
