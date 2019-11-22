@@ -69,7 +69,7 @@ class BottomFollower(object):
     def water_depth_cb(self, msg):
         "Whenever we get a water depth update, calculate new targets."
         water_depth = msg.data
-        if water_depth == -1:
+        if water_depth == -1 or not self.run:
             return
 
         # Compute our desired dive depth
@@ -101,8 +101,8 @@ class BottomFollower(object):
             self.set_c_target_depth(c_target_depth)
 
     def stop_cb(self, msg):
-        "Kill immediately and surface."
-        self.abort()
+        "Kill immediately."
+        self.run = not msg.data
 
 
 if __name__ == '__main__':
