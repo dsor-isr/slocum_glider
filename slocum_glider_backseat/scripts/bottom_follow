@@ -90,6 +90,8 @@ class BottomFollower(object):
         if d_target_depth == -1:
             self.abort()
         else:
+            print('setting d_target_depth:', d_target_depth)
+            print('setting c_target_depth:', c_target_depth)
             self.set_d_target_depth(d_target_depth)
             self.set_c_target_depth(c_target_depth)
 
