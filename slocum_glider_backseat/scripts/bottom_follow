@@ -9,7 +9,9 @@ DESIRED_FLIGHT_BAND_SIZE = 30
 MIN_FLIGHT_BAND_SIZE = 10
 
 DESIRED_D_TARGET_ALTITUDE = 30
-MIN_D_TARGET_ALTITUDE = 10
+MIN_D_TARGET_ALTITUDE = 15
+
+MIN_C_TARGET_DEPTH = 10
 
 MAX_DEPTH = 100
 
@@ -18,6 +20,7 @@ class BottomFollower(object):
     def __init__(self,
                  desired_flight_band_size, min_flight_band_size,
                  desired_d_target_altitude, min_d_target_altitude,
+                 min_c_depth,
                  max_depth):
         self.desired_flight_band_size = desired_flight_band_size
         self.min_flight_band_size = min_flight_band_size
@@ -25,6 +28,7 @@ class BottomFollower(object):
         self.desired_d_target_altitude = desired_d_target_altitude
         self.min_d_target_altitude = min_d_target_altitude
 
+        self.min_c_depth = min_c_depth
         self.max_depth = max_depth
 
         self.water_depth_sub = rospy.Subscriber('extctl/sensors/m_water_depth',
@@ -96,5 +100,6 @@ if __name__ == '__main__':
                             MIN_FLIGHT_BAND_SIZE,
                             DESIRED_D_TARGET_ALTITUDE,
                             MIN_D_TARGET_ALTITUDE,
+                            MIN_C_TARGET_DEPTH,
                             MAX_DEPTH)
     rospy.spin()
