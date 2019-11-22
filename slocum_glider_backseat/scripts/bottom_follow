@@ -41,6 +41,11 @@ class BottomFollower(object):
         self.set_mode = rospy.ServiceProxy('extctl/set_mode',
                                            SetMode)
 
+        self.run = True
+        self.stop_sub = rospy.Subscriber('BottomFollower/Stop',
+                                         Bool,
+                                         self.stop_cb)
+
     def abort(self):
         self.set_mode([1], [])
 
@@ -94,6 +99,10 @@ class BottomFollower(object):
             print('setting c_target_depth:', c_target_depth)
             self.set_d_target_depth(d_target_depth)
             self.set_c_target_depth(c_target_depth)
+
+    def stop_cb(self, msg):
+        "Kill immediately and surface."
+        self.abort()
 
 
 if __name__ == '__main__':
