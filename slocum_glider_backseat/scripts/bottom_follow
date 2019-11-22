@@ -2,7 +2,7 @@
 
 import rospy
 from std_msgs.msg import Float32
-from slocum_glider_msgs.srv import SetFloat32, SetMode
+from slocum_glider_msgs.srv import SetFloat64, SetMode
 
 
 DESIRED_FLIGHT_BAND_SIZE = 30
@@ -35,9 +35,9 @@ class BottomFollower(object):
                                                 Float32,
                                                 self.water_depth_cb)
         self.set_c_target_depth = rospy.ServiceProxy('extctl/sensors/set_u_mission_param_a',
-                                                     SetFloat32)
+                                                     SetFloat64)
         self.set_d_target_depth = rospy.ServiceProxy('extctl/sensors/set_u_mission_param_b',
-                                                     SetFloat32)
+                                                     SetFloat64)
         self.set_mode = rospy.ServiceProxy('extctl/set_mode',
                                            SetMode)
 
