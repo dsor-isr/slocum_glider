@@ -47,7 +47,8 @@ class BottomFollower(object):
                                          self.stop_cb)
 
     def abort(self):
-        self.set_mode([1], [])
+        print('Bottom Follower wants to abort')
+        #self.set_mode([1], [])
 
     def compute_optimal_d_target_depth(self, c_target_depth,
                                        desired_d_target_depth,
