@@ -61,7 +61,18 @@ class SerialInterface:
                 continue
             line = line.strip()
             if not is_valid_nmea_sentence(line):
-                rospy.logwarn('Rejecting invalid NMEA sentence: %s', line)
+                # HACK: the extctl proglet sometimes has trouble transferring
+                # files. It can theoretically happen with any size file since
+                # it is a timing issue. Therefore, we don't reject any of the
+                # file transfer messages for being invalid and just let the
+                # file transfer code handle the restarts.
+                if line.startswith('$FI'):
+                    rospy.logwarn('Timing condition in file transfer '
+                                  'triggered! Got sentence: %s', line)
+                    for cb in self.message_cbs:
+                        cb(line)
+                else:
+                    rospy.logwarn('Rejecting invalid NMEA sentence: %s', line)
                 continue
             body = line[1:-3]
             for cb in self.message_cbs:
@@ -175,7 +186,7 @@ class Extctl:
             if self.sensors is None:
                 return
             self.sensors.handle_serial_msg(msg)
-        elif msg.startswith('FI'):
+        elif msg.startswith('FI') or msg.startswith('$FI'):
             self.file_getter.handle_serial_msg(msg)
         elif msg == 'TT':
             self.ser.send_message('TS,S')

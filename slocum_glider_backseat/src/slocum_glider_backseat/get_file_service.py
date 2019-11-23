@@ -1,4 +1,5 @@
 import rospy
+import random
 from slocum_glider_msgs.srv import GetFile, GetFileResponse
 from threading import Event, Semaphore
 import base64
@@ -25,6 +26,12 @@ class GetFileService:
         self.transfer_finished_event = Event()
 
         self.base64 = ''
+        self.current_transfer_file_name = None
+
+        # Keeping track of corrupted transfers.
+        self.current_transfer_corrupted = False
+        self.corrupted_transfer_counter = 0
+        self.corrupted_transfer_timer = None
 
     def file_handler(self, req):
 
@@ -48,6 +55,10 @@ class GetFileService:
             raise FileTransferFailed('another transfer is in progress')
 
         self.base64 = ''
+        self.current_transfer_file_name = file_name
+        self.current_transfer_corrupted = False
+        self.corrupted_transfer_counter = 0
+        self.corrupted_transfer_timer = None
 
         # If we get here, then there is no file transfer in progress. Send a
         # request to the glider to start a transfer, wait on it to finish,
@@ -60,10 +71,36 @@ class GetFileService:
 
         # Release the semaphore.
         self.transfer_semaphore.release()
+
+        # Check if we were successful
+        if self.current_transfer_corrupted:
+            raise FileTransferFailed('transfer corrupted')
+
         # Takes the base64 message and decodes it
         s64 = base64.b64decode(self.base64).decode('utf-8')
         # Return the results.
         return s64
+
+    def retry_get_file_unsafe(self, event):
+        rospy.logwarn('A file transfer was corrupted, but the finish message '
+                      'was never seen. Hoping that the glider thinks the '
+                      'file transfer is finished and retrying with fingers '
+                      'crossed.')
+        self.retry_get_file(event)
+
+    def retry_get_file(self, event):
+        self.corrupted_transfer_counter += 1
+        rospy.logwarn('Retrying file transfer of %s. This is attempt %s',
+                      self.current_transfer_file_name,
+                      self.corrupted_transfer_counter + 1)
+        if self.corrupted_transfer_counter == 4:
+            # We've tried four times and can't get this file... Just abort.
+            self.transfer_finished_event.set()
+        else:
+            # Try again!
+            self.base64 = ''
+            self.current_transfer_corrupted = False
+            self.ser.send_message('FR,' + self.current_transfer_file_name)
 
     def handle_serial_msg(self, msg):
         """Called when a sentence of type FI is received over the serial port.
@@ -77,6 +114,30 @@ class GetFileService:
         # handler by calling
         # Change to check for stuff
         if msg == 'FI':
-            return self.transfer_finished_event.set()
+            self.transfer_finished_event.set()
+        elif msg.startswith('$FI'):
+            # This is an invalid message... Ignore it until the final message
+            # comes in then retry the transfer.
+            self.current_transfer_corrupted = True
+            # Wait until the finish message is found somewhere or 4 seconds has
+            # passed to retry the transfer.
+            timer = self.corrupted_transfer_timer
+            if timer:
+                timer.shutdown()
+            if '$FI*0f' in msg:
+                # The glider thinks the file transfer has finished. We can
+                # request that a new one starts at any point. We wait a random
+                # amount of time in order to try and avoid hitting the glider
+                # in the same part of its control loop every time.
+                timer = rospy.Timer(rospy.Duration(random.uniform(1, 4)),
+                                    self.retry_get_file,
+                                    oneshot=True)
+            else:
+                # We don't have a file transfer end notification yet, wait a
+                # couple seconds for one before retrying.
+                timer = rospy.Timer(rospy.Duration(4),
+                                    self.retry_get_file_unsafe,
+                                    oneshot=True)
+            self.corrupted_transfer_timer = timer
         else:
             self.base64 += msg[3:]
