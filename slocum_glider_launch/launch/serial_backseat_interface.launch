@@ -9,7 +9,7 @@
         <param name="extctl/auto/when_missing" value="true" />
         <param name="serial_port/device" value="$(arg serial_port_device)" />
     </node>
-    <node name="glider_bottom_follow" pkg="slocum_glider_backseat" type="bottom_follow"
-          respawn="true" output="screen" >
-    </node>
+    <!-- <node name="glider_bottom_follow" pkg="slocum_glider_backseat" type="bottom_follow" -->
+    <!--       respawn="true" output="screen" > -->
+    <!-- </node> -->
 </launch>
