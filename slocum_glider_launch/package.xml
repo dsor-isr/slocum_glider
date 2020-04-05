@@ -4,13 +4,15 @@
   <version>0.0.1</version>
   <description>The slocum_glider_launch package</description>
 
-  <maintainer email="etimmons@mit.edu">Eric Timmons</maintainer>
+  <maintainer email="mers-scouts-request@mit.edu">MERS Scouts Team</maintainer>
 
   <license>TODO</license>
 
   <author email="etimmons@mit.edu">Eric Timmons</author>
 
   <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>slocum_glider_backseat</exec_depend>
 
   <export/>
 </package>

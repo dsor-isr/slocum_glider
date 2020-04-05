@@ -4,7 +4,7 @@
   <version>0.0.1</version>
   <description>The slocum_glider_backseat package</description>
 
-  <maintainer email="etimmons@mit.edu">Eric Timmons</maintainer>
+  <maintainer email="mers-scouts-request@mit.edu">MERS Scouts Team</maintainer>
 
   <license>TODO</license>
 
@@ -16,6 +16,9 @@
   <build_depend>roslint</build_depend>
 
   <exec_depend>message_runtime</exec_depend>
+  <exec_depend>python-serial</exec_depend>
+  <exec_depend>slocum_glider_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
 
   <export/>
 </package>
