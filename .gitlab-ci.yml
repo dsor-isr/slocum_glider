@@ -1,10 +1,15 @@
+include:
+  - project: mars-toolkit/gitlab-ci-helpers
+    ref: release/v1-stable
+    file: /build/gitlab-ci.template.yml
+
 variables:
-  ROS_VERSION: lunar
+  ROS_VERSION: melodic
 
 image: ros:${ROS_VERSION}-ros-base
 
 roslint:
-  stage: test
+  stage: Test
   script:
     - apt-get update
     - apt-get install ros-${ROS_VERSION}-roslint
@@ -16,3 +21,21 @@ roslint:
     - cd ..
     - catkin_make
     - catkin_make roslint
+
+Build melodic image:
+  extends: .Build image with Kaniko
+  variables:
+    KANIKO_DOCKERFILE: ${CI_PROJECT_DIR}/Dockerfile
+    KANIKO_DESTINATION: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}-melodic;${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-melodic
+    KANIKO_ADDITIONAL_ARGS: --build-arg ros_distro=melodic
+  except:
+    - master
+
+Build melodic image on master:
+  extends: .Build image with Kaniko
+  variables:
+    KANIKO_DOCKERFILE: ${CI_PROJECT_DIR}/Dockerfile
+    KANIKO_DESTINATION: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}-melodic;${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-melodic;${CI_REGISTRY_IMAGE}:melodic
+    KANIKO_ADDITIONAL_ARGS: --build-arg ros_distro=melodic
+  only:
+    - master
