@@ -39,3 +39,21 @@ Build melodic image on master:
     KANIKO_ADDITIONAL_ARGS: --build-arg ros_distro=melodic
   only:
     - master
+
+Build kinetic image:
+  extends: .Build image with Kaniko
+  variables:
+    KANIKO_DOCKERFILE: ${CI_PROJECT_DIR}/Dockerfile
+    KANIKO_DESTINATION: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}-kinetic;${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-kinetic
+    KANIKO_ADDITIONAL_ARGS: --build-arg ros_distro=kinetic
+  except:
+    - master
+
+Build kinetic image on master:
+  extends: .Build image with Kaniko
+  variables:
+    KANIKO_DOCKERFILE: ${CI_PROJECT_DIR}/Dockerfile
+    KANIKO_DESTINATION: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}-kinetic;${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-kinetic;${CI_REGISTRY_IMAGE}:kinetic
+    KANIKO_ADDITIONAL_ARGS: --build-arg ros_distro=kinetic
+  only:
+    - master
