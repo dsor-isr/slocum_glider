@@ -22,38 +22,71 @@ roslint:
     - catkin_make
     - catkin_make roslint
 
-Build melodic image:
-  extends: .Build image with Kaniko
-  variables:
-    KANIKO_DOCKERFILE: ${CI_PROJECT_DIR}/Dockerfile
-    KANIKO_DESTINATION: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}-melodic;${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-melodic
-    KANIKO_ADDITIONAL_ARGS: --build-arg ros_distro=melodic
-  except:
-    - master
+##############################################################################
+# Docker images
+##############################################################################
 
-Build melodic image on master:
-  extends: .Build image with Kaniko
-  variables:
-    KANIKO_DOCKERFILE: ${CI_PROJECT_DIR}/Dockerfile
-    KANIKO_DESTINATION: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}-melodic;${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-melodic;${CI_REGISTRY_IMAGE}:melodic
-    KANIKO_ADDITIONAL_ARGS: --build-arg ros_distro=melodic
-  only:
-    - master
+.Build image dind:
+  extends: .Shell
+  image: docker:19.03
+  stage: Build Docker images
+  services:
+    - docker:19.03-dind
+  script:
+    - docker info
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    - docker pull ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-$ROS_DISTRO-$ARCH || true
+    - docker pull ${CI_REGISTRY_IMAGE}:$ROS_DISTRO-$ARCH || true
+    - |
+      docker build \
+             --build-arg ros_distro=$ROS_DISTRO \
+             --cache-from ${CI_REGISTRY_IMAGE}:$ROS_DISTRO-$ARCH \
+             --cache-from ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-$ROS_DISTRO-$ARCH \
+             -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}-$ROS_DISTRO-$ARCH \
+             -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-$ROS_DISTRO-$ARCH \
+             .
+    - |
+      [ "$CI_COMMIT_REF_SLUG" != "master" ] || docker build --build-arg ros_distro=$ROS_DISTRO \
+                                                            --cache-from ${CI_REGISTRY_IMAGE}:$ROS_DISTRO-$ARCH \
+                                                            --cache-from ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-$ROS_DISTRO-$ARCH \
+                                                            -t ${CI_REGISTRY_IMAGE}:$ROS_DISTRO-$ARCH \
+                                                            .
+    - docker push ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}-$ROS_DISTRO-$ARCH
+    - docker push ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-$ROS_DISTRO-$ARCH
 
-Build kinetic image:
-  extends: .Build image with Kaniko
-  variables:
-    KANIKO_DOCKERFILE: ${CI_PROJECT_DIR}/Dockerfile
-    KANIKO_DESTINATION: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}-kinetic;${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-kinetic
-    KANIKO_ADDITIONAL_ARGS: --build-arg ros_distro=kinetic
-  except:
-    - master
+    - |
+      [ "$CI_COMMIT_REF_SLUG" != "master" ] || docker push ${CI_REGISTRY_IMAGE}:$ROS_DISTRO-$ARCH
 
-Build kinetic image on master:
-  extends: .Build image with Kaniko
+Build kinetic image - amd64:
+  extends: .Build image dind
   variables:
-    KANIKO_DOCKERFILE: ${CI_PROJECT_DIR}/Dockerfile
-    KANIKO_DESTINATION: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}-kinetic;${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-kinetic;${CI_REGISTRY_IMAGE}:kinetic
-    KANIKO_ADDITIONAL_ARGS: --build-arg ros_distro=kinetic
-  only:
-    - master
+    ARCH: amd64
+    ROS_DISTRO: kinetic
+  tags:
+    - dind
+
+Build kinetic image - arm64:
+  extends: .Build image dind
+  variables:
+    ARCH: arm64
+    ROS_DISTRO: kinetic
+  tags:
+    - arm64
+    - dind
+
+Build melodic image - amd64:
+  extends: .Build image dind
+  variables:
+    ARCH: amd64
+    ROS_DISTRO: melodic
+  tags:
+    - dind
+
+Build melodic image - arm64:
+  extends: .Build image dind
+  variables:
+    ARCH: arm64
+    ROS_DISTRO: melodic
+  tags:
+    - arm64
+    - dind
