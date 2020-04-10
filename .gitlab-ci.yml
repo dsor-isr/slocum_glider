@@ -65,11 +65,11 @@ Build melodic image - amd64:
   tags:
     - dind
 
-Build melodic image - arm64:
-  extends: .Build image dind
-  variables:
-    ARCH: arm64
-    ROS_DISTRO: melodic
-  tags:
-    - arm64
-    - dind
+# Build melodic image - arm64:
+#   extends: .Build image dind
+#   variables:
+#     ARCH: arm64
+#     ROS_DISTRO: melodic
+#   tags:
+#     - arm64
+#     - dind
