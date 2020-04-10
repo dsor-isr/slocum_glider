@@ -57,23 +57,6 @@ roslint:
     - |
       [ "$CI_COMMIT_REF_SLUG" != "master" ] || docker push ${CI_REGISTRY_IMAGE}:$ROS_DISTRO-$ARCH
 
-Build kinetic image - amd64:
-  extends: .Build image dind
-  variables:
-    ARCH: amd64
-    ROS_DISTRO: kinetic
-  tags:
-    - dind
-
-Build kinetic image - arm64:
-  extends: .Build image dind
-  variables:
-    ARCH: arm64
-    ROS_DISTRO: kinetic
-  tags:
-    - arm64
-    - dind
-
 Build melodic image - amd64:
   extends: .Build image dind
   variables:
