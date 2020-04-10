@@ -53,9 +53,12 @@ roslint:
                                                             .
     - docker push ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}-$ROS_DISTRO-$ARCH
     - docker push ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-$ROS_DISTRO-$ARCH
-
     - |
       [ "$CI_COMMIT_REF_SLUG" != "master" ] || docker push ${CI_REGISTRY_IMAGE}:$ROS_DISTRO-$ARCH
+    - docker inspect --format='{{index .RepoDigests 0}}' ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}-$ROS_DISTRO-$ARCH > $ROS_DISTRO-$ARCH-image-digest.txt
+  artifacts:
+    paths:
+      - $ROS_DISTRO-$ARCH-image-digest.txt
 
 Build melodic image - amd64:
   extends: .Build image dind
