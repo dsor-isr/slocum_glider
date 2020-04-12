@@ -9,6 +9,7 @@ variables:
 image: ros:${ROS_VERSION}-ros-base
 
 stages:
+  - Build
   - Build Docker images
   - Build Docker manifests
   - Test
@@ -28,6 +29,41 @@ roslint:
     - catkin_make roslint
   needs: []
 
+
+.Build catkin_ws:
+  extends: .Shell with cache
+  stage: Build
+  image: ros:$ROS_VERSION-ros-base
+  script:
+    - apt-get update
+    - source /opt/ros/$ROS_VERSION/setup.bash
+    - mkdir -p /catkin_ws/src
+    - cd /catkin_ws/src
+    - catkin_init_workspace
+    - cd ..
+    - catkin_make
+    - ln -s $CI_PROJECT_DIR /catkin_ws/src/$CI_PROJECT_NAME
+    - rosdep install --from-paths src --ignore-src -r -y
+    - catkin_make
+    - catkin_make install -DCMAKE_INSTALL_PREFIX=/opt/ros/slocum_glider_overlay
+    - cp -a /opt/ros/slocum_glider_overlay $CI_PROJECT_DIR/slocum_glider_overlay
+  artifacts:
+    paths:
+      - slocum_glider_overlay
+  needs: []
+
+amd64:melodic:Build:
+  extends: .Build catkin_ws
+  variables:
+    ROS_VERSION: melodic
+
+arm64:melodic:Build:
+  extends: .Build catkin_ws
+  variables:
+    ROS_VERSION: melodic
+  tags:
+    - arm64
+
 ##############################################################################
 # Docker images
 ##############################################################################
@@ -41,6 +77,7 @@ roslint:
   script:
     - docker info
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    - docker pull ros:$ROS_DISTRO-ros-base
     - docker pull ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-$ROS_DISTRO-$ARCH || true
     - docker pull ${CI_REGISTRY_IMAGE}:$ROS_DISTRO-$ARCH || true
     - |
@@ -50,12 +87,14 @@ roslint:
              --cache-from ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-$ROS_DISTRO-$ARCH \
              -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}-$ROS_DISTRO-$ARCH \
              -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-$ROS_DISTRO-$ARCH \
+             -f Dockerfile.runtime \
              .
     - |
       [ "$CI_COMMIT_REF_SLUG" != "master" ] || docker build --build-arg ros_distro=$ROS_DISTRO \
                                                             --cache-from ${CI_REGISTRY_IMAGE}:$ROS_DISTRO-$ARCH \
                                                             --cache-from ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-$ROS_DISTRO-$ARCH \
                                                             -t ${CI_REGISTRY_IMAGE}:$ROS_DISTRO-$ARCH \
+                                                            -f Dockerfile.runtime \
                                                             .
     - docker push ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}-$ROS_DISTRO-$ARCH
     - docker push ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-$ROS_DISTRO-$ARCH
@@ -73,6 +112,8 @@ Build melodic image - amd64:
     ROS_DISTRO: melodic
   tags:
     - dind
+  needs:
+    - amd64:melodic:Build
 
 Build melodic image - arm64:
   extends: .Build image dind
@@ -81,6 +122,12 @@ Build melodic image - arm64:
     ROS_DISTRO: melodic
   tags:
     - arm64-dind
+  needs:
+    - arm64:melodic:Build
+
+##############################################################################
+# Manifests
+##############################################################################
 
 .Generate image manifest:
   extends: .Shell
