@@ -1,5 +1,5 @@
 #+TITLE: Slocum Glider ROS Interface
-#+AUTHOR: Eric Timmons
+#+AUTHOR: MIT MERS Group
 
 This repo contains the =slocum_glider= ROS metapackage. This metapackage
 consists of several packages to facilitate communicating with (and controlling)

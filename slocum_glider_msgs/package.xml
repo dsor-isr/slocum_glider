@@ -4,12 +4,12 @@
   <version>0.0.1</version>
   <description>The slocum_glider_msgs package</description>
 
-  <maintainer email="mers-scouts-request@mit.edu">MERS Scouts Team</maintainer>
+  <maintainer email="mers-scouts@mit.edu">MIT MERS Scouts Team</maintainer>
 
-  <license>TODO</license>
+  <license>BSD-2</license>
 
   <author email="etimmons@mit.edu">Eric Timmons</author>
-
+  <author email="mreeves@mit.edu">Marlyse Reeves</author>
 
   <buildtool_depend>catkin</buildtool_depend>
 

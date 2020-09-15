@@ -4,11 +4,13 @@
   <version>0.0.1</version>
   <description>The slocum_glider_backseat package</description>
 
-  <maintainer email="mers-scouts-request@mit.edu">MERS Scouts Team</maintainer>
+  <maintainer email="mers-scouts@mit.edu">MIT MERS Scouts Team</maintainer>
 
-  <license>TODO</license>
+  <license>BSD-2</license>
 
   <author email="etimmons@mit.edu">Eric Timmons</author>
+  <author email="aytonb@mit.edu">Ben Ayton</author>
+  <author email="mreeves@mit.edu">Marlyse Reeves</author>
   <author email="mohamedm@mit.edu">Mohamed Mohamed</author>
 
   <buildtool_depend>catkin</buildtool_depend>
