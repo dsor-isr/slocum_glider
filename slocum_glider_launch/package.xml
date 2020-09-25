@@ -12,7 +12,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <exec_depend>slocum_glider_backseat</exec_depend>
+  <exec_depend>slocum_glider_serial_interface</exec_depend>
 
   <export/>
 </package>
