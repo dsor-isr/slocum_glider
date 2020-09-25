@@ -9,4 +9,4 @@ glider state and has (limited) ability to change the behavior of the glider as
 it is executing a mission.
 
 The ROS interfaces used to interact with the glider are described in the
-=slocum_glider_interface= package.
+=slocum_glider_driver= package.
