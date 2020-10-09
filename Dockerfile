@@ -21,7 +21,7 @@ RUN . "/opt/ros/$ros_distro/setup.sh" \
 # Copy in all the source code:
 
 COPY slocum_glider /usr/local/slocum_glider_overlay/src/slocum_glider
-COPY slocum_glider_backseat /usr/local/slocum_glider_overlay/src/slocum_glider_backseat
+COPY slocum_glider_serial_driver /usr/local/slocum_glider_overlay/src/slocum_glider_serial_driver
 COPY slocum_glider_launch /usr/local/slocum_glider_overlay/src/slocum_glider_launch
 COPY slocum_glider_msgs /usr/local/slocum_glider_overlay/src/slocum_glider_msgs
 
@@ -41,7 +41,7 @@ COPY --from=builder /opt/ros/slocum_glider_overlay /opt/ros/slocum_glider_overla
 # hadolint ignore=SC1091
 RUN . "/opt/ros/slocum_glider_overlay/setup.sh" \
     && apt-get update \
-    && rosdep install --ignore-src -y slocum_glider slocum_glider_backseat slocum_glider_launch slocum_glider_msgs \
+    && rosdep install --ignore-src -y slocum_glider slocum_glider_serial_driver slocum_glider_launch slocum_glider_msgs \
     && rm -rf /var/lib/apt/lists/*
 
 # Overwrite the entrypoint so that our overlay is sourced.

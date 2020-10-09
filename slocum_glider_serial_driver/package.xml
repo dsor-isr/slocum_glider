@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>slocum_glider_backseat</name>
+  <name>slocum_glider_serial_driver</name>
   <version>0.0.1</version>
-  <description>The slocum_glider_backseat package</description>
+  <description>The slocum_glider_serial_driver package</description>
 
   <maintainer email="mers-scouts@mit.edu">MIT MERS Scouts Team</maintainer>
 

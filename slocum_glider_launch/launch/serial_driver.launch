@@ -3,13 +3,10 @@
     <arg name="serial_port_device" doc="Serial port designator." />
 
     <!-- Launch the serial interface. -->
-    <node name="glider_serial_backseat_interface" pkg="slocum_glider_backseat" type="serial_backseat_interface"
+    <node name="glider_serial_backseat_interface" pkg="slocum_glider_serial_driver" type="slocum_glider_serial_driver"
           respawn="true" output="screen" >
         <param name="extctl/enabled" value="true" />
         <param name="extctl/auto/when_missing" value="true" />
         <param name="serial_port/device" value="$(arg serial_port_device)" />
     </node>
-    <!-- <node name="glider_bottom_follow" pkg="slocum_glider_backseat" type="bottom_follow" -->
-    <!--       respawn="true" output="screen" > -->
-    <!-- </node> -->
 </launch>
