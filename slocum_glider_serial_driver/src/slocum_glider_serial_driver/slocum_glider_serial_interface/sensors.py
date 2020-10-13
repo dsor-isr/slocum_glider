@@ -1,10 +1,10 @@
 import rospy
-from std_msgs.msg import Bool, Byte, Float64, Float32
-from slocum_glider_msgs.srv import SetBool, SetByte, SetFloat32, SetFloat64
+from std_msgs.msg import Byte, Float64, Float32
+from slocum_glider_msgs.srv import SetByte, SetFloat32, SetFloat64
 
 # Translation from glider "units" to ROS message types.
 GLIDER_MSG_TYPES = {
-    'bool':      Bool,
+    'bool':      Float32,
     'byte':      Byte,
     'enum':      Byte,
     'lat':       Float64,
@@ -15,7 +15,7 @@ GLIDER_MSG_TYPES = {
 
 
 GLIDER_SRV_TYPES = {
-    'bool':      SetBool,
+    'bool':      SetFloat32,
     'byte':      SetByte,
     'enum':      SetByte,
     'lat':       SetFloat64,

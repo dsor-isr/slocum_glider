@@ -51,7 +51,6 @@ add_message_files(
   FILES
   ActiveSensors.msg
   SensorDescription.msg
-  StampedBool.msg
   StampedByte.msg
   StampedFloat32.msg
   StampedFloat64.msg
@@ -62,7 +61,6 @@ add_service_files(
   FILES
   GetFile.srv
   SendFile.srv
-  SetBool.srv
   SetByte.srv
   SetFloat32.srv
   SetFloat64.srv
