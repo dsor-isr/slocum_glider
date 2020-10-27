@@ -17,21 +17,35 @@ class GliderState(collections_abc.MutableMapping):
 
     def add_change_listener(self, name, cb):
         """Register a callback that is fired any time the named sensor changes
-value."""
+        value.
+
+        """
         if name not in self.__change_listeners:
             self.__change_listeners[name] = []
 
         if cb not in self.__change_listeners[name]:
             self.__change_listeners[name].append(cb)
 
+    def remove_change_listener(self, name, cb):
+        if name in self.__change_listeners:
+            if cb in self.__change_listeners[name]:
+                self.__change_listeners[name].remove(cb)
+
     def add_update_listener(self, name, cb):
         """Register a callback that is fired any time the named sensor's value is
-set."""
+        set.
+
+        """
         if name not in self.__update_listeners:
             self.__update_listeners[name] = []
 
         if cb not in self.__update_listeners[name]:
             self.__update_listeners[name].append(cb)
+
+    def remove_update_listener(self, name, cb):
+        if name in self.__update_listeners:
+            if cb in self.__update_listeners[name]:
+                self.__update_listeners[name].remove(cb)
 
     def __getitem__(self, item):
         return self.__values[item.lower()]

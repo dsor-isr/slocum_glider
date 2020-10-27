@@ -204,6 +204,24 @@ class Glider:
         if args[0] == 'all':
             for sensor in itervalues(self.masterdata.sensors):
                 self.state.add_change_listener(sensor.name, self.report_change)
+        elif args[0] == 'clearall':
+            for sensor in itervalues(self.masterdata.sensors):
+                self.state.remove_change_listener(sensor.name,
+                                                  self.report_change)
+                self.state.remove_update_listener(sensor.name,
+                                                  self.report_change)
+        elif args[0] == '+':
+            for sensor in args[1:]:
+                self.state.add_change_listener(sensor, self.report_change)
+        elif args[0] == '++':
+            for sensor in args[1:]:
+                self.state.add_update_listener(sensor, self.report_change)
+        elif args[0] == '-':
+            for sensor in args[1:]:
+                self.state.remove_change_listener(sensor,
+                                                  self.report_change)
+                self.state.remove_update_listener(sensor,
+                                                  self.report_change)
         else:
             self.log('Unknown argument ' + args[0])
 
