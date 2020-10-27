@@ -34,6 +34,7 @@ class Glider:
         self.command_cb = command_cb
         self.update_state_cb = update_state_cb
         self.console_writer = console_writer
+        self.pending_lines = []
 
         self.last_log_cycle = None
         self.active_mission = None
@@ -146,7 +147,7 @@ class Glider:
         state.cc_final_behavior_state = state.cc_behavior_state
 
         if mission_complete:
-            self.mission = None
+            self.active_mission = None
         end_time = rospy.get_time()
         self.state.x_lc_time = (end_time - start_time) * 1000
 
@@ -180,6 +181,10 @@ class Glider:
         # Send the control message!
         if self.command_cb:
             self.command_cb(self)
+
+        # Reenable glider dos if needed
+        if not self.active_mission and not self.glider_dos.running:
+            self.glider_dos.start()
 
     def run(self):
         """Run the control loops until asked to stop."""
@@ -231,14 +236,23 @@ class Glider:
         self.glider_dos.stop()
         mission = make_mission(mission_string.splitlines(),
                                self)
+        mission.name = args[0]
         self.active_mission = mission
         self.state.m_mission_start_time = rospy.get_time()
 
     def cmd(self, command):
+        self.console_writer(command + '\n')
         if self.state.x_in_gliderdos:
             self.glider_dos.handle_command(command)
         else:
-            self.log('Cannnot yet handle command outside of gliderdos')
+            self.pending_lines.append(command)
+            # TODO: Cap the size of pending_lines?
+
+    def pop_pending_line(self):
+        if len(self.pending_lines) > 0:
+            return self.pending_lines.pop(0)
+        else:
+            return None
 
     def open_flight_file(self, path, flags='r'):
         """Open a file on the flight computer."""
@@ -270,4 +284,4 @@ class Glider:
             else:
                 prefix = prefix + '    '
             for line in msg.splitlines():
-                self.console_writer(prefix + line)
+                self.console_writer(prefix + line + '\n')

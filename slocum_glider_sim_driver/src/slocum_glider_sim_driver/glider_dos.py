@@ -14,10 +14,15 @@ class GliderDos(object):
     def start(self):
         self.g.state.x_in_gliderdos = True
         self.running = True
+        self.print_ps1()
 
     def stop(self):
         self.g.state.x_in_gliderdos = False
         self.running = False
+
+    def print_ps1(self):
+        # TODO: Print the previous mission exit code
+        self.g.console_writer('GliderDos N >')
 
     def handle_command(self, command):
         if not self.running:
@@ -31,3 +36,4 @@ class GliderDos(object):
             self.g.console_writer('Vehicle Name: ' + self.g.name + '\n')
         else:
             self.g.log('Unknown command: ' + split_command[0])
+        self.print_ps1()

@@ -1,3 +1,6 @@
+from datetime import datetime
+from math import trunc
+
 from .behavior import (BEHAVIOR_STATE_FINISHED,
                        BEHAVIOR_STATE_MISSION_COMPLETE,
                        BEHAVIOR_STATE_UNINITED, BehaviorWithSubstates,
@@ -14,6 +17,31 @@ def stay_at_surface_control(x):
     x.cc_pitch_value = 0.738
     x.cc_thruster_mode = THRUSTER_MODE_POWER
     x.cc_thruster_value = 0
+
+
+def print_surface_dialog(g):
+    c = g.console_writer
+    c('\n')
+    c('\n')
+    c('\n')
+    c('Glider ' + g.name + ' at surface.\n')
+    # TODO: Add reason
+    # TODO: Add MissionNum to following line
+    c('MissionName:' + g.active_mission.name + '\n')
+    c('Vehicle Name: ' + g.name + '\n')
+    curr_time = datetime.now().strftime('%c')
+    mt = trunc(g.state.m_present_secs_into_mission)
+    c('Curr Time: {} MT: {:>7}\n'.format(curr_time, mt))
+    # TODO: Add location info, sensors, devices, and abort history. Note that
+    # to fully replicate what the glider prints, we likely need to also record
+    # when sensors are modified in the state object.
+
+    # TODO: Add Control-R
+    c('   Hit Control-C to END    the mission, i.e. GliderDos\n')
+    # TODO: Add Ctrl-E, Ctrl-W, Ctrl-F, S, !, Ctrl-T
+    c('\n')
+    c('\n')
+    c('\n')
 
 
 class SurfaceBehavior(BehaviorWithSubstates):
@@ -82,11 +110,16 @@ class SurfaceBehavior(BehaviorWithSubstates):
 
         def compute_controls(self, x):
             # TODO: Actually implement the surface dialog
+            self.x_in_surface_dialog = 1 << (self.parent_behavior.index - 1)
+            if self.count == 0:
+                print_surface_dialog(self.parent_behavior.g)
             self.count += 1
 
         def next_state(self, parent, x):
-            if self.count == 4:
-                self.terminate_mission = True
+            line = parent.g.pop_pending_line()
+            if line == 'Ctrl-C':
+                parent.terminate_mission = True
+                self.x_in_surface_dialog = 0
                 # TODO: This transition is yet to be observed.
                 return parent.AllDone(parent)
 
@@ -103,6 +136,7 @@ class SurfaceBehavior(BehaviorWithSubstates):
 
     class AllDone(Substate):
         DESCRIPTION = 'All done'
+        TERMINAL = True
 
         def compute_controls(self, x):
             # Let other surfacing actions run
