@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+
+# slocum_glider_sim_driver:
+#
+# This node simulates the glider's control system and both exposes the extctl
+# interface for the backseat driver and connects with simulated glider
+# hardware.
+#
+# Requires the following parameters to be set:
+#
+# + ~data_dir :: A path to the directory containing the glider data. This
+# directory must contain the masterdata file (=masterdata.mi=) as well as two
+# directories named =flight= and =science=, each containing the filesystem for
+# the appropriate computer. Typically the real glider file systems are case
+# insensitive, but the file system used for this node is not. Therefore, we
+# canonicalize on lower case file names.
+
+from os.path import join
+
+import rospy
+
+from slocum_glider_sim_driver import SimDriver
+
+if __name__ == '__main__':
+    rospy.init_node('slocum_glider_serial_driver')
+    data_dir = rospy.get_param('~data_dir')
+    flight_computer_dir = join(data_dir, 'flight/')
+    science_computer_dir = join(data_dir, 'science/')
+    masterdata_file_path = join(data_dir, 'masterdata.mi')
+
+    driver = SimDriver(flight_computer_dir, science_computer_dir,
+                       masterdata_file_path)
+    driver.start()
+    rospy.spin()
+    driver.stop()

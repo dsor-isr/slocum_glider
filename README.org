@@ -1,12 +1,27 @@
-#+TITLE: Slocum Glider ROS Interface
+#+TITLE: Slocum Glider ROS Interfaces
 #+AUTHOR: MIT MERS Group
 
 This repo contains the =slocum_glider= ROS metapackage. This metapackage
 consists of several packages to facilitate communicating with (and controlling)
 a Teledyne Webb Research Slocum Glider via a secondary computer. This secondary
-computer is called the "backseat driver" because it can get visibility into the
-glider state and has (limited) ability to change the behavior of the glider as
-it is executing a mission.
+computer is called the "backseat driver" because it can get (limited)
+visibility into the glider state and has (limited) ability to change the
+behavior of the glider as it is executing a mission.
 
 The ROS interfaces used to interact with the glider are described in the
-=slocum_glider_driver= package.
+=slocum_glider_driver= package. A future version will likely also include a
+library to control the glider via the described interfaces without needing to
+manually subscribe directly to the necessary topics and services.
+
+The =slocum_glider_msgs= package contains all the message and service
+definitions needed to interact with the ROS API.
+
+The =slocum_glider_launch= package contains various launch files for starting
+the various services.
+
+There are currently two implementations of the backseat driver interface. The
+first, =slocum_glider_serial_driver= connects to real glider hardware via a
+serial port. The second, =slocum_glider_sim_driver= simulates a complete glider
+control system (including parsing mission files) and connects to a simulator
+(such as [[https://github.com/Field-Robotics-Lab/glider_hybrid_whoi]]) to simulate
+the glider physics and sensors.

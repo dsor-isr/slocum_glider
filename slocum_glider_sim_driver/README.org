@@ -1,0 +1,24 @@
+#+TITLE: Slocum Glider Sim Driver
+#+AUTHOR: MIT MERS Group
+
+This package implements a driver to interact with simulated gliders. There is
+one node which simulates the glider's control system. It is responsible for
+
+This package is used to interface with a Gazebo simulation of the Slocum glider
+implemented by the [[https://github.com/Field-Robotics-Lab/glider_hybrid_whoi/][=glider_hybrid_whoi=]] package.
+
+This package contains a single node: =slocum_glider_sim_driver=. In addition to
+implementing the extctl interface and interfacing with the simulator, this node
+publishes console output to the =console= topic and accepts commands on the
+=console_cmd= topic.
+
+This node currently requires all files needed to operate the glider to be
+located on a local file system (see the documentation in the node script for
+how to set the expected location). This includes:
+
++ =masterdata.mi= :: To determine what sensors are available and what their
+  default values are.
++ =flight/config/autoexec.mi= :: To set glider specific values on startup.
++ =science/config/extctl.ini= :: To set what sensors are advertised over the
+  extctl interface.
++ =flight/missions/*.mi= :: The mission files to execute.
