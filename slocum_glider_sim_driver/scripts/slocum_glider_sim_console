@@ -1,0 +1,73 @@
+#!/usr/bin/env python
+
+# slocum_glider_sim_console:
+#
+# This node provides a console to interact with the simulated glider that is
+# similar to the one you would get via SFMC or direct serial connection to real
+# hardware.
+#
+# As the glider uses Ctrl-C for commands, use Ctrl-D (EOF) to quit the node.
+#
+# This code does not currently robustly detect Ctrl-W and Ctrl-R
+# keypresses. Until that is fixed, you need to type Ctrl-W and Ctrl-R
+# explicitly.
+
+from sys import stdin, stdout
+
+from roslib import set_interactive
+import rospy
+from six import print_
+from std_msgs.msg import String
+
+
+def print_msg(msg):
+    print_(msg.data, end='')
+    stdout.flush()
+
+
+if __name__ == '__main__':
+    set_interactive(True)
+    rospy.init_node('slocum_glider_sim_console', anonymous=True)
+    console = rospy.Subscriber('console', String, print_msg)
+    cmd_pub = rospy.Publisher('console_cmd', String, queue_size=10)
+    msg = b''
+    while not rospy.is_shutdown():
+        try:
+            # TODO: This is line buffered (ugh) and echos to screen. Need to
+            # decide if that's acceptable and if not, fix (likely with some
+            # combination of curses and tty modules).
+            char = stdin.read(1)
+            if char == '':
+                rospy.signal_shutdown('Ctrl-D')
+            # Convert ctrl chars to Ctrl-*
+            send_message = False
+            if char == b'\x05':
+                msg += 'Ctrl-E'
+                send_message = True
+            elif char == b'\x06':
+                msg += 'Ctrl-F'
+                send_message = True
+            elif char == b'\x10':
+                msg += 'Ctrl-P'
+                send_message = True
+            elif char == b'\x12':
+                msg += 'Ctrl-R'
+                send_message = True
+            elif char == b'\x14':
+                msg += 'Ctrl-T'
+                send_message = True
+            elif char == b'\x17':
+                msg += 'Ctrl-W'
+                send_message = True
+            elif char == b'\n':
+                send_message = True
+            else:
+                msg += char
+
+            if send_message:
+                cmd_pub.publish(msg)
+                msg = ''
+        except KeyboardInterrupt:
+            msg += 'Ctrl-C'
+            cmd_pub.publish(msg)
+            msg = ''
