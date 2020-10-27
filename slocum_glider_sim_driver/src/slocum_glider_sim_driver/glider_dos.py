@@ -27,5 +27,7 @@ class GliderDos(object):
             self.g.report(split_command[1:])
         elif split_command[0] == 'run':
             self.g.run_mission(split_command[1:])
+        elif split_command[0] == 'whoru':
+            self.g.console_writer('Vehicle Name: ' + self.g.name + '\n')
         else:
             self.g.log('Unknown command: ' + split_command[0])
