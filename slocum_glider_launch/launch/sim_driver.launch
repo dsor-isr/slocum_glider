@@ -1,0 +1,10 @@
+<!-- Launch file for the Slocum Glider Simulator Driver. -->
+<launch>
+    <arg name="data_dir" doc="Directory where all glider files are stored." />
+
+    <!-- Launch the sim driver. -->
+    <node name="slocum_glider_sim_driver" pkg="slocum_glider_sim_driver" type="slocum_glider_sim_driver"
+          respawn="true" output="screen" >
+        <param name="data_dir" value="$(arg data_dir)" />
+    </node>
+</launch>
