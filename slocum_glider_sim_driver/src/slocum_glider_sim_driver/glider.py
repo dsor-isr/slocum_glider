@@ -38,9 +38,6 @@ class Glider:
         self.last_log_cycle = None
         self.active_mission = None
 
-        # TODO: Remove eventually. Leaving for now for easy debugging.
-        self.report(['all'])
-
         # Run autoexec.mi
         with closing(self.open_flight_file(['config', 'autoexec.mi'])) as f:
             autoexec_string = f.read()

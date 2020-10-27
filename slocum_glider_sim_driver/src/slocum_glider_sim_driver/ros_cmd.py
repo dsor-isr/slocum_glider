@@ -68,5 +68,4 @@ class RosCmdTopic(object):
         # Set bouyancy pump
         msg.target_pumped_volume = state.dc_c_oil_volume
 
-        print(msg)
         self.sim_command_pub.publish(msg)
