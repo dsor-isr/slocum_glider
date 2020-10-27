@@ -11,6 +11,7 @@ catkin_package()
 
 catkin_python_setup()
 
+set(ROSLINT_PYTHON_OPTS "--ignore=W503")
 file(GLOB_RECURSE ${PROJECT_NAME}_PYTHON_SRCS *.py)
 roslint_python(${${PROJECT_NAME}_PYTHON_SRCS} scripts/slocum_glider_sim_driver)
 
