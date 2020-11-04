@@ -37,7 +37,7 @@ if __name__ == '__main__':
             # decide if that's acceptable and if not, fix (likely with some
             # combination of curses and tty modules).
             char = stdin.read(1)
-            if char == '':
+            if char == b'':
                 rospy.signal_shutdown('Ctrl-D')
             # Convert ctrl chars to Ctrl-*
             send_message = False
@@ -66,8 +66,8 @@ if __name__ == '__main__':
 
             if send_message:
                 cmd_pub.publish(msg)
-                msg = ''
+                msg = b''
         except KeyboardInterrupt:
-            msg += 'Ctrl-C'
+            msg += b'Ctrl-C'
             cmd_pub.publish(msg)
-            msg = ''
+            msg = b''
