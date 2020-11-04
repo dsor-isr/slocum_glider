@@ -2,12 +2,14 @@
 #+AUTHOR: MIT MERS Group
 
 This package implements a driver to interact with simulated gliders. There is
-one node which simulates the glider's control system. It is responsible for
+one node to simulate the glider's control system and one node to provide an
+interface similar to a Dockserver or direct Freewave console.
 
 This package is used to interface with a Gazebo simulation of the Slocum glider
 implemented by the [[https://github.com/Field-Robotics-Lab/glider_hybrid_whoi/][=glider_hybrid_whoi=]] package.
 
-This package contains two nodes: =slocum_glider_sim_driver= and =slocum_glider_sim_console=.
+This package contains two nodes: =slocum_glider_sim_driver= and
+=slocum_glider_sim_console=.
 
 * =slocum_glider_sim_driver=
 
