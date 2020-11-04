@@ -196,7 +196,7 @@ class Behavior(object):
                                        orig_args['args_from_file'])
             file_name = file_name.upper()
             with closing(self.g.open_flight_file(['mafiles', file_name])) as f:
-                ma_args = f.read()
+                ma_args = parse_ma_file(f.read().splitlines())
             new_args = orig_args.copy()
             new_args.update(ma_args)
             self.args = BehaviorArgs(new_args)
