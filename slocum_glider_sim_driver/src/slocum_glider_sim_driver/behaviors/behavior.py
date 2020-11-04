@@ -127,7 +127,7 @@ class BehaviorArgs(collections_abc.Mapping):
         return self._args.__iter__()
 
     def __len__(self):
-        return self.__len__()
+        return self._args.__len__()
 
 
 class Behavior(object):
