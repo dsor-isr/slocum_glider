@@ -12,7 +12,8 @@ from .glider_dos import GliderDos
 from .masterdata import parse_masterdata_file
 from .mission import make_mission
 from .modes import (BPUMP_MODE_ABSOLUTE, MODE_IGNORE, MODE_UNSET,
-                    PITCH_MODE_BATT_POS)
+                    PITCH_MODE_BATT_POS, PITCH_MODE_PITCH_ONCE,
+                    PITCH_MODE_PITCH_SERVO)
 from .state import GliderState
 
 
@@ -100,6 +101,11 @@ class Glider:
         elif state.cc_final_pitch_mode == MODE_IGNORE:
             pass
         elif state.cc_final_pitch_mode == MODE_UNSET:
+            pass
+        elif (state.cc_final_pitch_mode == PITCH_MODE_PITCH_ONCE
+              or state.cc_final_pitch_mode == PITCH_MODE_PITCH_SERVO):
+            # TODO: Potentially compute battery position. For now, the
+            # simulator just jumps to our desired pitch.
             pass
         else:
             raise ValueError('Cannot yet handle pitch mode '
