@@ -109,7 +109,7 @@ class SurfaceBehavior(BehaviorWithSubstates):
             self.count = 0
 
         def compute_controls(self, x):
-            # TODO: Actually implement the surface dialog
+            stay_at_surface_control(x)
             self.x_in_surface_dialog = 1 << (self.parent_behavior.index - 1)
             if self.count == 0:
                 print_surface_dialog(self.parent_behavior.g)
