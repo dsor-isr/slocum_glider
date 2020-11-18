@@ -279,8 +279,10 @@ class BehaviorWithSubstates(Behavior):
 
     def __init__(self, args, index, g):
         super(BehaviorWithSubstates, self).__init__(args, index, g)
+
+    def init(self):
+        super(BehaviorWithSubstates, self).init()
         self.substate = self.SUBSTATES[0](self)
-        self.init()
 
     def substate_index(self, substate):
         return self.SUBSTATES.index(substate.__class__)

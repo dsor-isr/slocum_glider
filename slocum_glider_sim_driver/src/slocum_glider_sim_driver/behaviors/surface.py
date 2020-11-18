@@ -159,6 +159,7 @@ class SurfaceBehavior(BehaviorWithSubstates):
                 and super(SurfaceBehavior, self).should_start(x))
 
     def init(self):
+        super(SurfaceBehavior, self).init()
         self.terminate_mission = False
         args = self.args
 
