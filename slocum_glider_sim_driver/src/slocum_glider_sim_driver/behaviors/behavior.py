@@ -151,6 +151,8 @@ class Behavior(object):
         self.g.log('behavior ' + self.behavior_name + ': STATE '
                    + state_name(self.state) + ' -> ' +
                    state_name(new_state))
+        if self.state == BEHAVIOR_STATE_UNINITED:
+            self.print_args()
         self.time_entered_state = self.g.state.m_present_secs_into_mission
         self.state = new_state
 
@@ -254,6 +256,13 @@ class Behavior(object):
             return self.condition_satisfied(x, 'stop', stop_when)
         else:
             return False
+
+    def print_args(self):
+        log = self.g.log
+        for name, value in iteritems(self.args):
+            units = self.g.masterdata.behaviors[self.NAME].args[name].units
+            log('behavior ' + self.behavior_name + ': argument: '
+                + name + ' = ' + str(value) + ' ' + units)
 
 
 class Substate:
