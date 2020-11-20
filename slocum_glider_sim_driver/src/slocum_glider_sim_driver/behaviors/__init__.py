@@ -5,6 +5,8 @@ from .behavior import (BEHAVIOR_STATE_MISSION_COMPLETE,
 from .abend import AbendBehavior
 from .climb_to import ClimbToBehavior
 from .dive_to import DiveToBehavior
+from .goto_list import GotoListBehavior
+from .goto_wpt import GotoWptBehavior
 from .pinger_on import PingerOnBehavior
 from .prepare_to_dive import PrepareToDiveBehavior
 from .sample import SampleBehavior
@@ -20,9 +22,9 @@ __all__ = ['BEHAVIOR_STATE_MISSION_COMPLETE', 'BEHAVIOR_STATE_UNINITED',
 
 
 ALL_BEHAVIORS = [AbendBehavior, ClimbToBehavior, DiveToBehavior,
-                 PingerOnBehavior, PrepareToDiveBehavior, SampleBehavior,
-                 SensorsInBehavior, SetHeadingBehavior, SurfaceBehavior,
-                 YoBehavior]
+                 GotoListBehavior, GotoWptBehavior, PingerOnBehavior,
+                 PrepareToDiveBehavior, SampleBehavior, SensorsInBehavior,
+                 SetHeadingBehavior, SurfaceBehavior, YoBehavior]
 
 
 def make_behavior(name, args, index, g):
