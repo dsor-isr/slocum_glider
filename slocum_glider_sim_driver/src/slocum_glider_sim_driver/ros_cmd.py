@@ -55,7 +55,7 @@ class RosCmdTopic(object):
             # meters.
             msg.target_pitch_value = state.dc_c_battpos * 2.54/100.0
         elif (state.cc_final_pitch_mode == PITCH_MODE_PITCH_ONCE
-              or state.cc_final_pitch_mode == PITCH_MODE_PITCH_ONCE):
+              or state.cc_final_pitch_mode == PITCH_MODE_PITCH_SERVO):
             # oops, glider has pitch negative down, but message is negative up.
             msg.target_pitch_value = -state.cc_final_pitch_value
 
