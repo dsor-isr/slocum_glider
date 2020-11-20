@@ -9,6 +9,7 @@ from six import itervalues
 from .behaviors import BEHAVIOR_STATE_MISSION_COMPLETE
 from .extctl import ExtctlProglet
 from .glider_dos import GliderDos
+from .lmc import latlon_to_lmc, set_lmc_origin
 from .masterdata import parse_masterdata_file
 from .mission import make_mission
 from .modes import (BPUMP_MODE_ABSOLUTE, MODE_IGNORE, MODE_UNSET,
@@ -70,6 +71,13 @@ class Glider:
         # at the surface.
         state.dc_c_battpos = min(0.1, state.x_battpos_max)
         state.dc_c_oil_volume = state.x_ballast_pumped_max
+
+    def compute_lmc_position(self):
+        """Translate the current coordinates of the glider into LMC."""
+        state = self.state
+        state.m_x_lmc, state.m_y_lmc = latlon_to_lmc(state.m_lat,
+                                                     state.m_lon,
+                                                     state)
 
     def dynamic_control(self):
         """Run dynamic control. Takes the output of layered control and determines the
@@ -178,6 +186,8 @@ class Glider:
         state.m_cycle_number += 1
 
         self.update_sensors()
+        if self.active_mission:
+            self.compute_lmc_position()
         self.layered_control()
         self.dynamic_control()
 
@@ -243,6 +253,7 @@ class Glider:
         mission = make_mission(mission_string.splitlines(),
                                self)
         mission.name = args[0]
+        set_lmc_origin(self.state)
         self.active_mission = mission
         self.state.m_mission_start_time = rospy.get_time()
 
