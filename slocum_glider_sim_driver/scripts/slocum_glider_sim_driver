@@ -15,7 +15,7 @@
 # insensitive, but the file system used for this node is not. Therefore, we
 # canonicalize on lower case file names.
 
-from os.path import join
+from os.path import expanduser, join
 
 import rospy
 
@@ -23,7 +23,7 @@ from slocum_glider_sim_driver import SimDriver
 
 if __name__ == '__main__':
     rospy.init_node('slocum_glider_serial_driver')
-    data_dir = rospy.get_param('~data_dir')
+    data_dir = expanduser(rospy.get_param('~data_dir'))
     flight_computer_dir = join(data_dir, 'flight/')
     science_computer_dir = join(data_dir, 'science/')
     masterdata_file_path = join(data_dir, 'masterdata.mi')
