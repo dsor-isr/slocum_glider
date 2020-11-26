@@ -142,6 +142,7 @@ class Behavior(object):
         self.index = index
         self.g = g
 
+        self.time_entered_state = 0
         self.state = BEHAVIOR_STATE_UNINITED
 
         self.behavior_name = self.NAME + '_' + str(self.index)
@@ -150,6 +151,9 @@ class Behavior(object):
         self.g.log('behavior ' + self.behavior_name + ': STATE '
                    + state_name(self.state) + ' -> ' +
                    state_name(new_state))
+        if self.state == BEHAVIOR_STATE_UNINITED:
+            self.print_args()
+        self.time_entered_state = self.g.state.m_present_secs_into_mission
         self.state = new_state
 
     def init(self):
@@ -214,6 +218,9 @@ class Behavior(object):
             return up_down_is_idle(x)
         elif when == BAW_NEVER:
             return False
+        elif when == BAW_WHEN_SECS and start_or_stop == 'stop':
+            return ((x.m_present_secs_into_mission - self.time_entered_state)
+                    >= self.args.when_secs)
         elif when == BAW_WHEN_SECS:
             raise NotImplementedError()
         elif when == BAW_WHEN_WPT_DIST:
@@ -250,6 +257,13 @@ class Behavior(object):
         else:
             return False
 
+    def print_args(self):
+        log = self.g.log
+        for name, value in iteritems(self.args):
+            units = self.g.masterdata.behaviors[self.NAME].args[name].units
+            log('behavior ' + self.behavior_name + ': argument: '
+                + name + ' = ' + str(value) + ' ' + units)
+
 
 class Substate:
     TERMINAL = False
@@ -274,8 +288,10 @@ class BehaviorWithSubstates(Behavior):
 
     def __init__(self, args, index, g):
         super(BehaviorWithSubstates, self).__init__(args, index, g)
+
+    def init(self):
+        super(BehaviorWithSubstates, self).init()
         self.substate = self.SUBSTATES[0](self)
-        self.init()
 
     def substate_index(self, substate):
         return self.SUBSTATES.index(substate.__class__)

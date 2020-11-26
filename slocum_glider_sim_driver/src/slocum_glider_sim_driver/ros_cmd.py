@@ -49,21 +49,26 @@ class RosCmdTopic(object):
         state = g.state
 
         # Set pitch!
-        msg.pitch_cmd_type = UwGliderCommand.PITCH_CMD_BATT_POS
-        # Ooops, glider works in inches, but the message is defined in meters.
-        msg.target_pitch_value = state.dc_c_battpos * 2.54/100.0
+        msg.pitch_cmd_type = PITCH_CMD_MAP[state.cc_final_pitch_mode]
+        if state.cc_final_pitch_mode == PITCH_MODE_BATT_POS:
+            # Ooops, glider works in inches, but the message is defined in
+            # meters.
+            msg.target_pitch_value = state.dc_c_battpos * 2.54/100.0
+        elif (state.cc_final_pitch_mode == PITCH_MODE_PITCH_ONCE
+              or state.cc_final_pitch_mode == PITCH_MODE_PITCH_SERVO):
+            # oops, glider has pitch negative down, but message is negative up.
+            msg.target_pitch_value = -state.cc_final_pitch_value
 
         # TODO: Revive once dynamic control handles the thruster
         # # Set thruster
         # msg.motor_cmd_type = THRUSTER_CMD_MAP[state.cc_final_thruster_mode]
         # msg.target_motor_cmd = state.cc_final_thruster_value
 
-        # TODO: Revive once simulator handles it.
         # Set rudder
-        # msg.rudder_control_mode = RUDDER_CMD_MAP[state.cc_final_heading_mode]
-        # msg.target_heading = state.cc_final_heading_value
-        # msg.rudder_angle = UwGliderCommand.RUDDER_ANGLE_DIRECT
-        # msg.target_rudder_angle = state.cc_final_heading_value
+        msg.rudder_control_mode = RUDDER_CMD_MAP[state.cc_final_heading_mode]
+        msg.target_heading = state.cc_final_heading_value
+        msg.rudder_angle = UwGliderCommand.RUDDER_ANGLE_DIRECT
+        msg.target_rudder_angle = state.cc_final_heading_value
 
         # Set bouyancy pump
         msg.target_pumped_volume = state.dc_c_oil_volume

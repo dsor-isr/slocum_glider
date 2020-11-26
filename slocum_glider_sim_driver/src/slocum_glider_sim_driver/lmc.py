@@ -20,7 +20,7 @@ def zone_char_to_hemisphere(zone_char):
     """Given a zone character, return the hemisphere as 1 (North) or -1 (South).
 
     """
-    if zone_char + chr('A') < chr('N'):
+    if zone_char + ord('A') < ord('N'):
         return -1
     else:
         return 1
@@ -64,8 +64,8 @@ def utm_to_lmc(easting, northing, zone_num, zone_char, x):
     else:
         northing_correction = 0
 
-    if zone_num != x.x_lmc_utm_zone_num:
-        easting_correction = (zone_offset(x.x_lmc_utm_zone_num, zone_num)
+    if zone_num != x.x_lmc_utm_zone_digit:
+        easting_correction = (zone_offset(x.x_lmc_utm_zone_digit, zone_num)
                               * zone_width_at_band(zone_char))
     else:
         easting_correction = 0
@@ -86,3 +86,21 @@ def latlon_to_lmc(lat, lon, x):
     easting, northing, zone_num, zone_char = from_latlon(lat, lon)
     zone_char = ord(zone_char) - ord('A')
     return utm_to_lmc(easting, northing, zone_num, zone_char, x)
+
+
+def set_lmc_origin(x):
+    lat = decimal_mins_to_decimal_degs(x.m_lat)
+    lon = decimal_mins_to_decimal_degs(x.m_lon)
+    easting, northing, zone_num, zone_char = from_latlon(lat, lon)
+    zone_char = ord(zone_char) - ord('A')
+
+    x.x_lmc_utm_zone_digit = zone_num
+    x.x_lmc_utm_zone_char = zone_char
+    x.x_utm_to_lmc_x0 = -easting
+    x.x_utm_to_lmc_y0 = -northing
+
+    # TODO: This does not account for magnetic deviation!
+    x.x_utm_to_lmc_00 = 1
+    x.x_utm_to_lmc_01 = 0
+    x.x_utm_to_lmc_10 = 0
+    x.x_utm_to_lmc_11 = 1

@@ -13,6 +13,7 @@ class YoBehavior(Behavior):
     NAME = 'yo'
 
     def init(self):
+        super(YoBehavior, self).init()
         args = self.args
         self.yos_done = 0
 
