@@ -5,6 +5,7 @@ image: ros:${ROS_VERSION}-ros-base
 
 stages:
   - Test
+  - Build images
   - Release
 
 roslint:
@@ -22,6 +23,20 @@ roslint:
     - catkin_make roslint
   needs: []
 
+Build image:
+  stage: Build images
+  image: docker:19.03
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  services:
+    - docker:19.03-dind
+  before_script:
+    - docker info
+  script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin
+    - docker build -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" .
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
+
 Release:
   stage: Release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
@@ -31,6 +46,6 @@ Release:
     - "true"
   release:
     name: 'Slocum Glider $CI_COMMIT_TAG'
-    description: 'Slcoum Glider ROS package $CI_COMMIT_TAG'
+    description: 'Slocum Glider ROS package $CI_COMMIT_TAG'
     tag_name: '$CI_COMMIT_TAG'
     ref: '$CI_COMMIT_TAG'
