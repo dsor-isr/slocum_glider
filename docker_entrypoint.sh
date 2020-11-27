@@ -2,5 +2,7 @@
 set -e
 
 # setup ros environment
-source "/opt/ros/slocum_glider_overlay/setup.bash"
+source "/opt/ros/$ROS_DISTRO/setup.bash"
+source "/slocum_glider_workspace/install/setup.bash"
+
 exec "$@"
