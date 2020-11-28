@@ -66,7 +66,9 @@ Build image manifest:
     - docker info
   script:
     - docker manifest create "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" "$CI_REGISTRY_IMAGE/amd64/$CI_PROJECT_NAME:$CI_PIPELINE_IID" "$CI_REGISTRY_IMAGE/arm64v8/$CI_PROJECT_NAME:$CI_PIPELINE_IID"
+    - docker manifest create "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA" "$CI_REGISTRY_IMAGE/amd64/$CI_PROJECT_NAME:$CI_PIPELINE_IID" "$CI_REGISTRY_IMAGE/arm64v8/$CI_PROJECT_NAME:$CI_PIPELINE_IID"
     - docker manifest push -p "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
+    - docker manifest push -p "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
   resource_group: docker_reg
 
 
