@@ -38,13 +38,14 @@ roslint:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
     - docker pull "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" || true
     - docker pull "$CI_REGISTRY_IMAGE:$CI_DEFAULT_BRANCH" || true
+    - docker pull "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA" || true
     - EXTRA_CACHE_FROMS=""
     - |
       for sha in $(git rev-parse HEAD^@); do
         docker pull "$CI_REGISTRY_IMAGE:$sha" || true
         EXTRA_CACHE_FROMS="--cache-from $CI_REGISTRY_IMAGE:$sha $EXTRA_CACHE_FROMS"
       done
-    - docker build --cache-from "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" --cache-from "$CI_REGISTRY_IMAGE:$CI_DEFAULT_BRANCH" $EXTRA_CACHE_FROMS -t "$CI_REGISTRY_IMAGE/${ARCH?}/$CI_PROJECT_NAME:$CI_PIPELINE_IID" .
+    - docker build --cache-from "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" --cache-from "$CI_REGISTRY_IMAGE:$CI_DEFAULT_BRANCH" --cache-from "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA" $EXTRA_CACHE_FROMS -t "$CI_REGISTRY_IMAGE/${ARCH?}/$CI_PROJECT_NAME:$CI_PIPELINE_IID" .
     - docker push "$CI_REGISTRY_IMAGE/${ARCH?}/$CI_PROJECT_NAME:$CI_PIPELINE_IID"
 
 Build amd64 image:
