@@ -23,7 +23,7 @@ roslint:
     - catkin_make roslint
   needs: []
 
-Build image:
+.Build arch image - dind:
   stage: Build images
   image: docker:19.03
   variables:
@@ -34,8 +34,20 @@ Build image:
     - docker info
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
-    - docker build -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" .
-    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
+    - docker build -t "$CI_REGISTRY_IMAGE/${ARCH?}/$CI_PROJECT_NAME:$CI_PIPELINE_IID" .
+    - docker push "$CI_REGISTRY_IMAGE/${ARCH?}/$CI_PROJECT_NAME:$CI_PIPELINE_IID"
+
+Build amd64 image:
+  extends: .Build arch image - dind
+  variables:
+    ARCH: amd64
+
+Build arm64 image:
+  extends: .Build arch image - dind
+  variables:
+    ARCH: arm64v8
+  tags:
+    - arm64-dind
 
 Release:
   stage: Release
