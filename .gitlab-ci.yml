@@ -72,6 +72,7 @@ Build image manifest:
   before_script:
     - docker info
   script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
     - docker manifest create "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" "$CI_REGISTRY_IMAGE/amd64/$CI_PROJECT_NAME:$CI_PIPELINE_IID" "$CI_REGISTRY_IMAGE/arm64v8/$CI_PROJECT_NAME:$CI_PIPELINE_IID"
     - docker manifest create "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA" "$CI_REGISTRY_IMAGE/amd64/$CI_PROJECT_NAME:$CI_PIPELINE_IID" "$CI_REGISTRY_IMAGE/arm64v8/$CI_PROJECT_NAME:$CI_PIPELINE_IID"
     - docker manifest push -p "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
