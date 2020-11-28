@@ -64,7 +64,7 @@ Build image manifest:
   stage: Build image manifests
   image: docker:19.03
   environment:
-    name: GitLab Docker registry
+    name: GitLab Docker registry/$CI_COMMIT_REF_SLUG
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
     DOCKER_CLI_EXPERIMENTAL: "enabled"
