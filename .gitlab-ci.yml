@@ -6,6 +6,7 @@ image: ros:${ROS_VERSION}-ros-base
 stages:
   - Test
   - Build images
+  - Build image manifests
   - Release
 
 roslint:
@@ -34,7 +35,9 @@ roslint:
     - docker info
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
-    - docker build -t "$CI_REGISTRY_IMAGE/${ARCH?}/$CI_PROJECT_NAME:$CI_PIPELINE_IID" .
+    - docker pull "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" || true
+    - docker pull "$CI_REGISTRY_IMAGE:$CI_DEFAULT_BRANCH" || true
+    - docker build --cache-from "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" --cache-from "$CI_REGISTRY_IMAGE:$CI_DEFAULT_BRANCH" -t "$CI_REGISTRY_IMAGE/${ARCH?}/$CI_PROJECT_NAME:$CI_PIPELINE_IID" .
     - docker push "$CI_REGISTRY_IMAGE/${ARCH?}/$CI_PROJECT_NAME:$CI_PIPELINE_IID"
 
 Build amd64 image:
@@ -48,6 +51,24 @@ Build arm64 image:
     ARCH: arm64v8
   tags:
     - arm64-dind
+
+Build image manifest:
+  stage: Build image manifests
+  image: docker:19.03
+  environment:
+    name: GitLab Docker registry
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_CLI_EXPERIMENTAL: "enabled"
+  services:
+    - docker:19.03-dind
+  before_script:
+    - docker info
+  script:
+    - docker manifest create "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" "$CI_REGISTRY_IMAGE/amd64/$CI_PROJECT_NAME:$CI_PIPELINE_IID" "$CI_REGISTRY_IMAGE/arm64v8/$CI_PROJECT_NAME:$CI_PIPELINE_IID"
+    - docker manifest push -p "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
+  resource_group: docker_reg
+
 
 Release:
   stage: Release
