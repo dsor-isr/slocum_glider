@@ -21,6 +21,7 @@
   <!-- NOTE: Requires at least v1.13 of six, which is not in Bionic's package
        manager -->
   <exec_depend>python-six</exec_depend>
+  <exec_depend>python-utm-pip</exec_depend>
 
   <export/>
 </package>
