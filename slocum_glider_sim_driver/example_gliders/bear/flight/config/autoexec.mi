@@ -1,0 +1,133 @@
+# autoexec.mi for example simulated glider
+
+name bear
+
+#INSTALLED DEVICES
+
+#installed buoyancy_pump
+installed de_pump
+installed gps
+installed attitude_rev
+installed ocean_pressure
+installed vacuum
+installed battery
+installed argos
+installed air_pump
+installed pitch_motor
+installed science_super
+installed digifin
+installed altimeter
+installed iridium
+#installed recovery
+#installed coulomb
+installed leakdetect
+#installed veh_temp
+installed thruster
+
+#VEHICLE SETTINGS
+
+# Depth Ratings
+# Max working depth: 31 for 30m glider, 102 for 100m, 206 for 200m, 360 for 350m, 1050 for 1000m
+  sensor: F_MAX_WORKING_DEPTH(m)		1050
+
+# Crush Depth: 225 for 30m, 100m, 200m, and 1200 for 1000m
+  sensor: F_CRUSH_DEPTH(m)			1200
+
+# UNCOMMENT THIS WHEN FLYING A DEEP GLIDER IN SHALLOW WATER
+# Reduce this so sensor_processing doesn't think that our dive is a hover!
+# sensor: u_hovering_frac_nom_dive_rate(nodim)	0.15
+
+# Required to be above this depth to be considered at surface
+# 4 for G2 glider in shallow water, 7 for G2 glider in deep water
+  sensor: u_reqd_depth_at_surface(m)		4
+
+# Disable this in shallow water
+  sensor: u_alt_filter_enabled(bool)       	1 		# enable median filter depth for altitude
+
+# Altimeter model, 0 for Benthos and 1 for Airmmar, -1 for experimental
+  sensor: f_altimeter_model(enum)		1		# airmar(mod1)
+
+# Argos format
+  sensor: f_argos_format(enum)			1		# 0  rev0 legacy/smartcat (32 byte)
+								# 1  rev1 Mar05/xcat  (31 byte)
+# current correction on
+  sensor: u_use_current_correction(nodim)	1
+
+# Coulomb Counter scale factor DO NOT CHANGE UNLESS DIRECTED TO BY GLIDER SUPPORT.
+  sensor: f_coulomb_calibration_factor(%)  	.050 		# calibration factor for the
+                                             			# onboard coulomb counter
+# Clock Source-
+  sensor: f_clock_source(enum)                    0             #  1 - Use DS3234 RTC (new hardware only G2)
+                                                                #  defines the real time clock source.
+                                                                #  0 - Use the RTC provided by the persistor (G1)
+
+#IRIDIUM PHONE NUMBERS
+
+
+# IRIDIUM PHONE
+# The alternate number is configurable to be available
+# In the event of shore side failure resulting in inability
+# to complete an iridium call.  Software will "toggle"
+# to the alternate number and remain there until told
+# otherwise.  Both numbers MUST be uncommented or the masterdata
+# default will be used.
+
+# For a commercial card:
+  sensor: c_iridium_phone_num(digits)		24932578819	# Random number
+  sensor: c_iridium_phone_num_alt(digits)	51987335632	# Random number
+  sensor: c_iridium_lead_zeros(nodim)		2		# number of leading zeros in phone
+								# typically 2 for both commercial or military
+
+#VEHICLE CALIBRATIONS
+
+# Buoyancy pump (shallow pump only)
+  sensor: f_ballast_pumped_nominal_vel(cc/sec)	26		# in, nominal speed, 126 for 30m, 42 for 100m, 26 for 200m
+  sensor: f_ballast_pumped_safety_max(cc)	243.0		# in, damage to glider
+  sensor: f_ballast_pumped_deadz_width(cc)	10.0		# in, sets x_ limit
+  sensor: f_ballast_pumped_db_frac_dz(nodim)	1.0		# deadband as fraction of dead zone
+  sensor: f_ballast_pumped_cal_m(cc/Volt)	600.000		# in, slope
+  sensor: f_ballast_pumped_cal_b(cc)		-450.000	# in, y-intercept
+  sensor: u_ballast_pumped_stop_distance(cc)	2		# in, stopping distance after motor off
+								# change to 2 for 200m glider, 5 for 100m glider, 10 for 30m glider
+
+# Oil volume (deep pump only)
+  sensor: f_de_oil_vol_pot_voltage_min(volts)	0.281 		# raw AD voltage of fully retracted pot
+  sensor: f_de_oil_vol_pot_voltage_max(volts) 	1.799 		# raw AD voltage of fully extended pot
+  sensor: f_de_oil_vol_safety_max(cc)           290.0           # shouldn't go beyond this
+                                                                # results in +/- 260 cc
+# Battery Position
+# max battpos = safety_max - deadzone
+# x_max_battpos = f_safety_max_battpos - f_deadzone_width_battpos
+  sensor: f_battpos_deadzone_width(inches)	0.2		# Sets x_ limit
+  sensor: f_battpos_db_frac_dz(nodim)		0.5		# deadband as fraction of dead zone
+  sensor: f_battpos_nominal_vel(inches/sec)	0.15		# nominal speed for REV.A motor
+								# Specs linear relationship between sensor units (inches) and the
+								# voltage we actually read out of the AD for position
+								# battpos(inches) = _cal_m(inches/Volt) * volts + _cal_b(inches
+#UNCOMMENT THE CALIBRATION NUMBERS FOR THE GLIDER CONFIGURATION
+  sensor: f_battpos_safety_max(inches)		0.938		# in, damage to glider(1000m Lithium)
+  sensor: f_battpos_cal_m(inches/Volt)		2.223		# slope
+  sensor: f_battpos_cal_b(inches)		-1.656		# y-intercept(1000m Lithium)
+
+# vacuum
+  sensor: u_vacuum_cal_m(inHg/Volt)		-13.550		# Factory Calibration data
+  sensor: u_vacuum_cal_b(inHg)			30.287		# inHg = m V + b
+
+# ocean_pressure
+  sensor: f_ocean_pressure_full_scale(bar)	140.000		# pressure @ FS volts (140 for 2000A, 24 for 300A)
+  sensor: f_ocean_pressure_min(volts)		0.121		# voltage for 0 pressure
+  sensor: f_ocean_pressure_max(volts)		1.657		# voltage for FS pressure
+
+# max fin = safety_max - deadzone
+  sensor: f_fin_safety_max(rad)			0.470		# in, damage to glider.
+  sensor: f_fin_deadzone_width(rad)		0.02		# in, Sets x_ limit
+
+
+#PAYLOAD BAY SETTINGS AND CALIBRATIONS
+
+# Turns science computer on
+  sensor: c_science_on(bool)			1
+
+sensor: u_flbbcd_is_calibrated(bool) 1 # false, assume not calibrated
+sensor: u_bb2fls_is_calibrated(bool)   1 # true, assume calibrated
+sensor: u_bb2flsv2_is_calibrated(bool) 1 # true, assume calibrated
