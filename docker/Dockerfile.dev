@@ -1,8 +1,8 @@
-# This Dockerfile builds a "kitchen-sink" image. This image is useful for
-# development and deployment to desktop computers, but is not ideal for
-# deployment to resource constrained robots. The workspace containing the code
-# is located at /slocum_glider_workspace and the entrypoint is overridden to
-# source the install space of this workspace.
+# This Dockerfile builds an image containing all the dependencies of this
+# project. This image is useful for development on desktop computers, but is
+# not ideal for deployment in any form. The workspace containing the code is
+# located at /slocum_glider_ws and the entrypoint is overridden to source the
+# devel space of this workspace.
 
 ARG ros_distro=melodic
 ARG frl_msgs_commit=ab362d2f7264ce8be4d6b12bf41538ca4215bfba
@@ -22,29 +22,35 @@ FROM ros:$ros_distro-ros-base as deps-extractor
 # *before* copying in our source code.
 
 ARG ros_distro
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Initialize the workspace
-WORKDIR /slocum_glider_workspace/src
+WORKDIR /slocum_glider_ws/src
 
 # hadolint ignore=SC1091
-RUN . "/opt/ros/$ros_distro/setup.sh" \
+RUN . "/opt/ros/$ros_distro/setup.bash" \
     && catkin_init_workspace
 
 # Get the devel, etc. folders created
-WORKDIR /slocum_glider_workspace/
+WORKDIR /slocum_glider_ws/
 
 # hadolint ignore=SC1091
-RUN . "/opt/ros/$ros_distro/setup.sh" \
+RUN . "/opt/ros/$ros_distro/setup.bash" \
     && catkin_make
 
 # We have to install FRL msgs manually as it's not available via a package
 # manager.
 ARG frl_msgs_commit
 ENV FRL_MSGS_COMMIT=$frl_msgs_commit
-RUN . "/opt/ros/$ros_distro/setup.sh" \
+RUN . "/opt/ros/$ros_distro/setup.bash" \
     && git clone https://github.com/Field-Robotics-Lab/frl_msgs.git \
     && git -C frl_msgs archive --prefix=src/frl_msgs/ "$FRL_MSGS_COMMIT" | tar x \
     && rm -rf frl_msgs
+
+# Install pip.
+RUN apt-get update \
+    && apt-get install -y --no-upgrade --no-install-recommends python-pip \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy in all the source code:
 COPY slocum_glider src/slocum_ros/slocum_glider
@@ -55,9 +61,8 @@ COPY slocum_glider_serial_driver src/slocum_ros/slocum_glider_serial_driver
 COPY slocum_glider_sim_driver src/slocum_ros/slocum_glider_sim_driver
 
 # Generate the install script!
-RUN . "/opt/ros/$ros_distro/setup.sh" \
+RUN . "/opt/ros/$ros_distro/setup.bash" \
     && apt-get update \
-    && apt-get install -y --no-upgrade --no-install-recommends python-pip \
     && rosdep install --from-paths src --ignore-src -y -s --as-root pip:false --as-root apt:false | sort -u | tee /tmp/install-script \
     && rm -rf /var/lib/apt/lists/*
 
@@ -65,6 +70,29 @@ RUN . "/opt/ros/$ros_distro/setup.sh" \
 FROM ros:$ros_distro-ros-base
 
 ARG ros_distro
+
+# Set USER and GROUP
+ARG USER=ros
+ARG GROUP=ros
+
+# Add fixuid so we can fixup file permissions at runtime. It's very sad we have
+# to revert to this and Docker doesn't have a better first-class solution.
+ARG fixuid_version=0.5
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates sudo \
+    && curl -fSsL https://github.com/boxboat/fixuid/releases/download/v$fixuid_version/fixuid-$fixuid_version-linux-amd64.tar.gz | tar -C /usr/local/bin -xzf - \
+    && chown root:root /usr/local/bin/fixuid \
+    && chmod 4755 /usr/local/bin/fixuid \
+    && mkdir -p /etc/fixuid \
+    && printf "user: $USER\ngroup: $GROUP\n" > /etc/fixuid/config.yml \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN addgroup --gid 1000 $USER \
+    && adduser --uid 1000 --ingroup $USER --home /home/$USER --shell /bin/sh --disabled-password --gecos "" $USER
+
+RUN adduser $USER sudo \
+ && echo "$USER ALL=NOPASSWD: ALL" >> /etc/sudoers.d/$USER
+
 COPY --from=deps-extractor /tmp/install-script /tmp/install-script
 
 # Install the dependencies
@@ -83,16 +111,20 @@ RUN . "/opt/ros/$ros_distro/setup.sh" \
 ARG frl_msgs_commit
 ENV FRL_MSGS_COMMIT=$frl_msgs_commit
 
-# Copy in the source code. We *could* just do all the COPY commands and git
-# clone frl_msgs again, but why bother since we already have all that available
-# in the previous image...
-WORKDIR /slocum_glider_workspace
-COPY --from=deps-extractor /slocum_glider_workspace/src src
-
-# make and install!
-RUN . "/opt/ros/$ros_distro/setup.sh" \
-    && catkin_make \
-    && catkin_make install
-
 # Overwrite the entrypoint so that our overlay is sourced.
-COPY docker_entrypoint.sh /ros_entrypoint.sh
+COPY docker/dev_entrypoint.sh /ros_entrypoint.sh
+
+USER $USER:$GROUP
+
+# Copy in the source code for our dependencies. We *could* just do all the COPY
+# commands and git clone frl_msgs again, but why bother since we already have
+# all that available in the previous image...
+WORKDIR /home/$USER/slocum_glider_ws
+
+RUN echo 'source "$HOME/slocum_glider_ws/devel/setup.bash"' >> "/home/$USER/.bashrc"
+
+COPY --from=deps-extractor --chown=$USER:$GROUP /slocum_glider_ws/src/frl_msgs src/frl_msgs
+
+# make
+RUN . "/opt/ros/$ros_distro/setup.sh" \
+    && catkin_make
