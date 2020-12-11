@@ -1,0 +1,43 @@
+#+TITLE: Docker support for slocum_ros
+
+This folder contains all the scripts and Dockerfiles needed to build production
+ready Docker images of this project, as well as development images.
+
+* Production Images
+
+  There is currently one production image - the "kitchen sink" image that
+  includes every package in this project as well as all their dependencies. In
+  the future, there will be other images meant for deployment to resource
+  constrained robots.
+
+** Kitchen Sink Image
+
+   The canonical name of this image is
+   =registry.gitlab.com/mit-mers/ros/slocum_glider=. It contains every package
+   in this project as well as all their dependencies.
+
+   The following tags are published:
+
+   + =latest= :: The latest released version.
+   + =master= :: Built on every push to the master branch.
+   + =v*= :: Built to correspond to every released version.
+
+* Development Images
+
+  This is currently one development image - the "kitchen sink" image that
+  includes the dependencies for every package in this project. In the future,
+  there may be development images geared toward resource constrained robots.
+
+** Kitchen Sink Image
+
+   This image is not published. It is meant only to be built locally. This
+   image additionally does not have any source code from this project present
+   in it. Instead, it must be mounted. Use the =build-dev.bash= script to build
+   it and the =run-dev.bash= script to run it. It tags itself locally as
+   =slocum_glider_ros_dev=.
+
+   The =run-dev.bash= script will start a temporary container (it is removed
+   when it exits), mounts the source code to
+   =/home/ros/slocum_glider_ws/src/slocum_glider=, and runs it with the UID and
+   GID matching the current user (fixuid is then responsible for fixing up the
+   UIDs in the container).
