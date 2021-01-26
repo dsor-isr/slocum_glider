@@ -1,0 +1,2 @@
+slocum_glider_msgs/ExtctlEntry[] backseat_outputs
+slocum_glider_msgs/ExtctlEntry[] backseat_inputs

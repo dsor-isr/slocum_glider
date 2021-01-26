@@ -2,6 +2,8 @@ import threading
 
 import rospy
 import serial
+from slocum_glider_msgs.msg import (Extctl as ExtctlMsg, ExtctlEntry)
+
 from get_file_service import GetFileService
 from send_file_service import SendFileService
 from sensors import SensorInterface
@@ -141,6 +143,10 @@ class Extctl:
         # Start the string setting service for debugging purposes
         self.string_setter = SetStringService(self.ser)
 
+        # The publisher for the extctl.ini file.
+        self.extctl_pub = rospy.Publisher('extctl/ini', ExtctlMsg,
+                                          queue_size=1, latch=True)
+
         # We don't necessarily have the extctl.ini file yet, so set
         # self.sensors to None to let the message processor know that.
         self.sensors = None
@@ -204,14 +210,18 @@ class Extctl:
         # can do that we need to make sure we have a valid extctl.ini file.
         sensor_descriptions = self.ensure_extctl_ini()
 
+        msg = ExtctlMsg()
         # Now instantiate the sensor handler
         writeable = []
         readable = []
         for d in sensor_descriptions:
             if d['writeable']:
+                msg.backseat_outputs.append(ExtctlEntry(d['name'], d['units']))
                 writeable.append((d['name'], d['units']))
             else:
+                msg.backseat_inputs.append(ExtctlEntry(d['name'], d['units']))
                 readable.append((d['name'], d['units']))
+        self.extctl_pub.publish(msg)
         self.sensors = SensorInterface(writeable, readable, self.ser)
 
     def stop(self):
