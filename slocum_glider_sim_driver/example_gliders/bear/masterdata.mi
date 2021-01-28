@@ -6232,6 +6232,20 @@ sensor: u_iridium_data_rate(KBps)    0.1  # Nominal data throughput on Iridium k
 sensor: u_pitch_motor_test_availability(bool) 1  # 0 disables test
                                                  # 1 enables test
 
+sensor: u_mission_param_a(X) 0
+sensor: u_mission_param_b(X) 0
+sensor: u_mission_param_c(X) 0
+sensor: u_mission_param_d(X) 0
+sensor: u_mission_param_e(X) 0
+sensor: u_mission_param_f(X) 0
+sensor: u_mission_param_g(X) 0
+sensor: u_mission_param_h(X) 0
+sensor: u_mission_param_i(X) 0
+sensor: u_mission_param_j(X) 0
+sensor: u_mission_param_k(X) 0
+sensor: u_mission_param_l(X) 0
+sensor: u_mission_mode(X)    0
+
 # Some documentation on b_args common to all behaviors
 # NOTE: When you add these common b_args, put them at END of b_arg
 #       list for behaviors.  They do not "naturally" belong there, but
