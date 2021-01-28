@@ -253,9 +253,12 @@ class Glider:
         mission = make_mission(mission_string.splitlines(),
                                self)
         mission.name = args[0]
-        set_lmc_origin(self.state)
-        self.active_mission = mission
-        self.state.m_mission_start_time = rospy.get_time()
+        for sensor in itervalues(mission.sensors):
+            self.state[sensor.name] = sensor.default_value
+        if mission.behaviors:
+            set_lmc_origin(self.state)
+            self.active_mission = mission
+            self.state.m_mission_start_time = rospy.get_time()
 
     def cmd(self, command):
         self.console_writer(command + '\n')
