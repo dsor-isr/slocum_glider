@@ -6499,6 +6499,8 @@ behavior: goto_wpt                                 #! visible = False
     b_arg: start_when(enum) 0                      #! choices=start_when([0, 1, 2, 4])
     b_arg: stop_when(enum)  2                      #! choices=stop_when([1, 2, 5, 7])
 
+    b_arg: when_secs(sec)   0
+
     b_arg: when_wpt_dist(m) 0                      #! min = 5.0
                                                    # stop_when == 7   ==> stop when m_dist_to_wpt < this arg
 

@@ -56,7 +56,7 @@ def state_name(state):
 
 def maybe_deref(value, x):
     if value >= 1000000:
-        param = 'u_mission_param_' + chr(ord('a') + (value - 1000000))
+        param = 'u_mission_param_' + chr(ord('a') + (int(value) - 1000000))
         return x[param]
     else:
         return value

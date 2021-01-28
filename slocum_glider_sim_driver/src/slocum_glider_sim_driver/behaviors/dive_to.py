@@ -13,7 +13,7 @@ class DiveToBehavior(BehaviorWithSubstates):
 
         def next_state(self, parent, x):
             if x.m_depth_rejected != 2:
-                if x.m_depth < self.args.target_depth:
+                if x.m_depth < maybe_deref(self.args.target_depth, x):
                     return parent.Starting(parent)
                 else:
                     return parent.Complete(parent)
@@ -50,7 +50,7 @@ class DiveToBehavior(BehaviorWithSubstates):
             #                          x.x_ballast_pumped_max)
 
         def next_state(self, parent, x):
-            if x.m_depth >= self.args.target_depth:
+            if x.m_depth >= maybe_deref(self.args.target_depth, x):
                 return parent.Complete(parent)
 
     class Complete(Substate):
