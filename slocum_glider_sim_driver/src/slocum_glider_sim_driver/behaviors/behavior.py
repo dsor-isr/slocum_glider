@@ -30,6 +30,7 @@ BAW_SCI_SURFACE = 11
 BAW_NOCOMM_SECS = 12
 BAW_WHEN_UTC_TIME = 13
 BAW_HOVER_ACTIVE = 14
+BAW_SCI_MISSION_MODE = 15
 
 
 END_ACTION_QUIT = 0
@@ -239,6 +240,12 @@ class Behavior(object):
             raise NotImplementedError()
         elif when == BAW_HOVER_ACTIVE:
             raise NotImplementedError()
+        elif when == BAW_SCI_MISSION_MODE:
+            secs = int(self.args.when_secs)
+            if start_or_stop == 'start':
+                return (secs & int(x.u_mission_mode)) != 0
+            else:
+                return (secs & int(x.u_mission_mode)) == 0
         else:
             raise ValueError('Do not know how to handle ' + start_or_stop
                              + ': ' + str(when))
