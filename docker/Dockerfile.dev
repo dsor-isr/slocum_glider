@@ -57,7 +57,7 @@ COPY slocum_glider src/slocum_ros/slocum_glider
 COPY slocum_glider_driver src/slocum_ros/slocum_glider_driver
 COPY slocum_glider_launch src/slocum_ros/slocum_glider_launch
 COPY slocum_glider_msgs src/slocum_ros/slocum_glider_msgs
-COPY slocum_glider_serial_driver src/slocum_ros/slocum_glider_serial_driver
+COPY slocum_glider_extctl_serial src/slocum_ros/slocum_glider_extctl_serial
 COPY slocum_glider_extctl_sim src/slocum_ros/slocum_glider_extctl_sim
 
 # Generate the install script!

@@ -22,11 +22,11 @@
 # science computer.
 
 import rospy
-from slocum_glider_serial_driver import BackseatInterface
+from slocum_glider_extctl_serial import BackseatInterface
 
 
 if __name__ == '__main__':
-    rospy.init_node('slocum_glider_serial_driver')
+    rospy.init_node('slocum_glider_extctl_serial')
     interface = BackseatInterface()
     interface.start()
     rospy.spin()

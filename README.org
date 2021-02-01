@@ -20,7 +20,7 @@ The =slocum_glider_launch= package contains various launch files for starting
 the various services.
 
 There are currently two implementations of the backseat driver interface. The
-first, =slocum_glider_serial_driver= connects to real glider hardware via a
+first, =slocum_glider_extctl_serial= connects to real glider hardware via a
 serial port. The second, =slocum_glider_extctl_sim= simulates a complete glider
 control system (including parsing mission files) and connects to a simulator
 (such as [[https://github.com/Field-Robotics-Lab/glider_hybrid_whoi]]) to simulate

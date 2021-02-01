@@ -22,7 +22,7 @@ import rospy
 from slocum_glider_extctl_sim import SimDriver
 
 if __name__ == '__main__':
-    rospy.init_node('slocum_glider_serial_driver')
+    rospy.init_node('slocum_glider_extctl_serial')
     data_dir = expanduser(rospy.get_param('~data_dir'))
     flight_computer_dir = join(data_dir, 'flight/')
     science_computer_dir = join(data_dir, 'science/')
