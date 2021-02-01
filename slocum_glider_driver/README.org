@@ -16,6 +16,8 @@ Python library to abstract away the need to subscribe to topics directly).
      and receiving data.
    + =extctl/active_sensors= :: (=slocum_glider_msgs/ActiveSensors=) Describes the
      sensors that are readable and writeable over the extctl interface.
+   + =extctl/ini= :: (=slocum_glider_msgs/Extctl=) Describes all the sensors
+     available over the extctl interface.
    + =extctl/sensors/SENSOR_NAME= :: Every sensor in the =is= section of
      extctl.ini has its value published to the corresponding topic when a new
      value for it is received. The message type is one of

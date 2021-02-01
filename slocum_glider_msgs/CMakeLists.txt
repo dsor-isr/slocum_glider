@@ -54,6 +54,8 @@ add_message_files(
   StampedByte.msg
   StampedFloat32.msg
   StampedFloat64.msg
+  ExtctlEntry.msg
+  Extctl.msg
 )
 
 ## Generate services in the 'srv' folder

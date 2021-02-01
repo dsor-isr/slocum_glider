@@ -6,6 +6,7 @@ from six import iteritems
 
 import rospy
 from std_msgs.msg import Byte, Float64, Float32
+from slocum_glider_msgs.msg import (Extctl, ExtctlEntry)
 from slocum_glider_msgs.srv import (SetByte, SetFloat32, SetFloat64, SetMode,
                                     SetModeResponse)
 
@@ -76,6 +77,8 @@ class ExtctlProglet(object):
     def __init__(self, g):
         self.g = g
         science_fs = g.science_fs
+        self.extctl_pub = rospy.Publisher('extctl/ini', Extctl, queue_size=1,
+                                          latch=True)
         if science_fs.exists(['config', 'extctl.ini']):
             with closing(g.open_science_file(['config', 'extctl.ini'])) as f:
                 contents = f.read()
@@ -90,19 +93,23 @@ class ExtctlProglet(object):
         srvs = {}
         self.pubs = pubs
         self.srvs = srvs
+        msg = Extctl()
         for sensor in self.extctl_ini:
             name = sensor['name']
             if not sensor['writeable']:
                 pubs[name] = rospy.Publisher('extctl/sensors/' + name,
                                              get_msg_type(sensor['units']),
                                              queue_size=1)
+                msg.backseat_inputs.append(ExtctlEntry(name, sensor['units']))
             else:
                 srv_type = get_srv_type(sensor['units'])
                 srvs[name] = rospy.Service(
                     'extctl/sensors/set_' + name,
                     srv_type,
                     self.make_srv_handler(sensor, srv_type._response_class))
+                msg.backseat_outputs.append(ExtctlEntry(name, sensor['units']))
 
+        self.extctl_pub.publish(msg)
         self.mode_srv = rospy.Service('extctl/set_mode',
                                       SetMode,
                                       self.set_mode)

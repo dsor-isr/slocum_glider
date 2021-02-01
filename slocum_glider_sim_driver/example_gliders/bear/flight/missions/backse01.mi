@@ -1,0 +1,129 @@
+# backse01.mi: This mission file is the standard mission file used to delegate
+# most control to the backseat driver.
+
+# Enable all science sensors
+sensor: c_science_all_on_enabled(bool) 1
+
+# Do not use the CTD depth
+sensor: u_use_ctd_depth_for_flying(bool) 0
+
+# Use current correction.  TODO: Think if this should be turned off.
+sensor: u_use_current_correction(nodim) 1
+
+# Automatically adapt to overshoots when yo'ing.
+sensor: u_adj_overshoot(bool) 1
+
+behavior: abend
+    b_arg: overdepth_sample_time(s) 20.0
+    b_arg: overtime(s) 43200                # half a day
+    b_arg: max_wpt_distance(m) -1
+    b_arg: samedepth_for_sample_time(s) 30.0
+    b_arg: undervolts(volts) 10.0
+    b_arg: no_cop_tickle_for(sec) 48600.0
+    b_arg: no_cop_tickle_percent(%) -1
+
+# Emergency surface when requested by backseat driver.
+behavior: surface
+    b_arg: start_when(enum)          15      # sci_mission_mode
+    b_arg: when_secs(sec)            2       # 2s bit
+    b_arg: end_action(enum)          1       # ctrl-c
+    b_arg: gps_wait_time(s)          300
+    b_arg: keystroke_wait_time(sec)  180     # Wait for 6 minutes before continuing
+    b_arg: c_use_pitch(enum)         3       # 3:servo
+    b_arg: c_pitch_value(X)          0.7853  # 45 deg
+
+# # Surface periodically when no comms for 8 hours.
+# behavior: surface
+#     b_arg: start_when(enum)          12      # no comms
+#     b_arg: when_secs(sec)            28800   # 8 hours
+#     b_arg: end_action(enum)          1       # wait for ^C quit/resume
+#     b_arg: gps_wait_time(s)          600
+#     b_arg: keystroke_wait_time(sec)  560
+#     b_arg: c_use_pitch(enum)         3       # servo
+#     b_arg: c_pitch_value(X)          0.4528  # 26 deg
+#     b_arg: printout_cycle_time(sec)  60.0    # How often to print dialog
+
+# Surface when requested by backseat driver.
+behavior: surface
+    b_arg: start_when(enum)          15      # sci_mission_mode
+    b_arg: when_secs(sec)            1       # 1s bit
+    b_arg: end_action(enum)          1       # ctrl-c
+    b_arg: gps_wait_time(s)          300
+    b_arg: keystroke_wait_time(sec)  180     # Wait for 6 minutes before continuing
+    b_arg: c_use_pitch(enum)         3       # 3:servo
+    b_arg: c_pitch_value(X)          0.4538  # 26 deg
+
+# Carrot following mode
+behavior: goto_wpt
+    b_arg: start_when(enum) 15             # sci_mission_mode
+    b_arg: stop_when(enum)  15             # sci_mission_mode
+    b_arg: end_action(enum) 2              # resume on stop
+    b_arg: when_secs(sec)   4              # 4s bit
+    b_arg: wpt_units(enum)  2              # Lat/Long
+    b_arg: wpt_x(X)         1000000        # u_mission_param_a
+    b_arg: wpt_y(X)         1000001        # u_mission_param_b
+
+# Driving mode
+# backseat driver spiraling behavior
+# starboard
+
+# Spiral starboard with max rudder.
+behavior: set_heading
+    b_arg: start_when(enum)   15        # sci_mission_mode
+    b_arg: stop_when(enum)    15        # sci_mission_mode
+    b_arg: when_secs(sec)     16        # 16s bit
+    b_arg: use_heading(bool)  4
+    b_arg: heading_value(X)   0.45      # max_rudder_angle starboard, 0.45 radians
+
+# Spiral port with max rudder.
+behavior: set_heading
+    b_arg: start_when(enum)   15        # sci_mission_mode
+    b_arg: stop_when(enum)    15        # sci_mission_mode
+    b_arg: when_secs(sec)     8         # 8s bit
+    b_arg: use_heading(bool)  4
+    b_arg: heading_value(X)   -0.45     # max_rudder_angle port, -0.45 radians
+
+# Direct control of heading from backseat driver.
+behavior: set_heading
+    b_arg: start_when(enum)   0        # immediately
+    b_arg: stop_when(enum)    5        # never
+    b_arg: use_heading(bool)  1
+    b_arg: heading_value(X)   1000009  # u_mission_param_j
+
+# # backseat driver controlled drift_at_depth
+# behavior: drift_at_depth
+#    b_arg: start_when(enum)    15       # sci_mission_mode
+#    b_arg: stop_when(enum)     15       # sci_mission_mode
+#    b_arg: when_secs(sec)      32       # 32s bit
+   
+# backseat driver controlled yo
+behavior: yo
+    b_arg: start_when(enum)             2         # pitch idle (see doco below)
+    b_arg: num_half_cycles_to_do(nodim) -1        # Number of dive/climbs to perform
+    b_arg: d_target_depth(m)            1000002   # u_mission_param_c
+    b_arg: d_target_altitude(m)         1000003   # u_mission_param_d
+    b_arg: d_use_pitch(enum)            3         # servo the battery pack
+    b_arg: d_pitch_value(X)             1000005   # u_mission_param_f (rads)
+    b_arg: d_use_thruster(enum)         4         # power
+    b_arg: d_thruster_value(X)          1000006   # u_mission_param_g (watts)
+    b_arg: d_stop_when_hover_for(sec)   3600.0
+    b_arg: d_stop_when_stalled_for(sec) 3600.0
+    b_arg: c_target_depth(m)            1000004   # u_mission_param_e
+    b_arg: c_target_altitude(m)         -1
+    b_arg: c_use_pitch(enum)            3         # servo
+    b_arg: c_pitch_value(X)             1000007   # u_mission_param_h (rads)
+    b_arg: c_use_thruster(enum)         4         # power
+    b_arg: c_thruster_value(X)          1000008   # u_mission_param_i (watts)
+    b_arg: c_stop_when_hover_for(sec)   3600.0
+    b_arg: c_stop_when_stalled_for(sec) 3600.0
+    b_arg: end_action(enum)             2         # resume
+
+# Sample all science sensors always
+behavior: sample
+    b_arg: sensor_type(enum) 0      # all
+    b_arg: state_to_sample(enum) 15 # always
+    b_arg: intersample_time(s) 0    # fast as possible
+
+behavior: prepare_to_dive
+
+behavior: sensors_in
