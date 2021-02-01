@@ -49,11 +49,11 @@ RUN . "/opt/ros/$ros_distro/setup.bash" \
 
 # Copy in all the source code:
 COPY slocum_glider src/slocum_ros/slocum_glider
-COPY slocum_glider_driver src/slocum_ros/slocum_glider_driver
+COPY slocum_glider_extctl src/slocum_ros/slocum_glider_extctl
 COPY slocum_glider_launch src/slocum_ros/slocum_glider_launch
 COPY slocum_glider_msgs src/slocum_ros/slocum_glider_msgs
-COPY slocum_glider_serial_driver src/slocum_ros/slocum_glider_serial_driver
-COPY slocum_glider_sim_driver src/slocum_ros/slocum_glider_sim_driver
+COPY slocum_glider_extctl_serial src/slocum_ros/slocum_glider_extctl_serial
+COPY slocum_glider_extctl_sim src/slocum_ros/slocum_glider_extctl_sim
 
 # Generate the install script, run it, install any deps it doesn't pick up, and
 # build the code.

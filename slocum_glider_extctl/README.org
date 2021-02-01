@@ -1,9 +1,10 @@
 #+TITLE: Slocum Glider Interface
 #+AUTHOR: MIT MERS Group
 
-This package describes the interface used to interact with the slocum glider
-over ROS. It currently contains no code, but may in the future (such as a
-Python library to abstract away the need to subscribe to topics directly).
+This package describes the low level extctl interface used to interact with the
+slocum glider over ROS. It currently contains no code, but may in the future
+(such as a Python library to abstract away the need to subscribe to topics
+directly).
 
 * extctl
 

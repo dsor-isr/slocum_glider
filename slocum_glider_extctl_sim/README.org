@@ -9,10 +9,10 @@ This package is used to interface with a Gazebo simulation of the Slocum glider
 implemented by the [[https://github.com/Field-Robotics-Lab/glider_hybrid_whoi/][=glider_hybrid_whoi=]] package.
 
 * Nodes
-  This package contains two nodes: =slocum_glider_sim_driver= and
+  This package contains two nodes: =slocum_glider_extctl_sim= and
   =slocum_glider_sim_console=.
 
-** =slocum_glider_sim_driver=
+** =slocum_glider_extctl_sim=
 
    In addition to implementing the extctl interface and interfacing with the
    simulator, this node publishes console output to the =console= topic and

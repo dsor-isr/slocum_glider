@@ -1,7 +1,7 @@
 #+TITLE: Slocum Glider Serial Interface
 #+AUTHOR: MIT MERS Group
 
-This package contains a single node: =slocum_glider_serial_driver=. This
+This package contains a single node: =slocum_glider_extctl_serial=. This
 node opens a serial port and communicates with the glider, performing a variety
 of tasks. As serial ports are scarce within the glider/backseat driver combo,
 this node implements several independent features for communicating over this
