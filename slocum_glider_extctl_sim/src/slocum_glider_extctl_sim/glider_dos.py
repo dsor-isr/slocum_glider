@@ -5,6 +5,8 @@ running).
 
 import shlex
 
+from .file_parsing import parse_value
+
 
 class GliderDos(object):
     def __init__(self, g):
@@ -39,6 +41,11 @@ class GliderDos(object):
             value = self.g.state[name]
             self.g.console_writer('sensor: ' + name + ' = ' + str(value) + ' '
                                   + self.g.masterdata.sensors[name].units)
+        elif split_command[0] == 'put':
+            name = split_command[1]
+            value = split_command[2]
+            units = self.g.masterdata.sensors[name].units
+            self.g.state[name] = parse_value(units, value)
         else:
             self.g.log('Unknown command: ' + split_command[0])
         self.print_ps1()
