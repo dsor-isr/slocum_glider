@@ -2,6 +2,7 @@
 <launch>
     <arg name="data_dir" doc="Directory where all glider files are stored." />
 
+    <param name="/use_sim_time" value="true" />
     <!-- Launch the sim driver. -->
     <node name="slocum_glider_extctl_sim" pkg="slocum_glider_extctl_sim" type="slocum_glider_extctl_sim"
           respawn="true" output="screen" >
