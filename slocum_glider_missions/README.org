@@ -1,0 +1,14 @@
+#+TITLE: Slocum Glider Missions
+#+AUTHOR: MIT MERS Scouts Team
+
+While many Slocum Glider sensors are self-documenting (=m_depth=, =m_heading=,
+etc.), some critical ones (the =u_mission_param_*= family) are not. However,
+these parameters are critical as they are the ones used to actively modify the
+glider's mission.
+
+This package is designed to provide standard mission files that cede a great
+deal of control to the backseat driver. Right now, only a single set of such
+files is provided. If this is deemed to be insufficient in the future, we will
+extend them and provide some sort of mix-and-match capabillity such that the
+backseat driver can always know which =u_mission_param='s control what on the
+glider.

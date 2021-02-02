@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>slocum_glider_missions</name>
+  <version>0.0.1</version>
+  <description>The slocum_glider_missions package</description>
+
+  <maintainer email="mers-scouts@mit.edu">MIT MERS Scouts Team</maintainer>
+
+  <license>BSD-2</license>
+
+  <author email="etimmons@mit.edu">Eric Timmons</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>

@@ -35,16 +35,16 @@ behavior: surface
     b_arg: c_use_pitch(enum)         3       # 3:servo
     b_arg: c_pitch_value(X)          0.7853  # 45 deg
 
-# # Surface periodically when no comms for 8 hours.
-# behavior: surface
-#     b_arg: start_when(enum)          12      # no comms
-#     b_arg: when_secs(sec)            28800   # 8 hours
-#     b_arg: end_action(enum)          1       # wait for ^C quit/resume
-#     b_arg: gps_wait_time(s)          600
-#     b_arg: keystroke_wait_time(sec)  560
-#     b_arg: c_use_pitch(enum)         3       # servo
-#     b_arg: c_pitch_value(X)          0.4528  # 26 deg
-#     b_arg: printout_cycle_time(sec)  60.0    # How often to print dialog
+# Surface periodically when no comms for 8 hours.
+behavior: surface
+    b_arg: start_when(enum)          12      # no comms
+    b_arg: when_secs(sec)            28800   # 8 hours
+    b_arg: end_action(enum)          1       # wait for ^C quit/resume
+    b_arg: gps_wait_time(s)          600
+    b_arg: keystroke_wait_time(sec)  560
+    b_arg: c_use_pitch(enum)         3       # servo
+    b_arg: c_pitch_value(X)          0.4528  # 26 deg
+    b_arg: printout_cycle_time(sec)  60.0    # How often to print dialog
 
 # Surface when requested by backseat driver.
 behavior: surface

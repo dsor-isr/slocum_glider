@@ -1,0 +1,9 @@
+# Goal
+#
+# Emergency surface. This behavior should only be used as a last resort. Once
+# triggered, the glider control system will immediately surface as fast as
+# possible. Once triggered it cannot be stopped.
+---
+# Result
+---
+# Feedback

@@ -1,0 +1,8 @@
+<!-- Launch file for the Slocum Glider Mission Controller. -->
+<launch>
+    <param name="/use_sim_time" value="true" />
+    <!-- Launch the mission controller. -->
+    <node name="slocum_glider_mission_controller" pkg="slocum_glider_mission_controller" type="mission_controller"
+          respawn="true" output="screen" >
+    </node>
+</launch>

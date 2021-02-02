@@ -55,6 +55,7 @@ COPY slocum_glider_msgs src/slocum_ros/slocum_glider_msgs
 COPY slocum_glider_extctl src/slocum_ros/slocum_glider_extctl
 COPY slocum_glider_extctl_serial src/slocum_ros/slocum_glider_extctl_serial
 COPY slocum_glider_extctl_sim src/slocum_ros/slocum_glider_extctl_sim
+COPY slocum_glider_mission_controller src/slocum_ros/slocum_glider_mission_controller
 
 # Generate the install script, run it, install any deps it doesn't pick up, and
 # build the code.

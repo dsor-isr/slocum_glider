@@ -8,20 +8,85 @@ computer is called the "backseat driver" because it can get (limited)
 visibility into the glider state and has (limited) ability to change the
 behavior of the glider as it is executing a mission.
 
-The ROS interfaces used to interact with the glider are described in the
-=slocum_glider_driver= package. A future version will likely also include a
-library to control the glider via the described interfaces without needing to
-manually subscribe directly to the necessary topics and services.
+* Interfaces
 
-The =slocum_glider_msgs= package contains all the message and service
-definitions needed to interact with the ROS API.
+  This metapackage provides two interfaces through which the glider can be
+  controlled. Each operates at a different layer of abstraction and the
+  implementation of the high level interface consumes the lower-level
+  interface.
 
-The =slocum_glider_launch= package contains various launch files for starting
-the various services.
+** extctl
 
-There are currently two implementations of the backseat driver interface. The
-first, =slocum_glider_extctl_serial= connects to real glider hardware via a
-serial port. The second, =slocum_glider_extctl_sim= simulates a complete glider
-control system (including parsing mission files) and connects to a simulator
-(such as [[https://github.com/Field-Robotics-Lab/glider_hybrid_whoi]]) to simulate
-the glider physics and sensors.
+   The glider communicates with the backseat driver over a serial
+   connection. The glider's end of this serial connection is managed by the
+   =extctl= (EXTernal ConTroL) proglet (hence the name of this interface.
+
+   The ROS extctl interface is described in the =slocum_glider_extctl=
+   package. It provides very low-level control (primarily the direct reading
+   and writing of sensor values and transfer of files to/from the glider's
+   science computer). This interface provides no guarantees on safety and makes
+   no attempt to prevent multiple nodes from controlling the same behaviors.
+
+   All topics and services that are part of the ROS end of this interface are
+   in the =extctl= namespace (which itself may have been pushed down to another
+   namespace).
+
+   This package contains two implementations of this interface. The first,
+   =slocum_glider_extctl_serial= connects to real glider hardware via a serial
+   port. The second, =slocum_glider_extctl_sim= simulates a complete glider
+   control system (including parsing mission files) and connects to a simulator
+   (such as [[https://github.com/Field-Robotics-Lab/glider_hybrid_whoi]]) to
+   simulate the glider physics and sensors.
+
+** mission_controller
+
+   The mission controller interface is a higher-level, actionlib based
+   interface to control the glider. This interface operates on glider
+   behaviors. Unlike the behavior based controller on the glider, these
+   behaviors are not layered. Instead, each aspect of the glider must be
+   controlled by a single behavior and if a new behavior is started that
+   controls the same aspect as a running behavior, the running behavior is
+   preempted.
+
+   In addition to preventing multiple behaviors from clashing with each other,
+   any implementation of this interface must perform some basic safety checks
+   and abort the mission if they fail. An example is that the glider heading
+   must always be controlled by some running behavior.
+
+   There is currently one implementation of this interface. Both the interface
+   and the implementation are described in the
+   =slocum_glider_mission_controller= package.
+
+* Other packages
+
+  The =slocum_glider_msgs= package contains all the message, service, and
+  action definitions needed to interact with the ROS API.
+
+  The =slocum_glider_launch= package contains various launch files for starting
+  the various services.
+
+  The =slocum_glider_missions= package contains some commonly used missions.
+
+* Running
+
+** Simulation
+
+   To run in simulation, perform the following steps:
+
+   1. Clone [[https://github.com/Field-Robotics-Lab/glider_hybrid_whoi/]] to the
+      same directory as this repo.
+   2. Run =docker-compose build= in this repo.
+   3. Run =docker-compose up= in this repo.
+   4. Unpause the simulation.
+   5. In a spearate terminal, run
+      #+begin_src shell
+        docker-compose exec glider_control_sim /ros_entrypoint.sh rosrun slocum_glider_extctl_sim slocum_glider_sim_console
+      #+end_src
+   6. In this glider terminal, run the following. Give a good 6 seconds between
+      each command to be safe.
+      #+begin_src shell
+        run initbuzz.mi
+        run backse01.mi
+      #+end_src
+      This will initialize the system for operating in Buzzards Bay and start
+      the backseat driver's mission (currently a 100mx100m box pattern).
