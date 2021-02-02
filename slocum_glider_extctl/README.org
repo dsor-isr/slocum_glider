@@ -47,4 +47,5 @@ extctl topics that abstracts away the need to subscribe to topics directly.
      transfer is already in progress, otherwise the file transfer is queued.
    + =extctl/set_mode= :: (=slocum_glider_msgs/SetMode=) Toggle several mission
      modes simultaneously. =modes_to_activate= is a list of mode indices to
-     enable and =modes_to_deactivate= is a list of mode indices to disable.
+     enable and =modes_to_deactivate= is a list of mode indices to disable. The
+     indices start at zero.
