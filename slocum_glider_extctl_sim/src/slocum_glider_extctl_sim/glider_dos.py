@@ -34,6 +34,11 @@ class GliderDos(object):
             self.g.run_mission(split_command[1:])
         elif split_command[0] == 'whoru':
             self.g.console_writer('Vehicle Name: ' + self.g.name + '\n')
+        elif split_command[0] == 'get':
+            name = split_command[1]
+            value = self.g.state[name]
+            self.g.console_writer('sensor: ' + name + ' = ' + str(value) + ' '
+                                  + self.g.masterdata.sensors[name].units)
         else:
             self.g.log('Unknown command: ' + split_command[0])
         self.print_ps1()
