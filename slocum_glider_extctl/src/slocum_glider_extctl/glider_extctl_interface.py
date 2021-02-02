@@ -97,6 +97,8 @@ class GliderExtctlInterface(object):
         self._lock = Lock()
         self._have_all_inputs = False
         self._have_all_inputs_condition = Condition(self._lock)
+        self._have_extctl = False
+        self._have_extctl_condition = Condition(self._lock)
         self._mode_srv = rospy.ServiceProxy('extctl/set_mode', SetMode)
         self._get_file_srv = rospy.ServiceProxy('extctl/get_file', GetFile)
         self.state = GliderState(self, self._values)
@@ -112,6 +114,8 @@ class GliderExtctlInterface(object):
         with self._lock:
             self._register_topics(_backseat_inputs)
             self._register_srvs(_backseat_outputs)
+            self._have_extctl = True
+            self._have_extctl_condition.notify_all()
 
     def _make_topic_cb(self, name):
         def cb(msg):
@@ -175,6 +179,13 @@ class GliderExtctlInterface(object):
                 return True
             self._have_all_inputs_condition.wait(timeout=timeout)
             return self._have_all_inputs
+
+    def wait_for_extctl(self, timeout=None):
+        with self._lock:
+            if self._have_extctl:
+                return True
+            self._have_extctl_condition.wait(timeout=timeout)
+            return self._have_extctl
 
 
 class GliderExtctlProxy(object):
