@@ -58,6 +58,7 @@ an emergency surface.
 Future iterations will likely also sprial in place and set the thruster to max.
 
         """
+        rospy.logerr('OUT OF BAND ABORT!')
         self.extctl.change_modes([MODE_EMERGENCY_SURFACE_BIT], [])
 
     def spin(self):
@@ -80,6 +81,7 @@ Future iterations will likely also sprial in place and set the thruster to max.
                         # We are in a mission that we can control. Start a
                         # mission if none are currently active.
                         if self.mission is None:
+                            rospy.loginfo('Beginning mission')
                             _, mission_str = g.get_file('backseat.ini')
                             print(mission_str)
                             self.mission = mission_from_yaml_string(
@@ -88,13 +90,22 @@ Future iterations will likely also sprial in place and set the thruster to max.
                             self.mission.start(g)
                         mission = self.mission
                         mission.step(g)
-                        if (mission.is_finished(g) or not mission.is_safe()):
+                        is_finished = mission.is_finished(g)
+                        is_safe = mission.is_safe()
+                        if (is_finished or not is_safe):
+                            if is_finished:
+                                rospy.logwarn('Mission finished')
+                            else:
+                                rospy.logerr('Mission is unsafe')
                             self.mission = None
                             self.out_of_band_abort()
                     else:
                         # Not in a mission we can control. End the current
                         # mission if one is set.
                         if self.mission:
+                            rospy.loginfo(
+                                'Glider mission finished, ending my mission'
+                            )
                             self.mission.end(g)
                             self.mission = None
 
