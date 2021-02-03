@@ -41,6 +41,22 @@ overridden.
 
   This section describes the behaviors currently implemented by the controller.
 
+** Follow Bottom
+
+   + Action type :: slocum_glider_msgs/FollowBottomAction
+   + Action name :: follow_bottom
+   + Controls :: pitch, bpump
+   + args ::
+     + min_depth :: Defaults to 2m
+     + max_depth :: Defaults to 100m
+     + min_altitude :: Defaults to 5m
+     + max_altitude :: Defaults to 20m
+     + min_depth_band :: Defaults to 5m
+     + use_altimeter :: Defaults to True
+     + dive_pitch :: Defaults to -0.4536 radians/-26 degrees
+     + climb_pitch :: Defaults to 0.4536 radians/26 degrees
+   + Finishes :: Aborts when constraints unable to be maintained.
+
 ** Go To Waypoint
 
    + Action type :: slocum_glider_msgs/GoToWaypointAction
