@@ -11,6 +11,9 @@ float64 min_altitude
 float64 max_altitude
 float64 min_depth_band
 
+float64 dive_pitch
+float64 climb_pitch
+
 bool use_altimeter
 ---
 # Result

@@ -76,6 +76,7 @@ add_service_files(
 add_action_files(
   FILES
   EmergencySurface.action
+  FollowBottom.action
   GoToWaypoint.action
   FollowBottom.action
   StayAtWaypoint.action

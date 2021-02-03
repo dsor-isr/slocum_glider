@@ -1,3 +1,4 @@
+from .follow_bottom import FollowBottomBehavior
 from .go_to_waypoint import GoToWaypointBehavior
 from .stay_at_waypoint import StayAtWaypointBehavior
 from .surface import SurfaceBehavior
@@ -5,8 +6,9 @@ from .thruster_off import ThrusterOffBehavior
 from .yo import YoBehavior
 
 
-BEHAVIOR_CLASSES = [GoToWaypointBehavior, StayAtWaypointBehavior,
-                    SurfaceBehavior, ThrusterOffBehavior, YoBehavior]
+BEHAVIOR_CLASSES = [FollowBottomBehavior, GoToWaypointBehavior,
+                    StayAtWaypointBehavior, SurfaceBehavior,
+                    ThrusterOffBehavior, YoBehavior]
 
 BEHAVIOR_CLASS_MAP = {cls.ACTION_NAME: cls for cls in BEHAVIOR_CLASSES}
 
