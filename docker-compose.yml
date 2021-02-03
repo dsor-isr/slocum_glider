@@ -47,13 +47,16 @@ services:
       - "ROS_MASTER_URI=http://ros-master:11311"
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
+      - "./local_glider_files:/gliderfs"
     command:
-      - bash
-      - -c
-      - |
-        stdbuf -o L roslaunch --wait \
-                              slocum_glider_launch sim_driver.launch \
-                              data_dir:=$$(rospack find slocum_glider_extctl_sim)/example_gliders/bear
+      - stdbuf
+      - -o
+      - L
+      - roslaunch
+      - --wait
+      - slocum_glider_launch
+      - sim_driver.launch
+      - data_dir:=/gliderfs
   glider_mission_controller:
     image: registry.gitlab.com/mit-mers/ros/slocum_glider:master
     build:

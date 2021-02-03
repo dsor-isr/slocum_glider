@@ -73,20 +73,45 @@ behavior of the glider as it is executing a mission.
 
    To run in simulation, perform the following steps:
 
-   1. Clone [[https://github.com/Field-Robotics-Lab/glider_hybrid_whoi/]] to the
+   The first time:
+
+   1. Boot into Linux. While it might be possible to make the Gazebo
+      visualization work in Windows or MacOS, it has not been tested.
+   2. Install Docker and docker-compose.
+   3. If you are using an Nvidia video card, install the Nvidia Docker runtime
+      and set it as your
+      default. [[https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker]]
+   4. Copy the contents of =slocum_glider_extctl_sim/example_gliders/bear= to
+      =local_glider_files=. This is where the simulation will read the glider
+      config from.
+      #+begin_src shell
+        mkdir local_glider_files
+        cp -a slocum_glider_extctl_sim/example_gliders/bear/* local_glider_files
+      #+end_src
+   5. Clone [[https://github.com/Field-Robotics-Lab/glider_hybrid_whoi/]] to the
       same directory as this repo.
-   2. Run =docker-compose build= in this repo.
-   3. Run =docker-compose up= in this repo.
-   4. Unpause the simulation.
-   5. In a spearate terminal, run
+
+   Any time you make a change to the code (in this repo or =glider_hybrd_whoi=,
+   run:
+
+   1. Run =docker-compose build=.
+
+   There are ways around this, but I haven't yet written them up.
+
+   Every time you want to run the simulation:
+
+   1. Run =docker-compose up= in this repo.
+   2. Unpause the simulation.
+   3. In a spearate terminal, run
       #+begin_src shell
         docker-compose exec glider_control_sim /ros_entrypoint.sh rosrun slocum_glider_extctl_sim slocum_glider_sim_console
       #+end_src
-   6. In this glider terminal, run the following. Give a good 6 seconds between
+   4. In this glider terminal, run the following. Give a good 8 seconds between
       each command to be safe.
       #+begin_src shell
         run initbuzz.mi
         run backse01.mi
       #+end_src
       This will initialize the system for operating in Buzzards Bay and start
-      the backseat driver's mission (currently a 100mx100m box pattern).
+      the backseat driver's mission (currently a 100mx100m box pattern while
+      bottom following).

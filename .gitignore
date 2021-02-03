@@ -168,3 +168,5 @@ qtcreator-*
 CATKIN_IGNORE
 
 .idea/
+
+/local_glider_files
