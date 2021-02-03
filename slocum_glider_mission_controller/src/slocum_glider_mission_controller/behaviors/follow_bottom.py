@@ -64,7 +64,7 @@ size. Abnormally terminates if the constraints cannot be met.
         alt = g.state.m_altitude
         depth = g.state.m_depth
 
-        if g.state.altimeter_status == 0:
+        if g.state.m_altimeter_status == 0:
             dive_depth = depth + alt - self.min_altitude
             climb_depth = depth + alt - self.max_altitude
         else:
@@ -75,7 +75,7 @@ size. Abnormally terminates if the constraints cannot be met.
         climb_depth = max(min(climb_depth, dive_depth - self.min_depth_band),
                           self.min_depth)
 
-        depth_band = climb_depth - dive_depth
+        depth_band = dive_depth - climb_depth
 
         self.last_climb_depth = climb_depth
 
