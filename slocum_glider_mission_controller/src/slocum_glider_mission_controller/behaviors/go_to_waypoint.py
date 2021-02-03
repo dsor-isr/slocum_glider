@@ -112,6 +112,9 @@ estimated position when the behavior starts.
         if dist_to_wpt <= self.dist:
             self.stop(g, text='reached waypoint')
 
+    def do_abort(self, g):
+        pass
+
     def do_cancel(self, g):
         pass
 

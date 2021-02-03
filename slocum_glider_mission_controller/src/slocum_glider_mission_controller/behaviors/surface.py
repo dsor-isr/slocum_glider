@@ -31,6 +31,9 @@ class SurfaceBehavior(Behavior):
         else:
             self.previous_in_surface_dialog = g.state.x_in_surface_dialog
 
+    def do_abort(self, g):
+        pass
+
     def do_cancel(self, g):
         pass
 

@@ -52,6 +52,9 @@ class BehaviorActionServer(object):
     def send_feedback(self, feedback):
         self.server.publish_feedback(feedback)
 
+    def abort(self, result=None, text=''):
+        self.server.set_aborted(result=result, text=text)
+
     def preempt(self, result=None, text=""):
         self.server.set_preempted(result=result, text=text)
 

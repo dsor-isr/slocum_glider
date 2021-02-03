@@ -42,6 +42,17 @@ class Behavior(object):
         self.do_step(g)
 
     @abstractmethod
+    def do_abort(self, g):
+        pass
+
+    def abort(self, g, text=''):
+        assert self.state == 'RUNNING'
+        result = self.do_abort(g)
+        if self.server:
+            self.server.abort(result=result, text=text)
+        self.state = 'STOPPED'
+
+    @abstractmethod
     def do_cancel(self, g):
         pass
 

@@ -52,6 +52,9 @@ Takes 5 parameters.
     def do_step(self, g):
         pass
 
+    def do_abort(self, g):
+        pass
+
     def do_cancel(self, g):
         pass
 
