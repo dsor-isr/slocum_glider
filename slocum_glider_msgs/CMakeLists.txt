@@ -58,6 +58,7 @@ add_message_files(
   StampedFloat64.msg
   ExtctlEntry.msg
   Extctl.msg
+  Waypoint.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -78,6 +79,7 @@ add_action_files(
   EmergencySurface.action
   FollowBottom.action
   GoToWaypoint.action
+  GoToWaypointList.action
   FollowBottom.action
   StayAtWaypoint.action
   Surface.action

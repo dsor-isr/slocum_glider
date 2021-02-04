@@ -1,0 +1,9 @@
+# Goal
+slocum_glider_msgs/Waypoint[] waypoints
+---
+# Result
+---
+# Feedback
+
+uint8 current_waypoint
+float64 dist_to_goal

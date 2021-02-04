@@ -1,0 +1,9 @@
+uint8 units
+uint8 DECIMAL_DEGREES=0
+uint8 DECIMAL_MINUTES=1
+uint8 RELATIVE=2
+
+float64 x
+float64 y
+
+float64 dist

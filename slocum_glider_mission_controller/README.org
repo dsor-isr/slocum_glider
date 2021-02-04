@@ -71,6 +71,19 @@ overridden.
      + dist :: acceptance distance (m). Defaults to 10.
    + Finishes :: When distance to waypoint is less than dist.
 
+** Go To Waypoint List
+
+   + Action type :: slocum_glider_msgs/GoToWaypointListAction
+   + Action name :: go_to_waypoint_list
+   + Controls :: heading
+   + args ::
+     + default_units :: One of decmial_degrees (default), decimal_minutes, or
+       relative
+     + default_dist :: acceptance distance (m). Defaults to 10.
+     + waypoints :: List of dictionaries with the keys =x=, =y=, =units=
+       (optional), and =dist= (optional).
+   + Finishes :: When every waypoint has been hit.
+
 ** Stay At Waypoint
 
    + Action type :: slocum_glider_msgs/StayAtWaypointAction

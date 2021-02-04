@@ -7,6 +7,44 @@ from ..modes import MODE_GOTO_WAYPOINT_BIT
 from ..utils import decimal_degs_to_decimal_mins, decimal_mins_to_decimal_degs
 
 
+def waypoint_to_decimal_minutes(g, units, x, y):
+    if units == 'decimal_degrees':
+        if y:
+            lat = decimal_degs_to_decimal_mins(y)
+        else:
+            lat = g.state.m_lat
+        if x:
+            lon = decimal_degs_to_decimal_mins(x)
+        else:
+            lon = g.state.m_lon
+    elif units == 'decimal_minutes':
+        if y:
+            lat = y
+        else:
+            lat = g.state.m_lat
+        if x:
+            lon = x
+        else:
+            lon = g.state.m_lon
+    elif units == 'relative':
+
+        easting, northing, zone_num, zone_char = from_latlon(
+            decimal_mins_to_decimal_degs(g.state.m_lat),
+            decimal_mins_to_decimal_degs(g.state.m_lon)
+        )
+
+        if x:
+            easting += x
+        if y:
+            northing += y
+
+        lat, lon = to_latlon(easting, northing, zone_num, zone_char)
+        lat = decimal_degs_to_decimal_mins(lat)
+        lon = decimal_degs_to_decimal_mins(lon)
+
+    return lon, lat
+
+
 class GoToWaypointBehavior(Behavior):
     """A behavior that navigates to a waypoint and stays at that
 waypoint. Terminates when the waypoint is reached.
@@ -58,39 +96,7 @@ estimated position when the behavior starts.
 
     def do_start(self, g):
         # Figure out the coordinates to send to the glider.
-        if self.units == 'decimal_degrees':
-            if self.y:
-                lat = decimal_degs_to_decimal_mins(self.y)
-            else:
-                lat = g.state.m_lat
-            if self.x:
-                lon = decimal_degs_to_decimal_mins(self.x)
-            else:
-                lon = g.state.m_lon
-        elif self.units == 'decimal_minutes':
-            if self.y:
-                lat = self.y
-            else:
-                lat = g.state.m_lat
-            if self.x:
-                lon = self.x
-            else:
-                lon = g.state.m_lon
-        elif self.units == 'relative':
-
-            easting, northing, zone_num, zone_char = from_latlon(
-                decimal_mins_to_decimal_degs(g.state.m_lat),
-                decimal_mins_to_decimal_degs(g.state.m_lon)
-            )
-
-            if self.x:
-                easting += self.x
-            if self.y:
-                northing += self.y
-
-            lat, lon = to_latlon(easting, northing, zone_num, zone_char)
-            lat = decimal_degs_to_decimal_mins(lat)
-            lon = decimal_degs_to_decimal_mins(lon)
+        lon, lat = waypoint_to_decimal_minutes(g, self.units, self.x, self.y)
 
         g.change_modes([MODE_GOTO_WAYPOINT_BIT], [])
         g.state.u_mission_param_a = lon
