@@ -105,6 +105,15 @@ overridden.
    + args :: None
    + Finishes :: When the glider leaves the surface dialog.
 
+** Thruster Constant Power
+
+   + Action type :: slocum_glider_msgs/ThrusterConstantPowerAction
+   + Action name :: thruster_constant_power
+   + Controls :: thruster
+   + args ::
+     + power :: Power in Watts. Defaults to 5W.
+   + Finishes :: Never
+
 ** Thruster Off
 
    + Action type :: slocum_glider_msgs/ThrusterOffAction

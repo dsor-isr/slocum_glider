@@ -83,6 +83,7 @@ add_action_files(
   FollowBottom.action
   StayAtWaypoint.action
   Surface.action
+  ThrusterConstantPower.action
   ThrusterOff.action
   Yo.action
 )
