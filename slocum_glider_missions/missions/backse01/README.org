@@ -1,0 +1,39 @@
+#+TITLE: BACKSE01 Mission
+
+This mission file is the standard mission file used to delegate most control to
+the backseat driver.
+
+In this mission, the following u_mission_params are used. For every deployment
+(or mission), it is recommended to make a new .mi file that initializes the
+u_mission_params to safe values.
+
++ =u_mission_param_a= :: target longitude [decimal minutes]. Choose a safe
+  value based on where you are operating.
++ =u_mission_param_b= :: target latitude [decimal minutes]. Choose a safe value
+  based on where you are operating.
++ =u_mission_param_c= :: dive depth [m]. Choose a safe value based on where you
+  are operating.
++ =u_mission_param_d= :: dive altitude [m]. 15 is typically a safe value.
++ =u_mission_param_e= :: climb depth [m]. 20 is typically a safe value.
++ =u_mission_param_f= :: dive pitch [rad]. -0.4536 (26 degrees) is typically a
+  safe value.
++ =u_mission_param_g= :: dive thruster power [watts]. 5 is typically a safe
+  value.
++ =u_mission_param_h= :: climb pitch [rad]. 0.4536 (26 degrees) is typically a
+  safe value.
++ =u_mission_param_i= :: climb thruster power [watts]. 5 is typically a safe
+  value.
++ =u_mission_param_j= :: target heading [rad]. 0 is typically a safe value.
++ =u_mission_param_k= :: The backset driver sets this to 1 when it is ready to
+  run a mission.
++ =u_mission_param_l= :: If 1, signal the backseat driver that it should
+  control the mission.
+
+The bits of =u_mission_mode= control the following behaviors:
+
++ 1 :: normal surface
++ 2 :: emergency surface
++ 4 :: waypoint mode
++ 8 :: turn hard to port
++ 16 :: turn hard to starboard
++ 32 :: drift at depth

@@ -204,6 +204,9 @@ class Glider:
 
     def run(self):
         """Run the control loops until asked to stop."""
+        while rospy.get_time() == 0:
+            rospy.sleep(0.1)
+
         while not self.stop_flag and not rospy.is_shutdown():
             start_time = rospy.get_time()
 

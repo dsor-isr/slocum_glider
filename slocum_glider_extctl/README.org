@@ -2,9 +2,8 @@
 #+AUTHOR: MIT MERS Group
 
 This package describes the low level extctl interface used to interact with the
-slocum glider over ROS. It currently contains no code, but may in the future
-(such as a Python library to abstract away the need to subscribe to topics
-directly).
+slocum glider over ROS. Additionally, it contains a Pythonic interface to the
+extctl topics that abstracts away the need to subscribe to topics directly.
 
 * extctl
 
@@ -48,4 +47,5 @@ directly).
      transfer is already in progress, otherwise the file transfer is queued.
    + =extctl/set_mode= :: (=slocum_glider_msgs/SetMode=) Toggle several mission
      modes simultaneously. =modes_to_activate= is a list of mode indices to
-     enable and =modes_to_deactivate= is a list of mode indices to disable.
+     enable and =modes_to_deactivate= is a list of mode indices to disable. The
+     indices start at zero.

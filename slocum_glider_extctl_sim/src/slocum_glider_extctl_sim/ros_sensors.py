@@ -46,7 +46,13 @@ class RosSensorsTopic(object):
         state.m_pitch = msg.pitch
         state.m_heading = msg.heading
 
-        state.m_altitude = msg.altitude
+        if msg.altitude >= state.u_min_altimeter \
+           and msg.altitude <= state.u_max_altimeter:
+            state.m_altitude = msg.altitude
+            state.m_altimeter_status = 0
+        else:
+            state.m_altitude = -1
+            state.m_altimeter_status = 1
 
         state.m_thruster_power = msg.motor_power
 

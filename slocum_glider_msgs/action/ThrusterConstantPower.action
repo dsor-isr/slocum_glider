@@ -1,0 +1,8 @@
+# Goal
+#
+# Command the thruster to desired power.
+float32 power
+---
+# Result
+---
+# Feedback

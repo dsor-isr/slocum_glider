@@ -13,6 +13,9 @@ sensor: u_use_current_correction(nodim) 1
 # Automatically adapt to overshoots when yo'ing.
 sensor: u_adj_overshoot(bool) 1
 
+# Tell the backseat driver it should control this mission.
+sensor: u_mission_param_l(X) 1
+
 behavior: abend
     b_arg: overdepth_sample_time(s) 20.0
     b_arg: overtime(s) 43200                # half a day

@@ -9,6 +9,8 @@ project(slocum_glider_msgs)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED
   COMPONENTS
+  actionlib_msgs
+  actionlib
   message_generation
   std_msgs
 )
@@ -56,6 +58,7 @@ add_message_files(
   StampedFloat64.msg
   ExtctlEntry.msg
   Extctl.msg
+  Waypoint.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -71,16 +74,25 @@ add_service_files(
 )
 
 ## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
+add_action_files(
+  FILES
+  EmergencySurface.action
+  FollowBottom.action
+  GoToWaypoint.action
+  GoToWaypointList.action
+  FollowBottom.action
+  StayAtWaypoint.action
+  Surface.action
+  ThrusterConstantPower.action
+  ThrusterOff.action
+  Yo.action
+)
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
   std_msgs
+  actionlib_msgs
 )
 
 ################################################

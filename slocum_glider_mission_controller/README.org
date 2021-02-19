@@ -1,0 +1,165 @@
+#+TITLE: Slocum Glider Mission Controller
+#+AUTHOR: MIT MERS Scouts Team
+
+This package contains a mission controller for the Slocum glider. It interfaces
+with the ROS extctl interface (provided by =slocum_glider_extctl_sim= or
+=slocum_glider_extctl_serial=) and exposes a higher-level control interface
+than that exposed by the more primitive extctl interface.
+
+While the extctl interface allows for direct reading and writing of sensor
+values, the mission controller adds the abstraction of behaviors on top of
+it. The backseat interface exposes these behaviors using ROS action servers. As
+such, the behaviors can be triggered or preempted by other code running on the
+backseat driver.
+
+The mission controller watches for the glider to start a mission. When it does,
+the glider fetches the =backseat.ini= file from the science computer. This file
+contains a YAML description of the mission to run. See the Missions section
+below for more details.
+
+The controller then starts the described mission that consists of the
+=StayAtWaypoint= behavior set to station keep at the last reported GPS position
+and the =YoBehavior= set to 26 degree pitches and a depth band of [2, 20].
+
+Additionally, each behavior controls a subset of the total glider
+behavior. There are four distinct aspects of the glider that a behavior can
+control, they are:
+
++ =pitch=
++ =heading=
++ =bpump=
++ =thruster=
+
+Only one behavior can control one of these at any point. If a behavior starts
+that controls the same aspect as a running behavior, the running behavior is
+prempted. At any point in time, there must be some behavior controlling each
+aspect of the glider. If this constraint is not met over an 8 second interval
+(two glider control cycles), an emergency surface is requested and cannot be
+overridden.
+
+* Behaviors
+
+  This section describes the behaviors currently implemented by the controller.
+
+** Follow Bottom
+
+   + Action type :: slocum_glider_msgs/FollowBottomAction
+   + Action name :: follow_bottom
+   + Controls :: pitch, bpump
+   + args ::
+     + min_depth :: Defaults to 2m
+     + max_depth :: Defaults to 100m
+     + min_altitude :: Defaults to 5m
+     + max_altitude :: Defaults to 20m
+     + min_depth_band :: Defaults to 5m
+     + use_altimeter :: Defaults to True
+     + dive_pitch :: Defaults to -0.4536 radians/-26 degrees
+     + climb_pitch :: Defaults to 0.4536 radians/26 degrees
+   + Finishes :: Aborts when constraints unable to be maintained.
+
+** Go To Waypoint
+
+   + Action type :: slocum_glider_msgs/GoToWaypointAction
+   + Action name :: go_to_waypoint
+   + Controls :: heading
+   + args ::
+     + units :: One of decmial_degrees (default), decimal_minutes, or relative
+     + x :: longitude or easting. If None, initilizes to glider's position when
+       the behavior starts.
+     + y :: latitude or northing. If None, initilizes to glider's position when
+       the behavior starts.
+     + dist :: acceptance distance (m). Defaults to 10.
+   + Finishes :: When distance to waypoint is less than dist.
+
+** Go To Waypoint List
+
+   + Action type :: slocum_glider_msgs/GoToWaypointListAction
+   + Action name :: go_to_waypoint_list
+   + Controls :: heading
+   + args ::
+     + default_units :: One of decmial_degrees (default), decimal_minutes, or
+       relative
+     + default_dist :: acceptance distance (m). Defaults to 10.
+     + waypoints :: List of dictionaries with the keys =x=, =y=, =units=
+       (optional), and =dist= (optional).
+   + Finishes :: When every waypoint has been hit.
+
+** Stay At Waypoint
+
+   + Action type :: slocum_glider_msgs/StayAtWaypointAction
+   + Action name :: stay_at_waypoint
+   + Controls :: heading
+   + args ::
+     + units :: One of decmial_degrees (default), decimal_minutes, or relative
+     + x :: longitude or easting. If None, initilizes to glider's position when
+       the behavior starts.
+     + y :: latitude or northing. If None, initilizes to glider's position when
+       the behavior starts.
+   + Finishes :: Never
+
+** Surface
+
+   + Action type :: slocum_glider_msgs/SurfaceAction
+   + Action name :: surface
+   + Controls :: pitch, bpump
+   + args :: None
+   + Finishes :: When the glider leaves the surface dialog.
+
+** Thruster Constant Power
+
+   + Action type :: slocum_glider_msgs/ThrusterConstantPowerAction
+   + Action name :: thruster_constant_power
+   + Controls :: thruster
+   + args ::
+     + power :: Power in Watts. Defaults to 5W.
+   + Finishes :: Never
+
+** Thruster Off
+
+   + Action type :: slocum_glider_msgs/ThrusterOffAction
+   + Action name :: thruster_off
+   + Controls :: thruster
+   + args :: None
+   + Finishes :: Never
+
+** Yo
+
+   + Action type :: slocum_glider_msgs/YoAction
+   + Action name :: yo
+   + Controls :: pitch, bpump
+   + args ::
+     + dive_depth :: Defaults to 20m
+     + dive_altitude :: Defaults to 5m
+     + dive_pitch :: Defaults to -0.4536 radians/-26 degrees
+     + climb_depth :: Defaults to 2m
+     + climb_pitch :: Defaults to 0.4536 radians/26 degrees
+   + Finishes :: Never
+
+* Missions
+
+  There are two mission types currently implemented.
+
+** Static Missions
+
+   Static missions are described by a list of mission segments. Each segment is
+   described by a list of behaviors to run. When a segment is complete (any
+   behavior in that segment reports completion), the next segment of the
+   mission starts.
+
+   The yaml description of this mission must consist of a single dictionary
+   with a single key =static_mission=. The value for that key must be a
+   dictionary with the key =segments= and the value is a list of segment
+   descriptions. A segment description consists of a dictionary with the key
+   =behaviors=, the value of which must be a list of behavior descriptions.
+
+** Dynamic Missions
+
+   Dynamic missions are described by a list of behaviors. This list can be
+   freely modified at runtime through the action servers. Additionally, an
+   initial list of behaviors can be provided so that the glider can remain in a
+   safe state while waiting for further behaviors to be triggered.
+
+   The yaml description of this mission must consist of a single dictionary
+   with a single key =dynamic_mission=. The value for that key must be a
+   dictionary with the key =initial= and the value is a list of behavior
+   descriptions.

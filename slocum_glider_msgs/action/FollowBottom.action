@@ -1,0 +1,21 @@
+# Goal
+#
+# Yo in such a way that the glider attempts to stay within [min_altitude,
+# max_altitude] from the sea floor. The commanded depth will stay within
+# [min_depth, max_depth]. The behavior will abort if a depth band of
+# min_depth_band cannot be maintained.
+
+float64 min_depth
+float64 max_depth
+float64 min_altitude
+float64 max_altitude
+float64 min_depth_band
+
+float64 dive_pitch
+float64 climb_pitch
+
+bool use_altimeter
+---
+# Result
+---
+# Feedback

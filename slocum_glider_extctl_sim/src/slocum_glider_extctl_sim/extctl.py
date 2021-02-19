@@ -140,19 +140,20 @@ class ExtctlProglet(object):
                 message="Cannot activate & deactivate mode(s): {}".format(list(coll))  # NOQA: E501
             )
 
-        # Compute mask to activate (assume modes are 1-indexed)
+        # Compute mask to activate (assume modes are 0-indexed)
         if modes_to_activate:
-            activate_mask = sum([2**(i-1) for i in modes_to_activate])
+            activate_mask = sum([2**i for i in modes_to_activate])
         else:
             activate_mask = 0
 
         if modes_to_deactivate:
-            deactivate_mask = sum([2**(i-1) for i in modes_to_activate])
+            deactivate_mask = sum([2**i for i in modes_to_activate])
         else:
             deactivate_mask = 0
 
-        old_sci_mission_mode = self.g.state.sci_mission_mode
+        old_sci_mission_mode = int(self.g.state.u_mission_mode)
 
         old_sci_mission_mode |= activate_mask
         old_sci_mission_mode &= ~deactivate_mask
-        self.g.state.sci_mission_mode = old_sci_mission_mode
+        self.g.state.u_mission_mode = old_sci_mission_mode
+        return SetModeResponse(success=True)
