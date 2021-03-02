@@ -1,10 +1,9 @@
 from slocum_glider_msgs.msg import (StayAtWaypointAction, StayAtWaypointGoal,
                                     StayAtWaypointResult)
-from utm import from_latlon, to_latlon
 
 from .base import Behavior
+from .go_to_waypoint import waypoint_to_decimal_minutes
 from ..modes import MODE_GOTO_WAYPOINT_BIT
-from ..utils import decimal_degs_to_decimal_mins, decimal_mins_to_decimal_degs
 
 
 class StayAtWaypointBehavior(Behavior):
@@ -25,6 +24,7 @@ estimated position when the behavior starts.
     ACTION = StayAtWaypointAction
     ACTION_NAME = 'stay_at_waypoint'
     CONTROLS = set(['heading'])
+    MODES_ENABLED = [MODE_GOTO_WAYPOINT_BIT]
 
     def __init__(self, x=None, y=None, units='decimal_degrees', server=None):
         super(StayAtWaypointBehavior, self).__init__()
@@ -41,6 +41,8 @@ estimated position when the behavior starts.
             units = 'decimal_degrees'
         elif goal.units == StayAtWaypointGoal.DECIMAL_MINUTES:
             units = 'decimal_minutes'
+        elif goal.units == StayAtWaypointGoal.RELATIVE:
+            units = 'relative'
         else:
             raise ValueError('unknown units: ' + str(goal.units))
         return cls(units=units,
@@ -50,47 +52,21 @@ estimated position when the behavior starts.
 
     def do_start(self, g):
         # Figure out the coordinates to send to the glider.
-        if self.units == 'decimal_degrees':
-            if self.y:
-                lat = decimal_degs_to_decimal_mins(self.y)
-            else:
-                lat = g.state.m_lat
-            if self.x:
-                lon = decimal_degs_to_decimal_mins(self.x)
-            else:
-                lon = g.state.m_lon
-        elif self.units == 'decimal_minutes':
-            if self.y:
-                lat = self.y
-            else:
-                lat = g.state.m_lat
-            if self.x:
-                lon = self.x
-            else:
-                lon = g.state.m_lon
-        elif self.units == 'relative':
+        self.lon, self.lat = waypoint_to_decimal_minutes(
+            g,
+            self.units,
+            self.x,
+            self.y
+        )
 
-            easting, northing, zone_num, zone_char = from_latlon(
-                decimal_mins_to_decimal_degs(g.state.m_lat),
-                decimal_mins_to_decimal_degs(g.state.m_lon)
-            )
+        self.num_cycles = 0
 
-            if self.x:
-                easting += self.x
-            if self.y:
-                northing += self.y
-
-            lat, lon = to_latlon(easting, northing, zone_num, zone_char)
-            lat = decimal_degs_to_decimal_mins(lat)
-            lon = decimal_degs_to_decimal_mins(lon)
-
-        g.change_modes([MODE_GOTO_WAYPOINT_BIT], [])
-        g.state.u_mission_param_a = lon
-        g.state.u_mission_param_b = lat
+    def do_resume(self, g):
         self.num_cycles = 0
 
     def do_step(self, g):
-        pass
+        g.state.u_mission_param_a = self.lon
+        g.state.u_mission_param_b = self.lat
 
     def do_abort(self, g):
         pass

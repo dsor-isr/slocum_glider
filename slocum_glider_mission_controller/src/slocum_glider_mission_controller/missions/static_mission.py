@@ -1,10 +1,25 @@
+from copy import deepcopy
+
 from .mission import Mission
 from ..behaviors import behavior_class_for_name
+from ..event_handlers import event_handler_class_for_name
 
 
 class StaticMissionSegment(object):
-    def __init__(self, behaviors):
+    def __init__(self, behaviors, event_handlers):
         self.behaviors = behaviors
+        self.event_handlers = event_handlers
+
+
+def parse_behavior_list(behavior_descs):
+    out = []
+    for behavior_desc in behavior_descs:
+        (name, args), = behavior_desc.items()
+        b_class = behavior_class_for_name(name)
+        if args is None:
+            args = {}
+        out.append(b_class(**args))
+    return out
 
 
 class StaticMission(Mission):
@@ -16,7 +31,8 @@ state.
     """
 
     def __init__(self, segments):
-        super(StaticMission, self).__init__(list(segments[0].behaviors))
+        super(StaticMission, self).__init__(list(segments[0].behaviors),
+                                            list(segments[0].event_handlers))
         self.segments = segments
 
     def is_finished(self, g):
@@ -30,10 +46,13 @@ state.
 
     def step(self, g):
         super(StaticMission, self).step(g)
-        if self.behaviors != self.segments[0].behaviors:
+        if not self.is_actively_controlled():
             self.segments.pop(0)
             if self.segments:
                 self.behaviors = list(self.segments[0].behaviors)
+                self.event_handlers = list(self.segments[0].event_handlers)
+                self.paused_behaviors = []
+                self.active_event_handler = None
                 for b in self.behaviors:
                     b.start(g)
 
@@ -41,12 +60,13 @@ state.
     def from_dict(cls, obj):
         segments = []
         for segment_desc in obj['segments']:
-            behaviors = []
-            for behavior_desc in segment_desc['behaviors']:
-                (name, args), = behavior_desc.items()
-                b_class = behavior_class_for_name(name)
-                if args is None:
-                    args = {}
-                behaviors.append(b_class(**args))
-            segments.append(StaticMissionSegment(behaviors))
+            behaviors = parse_behavior_list(segment_desc['behaviors'])
+            event_handlers = []
+            for event_handler_desc in segment_desc.get('event_handlers', []):
+                (name, args), = event_handler_desc.items()
+                args = deepcopy(args)
+                handler_class = event_handler_class_for_name(name)
+                args['behaviors'] = parse_behavior_list(args['behaviors'])
+                event_handlers.append(handler_class(**args))
+            segments.append(StaticMissionSegment(behaviors, event_handlers))
         return cls(segments)

@@ -36,8 +36,8 @@ def print_surface_dialog(g):
     # to fully replicate what the glider prints, we likely need to also record
     # when sensors are modified in the state object.
 
-    # TODO: Add Control-R
     c('   Hit Control-C to END    the mission, i.e. GliderDos\n')
+    c('   Hit Control-R to RESUME the mission\n')
     # TODO: Add Ctrl-E, Ctrl-W, Ctrl-F, S, !, Ctrl-T
     c('\n')
     c('\n')
@@ -110,7 +110,7 @@ class SurfaceBehavior(BehaviorWithSubstates):
 
         def compute_controls(self, x):
             stay_at_surface_control(x)
-            self.x_in_surface_dialog = 1 << (self.parent_behavior.index - 1)
+            x.x_in_surface_dialog = 1 << (self.parent_behavior.index - 1)
             if self.count == 0:
                 print_surface_dialog(self.parent_behavior.g)
             self.count += 1
@@ -119,8 +119,11 @@ class SurfaceBehavior(BehaviorWithSubstates):
             line = parent.g.pop_pending_line()
             if line == 'Ctrl-C':
                 parent.terminate_mission = True
-                self.x_in_surface_dialog = 0
+                x.x_in_surface_dialog = 0
                 # TODO: This transition is yet to be observed.
+                return parent.AllDone(parent)
+            elif line == 'Ctrl-R':
+                x.x_in_surface_dialog = 0
                 return parent.AllDone(parent)
 
     # TODO: These transitions need to be coded

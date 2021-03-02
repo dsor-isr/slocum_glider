@@ -26,6 +26,7 @@ estimated position when the behavior starts.
     ACTION = GoToWaypointListAction
     ACTION_NAME = 'go_to_waypoint_list'
     CONTROLS = set(['heading'])
+    MODES_ENABLED = [MODE_GOTO_WAYPOINT_BIT]
 
     def __init__(self, default_units='decimal_degrees', default_dist=10,
                  waypoints=[], server=None):
@@ -58,7 +59,9 @@ estimated position when the behavior starts.
         return cls(waypoints=waypoints, server=server)
 
     def do_start(self, g):
-        g.change_modes([MODE_GOTO_WAYPOINT_BIT], [])
+        self.num_cycles = 0
+
+    def do_resume(self, g):
         self.num_cycles = 0
 
     def do_step(self, g):

@@ -135,6 +135,25 @@ overridden.
      + climb_pitch :: Defaults to 0.4536 radians/26 degrees
    + Finishes :: Never
 
+* Event Handlers
+  It routinely happens that you want to "pause" an ongoing mission to respond
+  to some event and then "resume" the mission when the event is resolved. This
+  is supported by static missions currently (and eventually dynamic missions).
+
+  Each event handler describes the event to which it responds and contains a
+  list of behaviors that are activated when responding to that event. Any
+  behavior in the currently running mission that conflicts with one on the
+  event handler is paused. Once the event is handled (one of its behaviors
+  terminates), the remaining event handler behaviors are removed and the paused
+  behaviors are resumed.
+
+** When Secs Since Surface
+
+   + Event name :: when_secs_since_surface
+   + args ::
+     + when_secs :: The number of seconds to wait since last being on the
+       surface.
+
 * Missions
 
   There are two mission types currently implemented.
@@ -150,7 +169,9 @@ overridden.
    with a single key =static_mission=. The value for that key must be a
    dictionary with the key =segments= and the value is a list of segment
    descriptions. A segment description consists of a dictionary with the key
-   =behaviors=, the value of which must be a list of behavior descriptions.
+   =behaviors=, the value of which must be a list of behavior descriptions. A
+   segment description can also contain the key =event_handlers=, the value of
+   which must be a list of event handler descriptions.
 
 ** Dynamic Missions
 

@@ -64,6 +64,7 @@ estimated position when the behavior starts.
     ACTION = GoToWaypointAction
     ACTION_NAME = 'go_to_waypoint'
     CONTROLS = set(['heading'])
+    MODES_ENABLED = [MODE_GOTO_WAYPOINT_BIT]
 
     def __init__(self, x=None, y=None, units='decimal_degrees', dist=10,
                  server=None):
@@ -96,14 +97,22 @@ estimated position when the behavior starts.
 
     def do_start(self, g):
         # Figure out the coordinates to send to the glider.
-        lon, lat = waypoint_to_decimal_minutes(g, self.units, self.x, self.y)
+        self.lon, self.lat = waypoint_to_decimal_minutes(
+            g,
+            self.units,
+            self.x,
+            self.y
+        )
 
-        g.change_modes([MODE_GOTO_WAYPOINT_BIT], [])
-        g.state.u_mission_param_a = lon
-        g.state.u_mission_param_b = lat
+        self.num_cycles = 0
+
+    def do_resume(self, g):
         self.num_cycles = 0
 
     def do_step(self, g):
+        g.state.u_mission_param_a = self.lon
+        g.state.u_mission_param_b = self.lat
+
         self.num_cycles += 1
         if self.num_cycles <= 4:
             # Give the glider some time to compute the distance to the

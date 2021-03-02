@@ -147,7 +147,7 @@ class ExtctlProglet(object):
             activate_mask = 0
 
         if modes_to_deactivate:
-            deactivate_mask = sum([2**i for i in modes_to_activate])
+            deactivate_mask = sum([2**i for i in modes_to_deactivate])
         else:
             deactivate_mask = 0
 

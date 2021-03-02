@@ -12,6 +12,7 @@ class SurfaceBehavior(Behavior):
     ACTION = SurfaceAction
     ACTION_NAME = 'surface'
     CONTROLS = set(['pitch', 'bpump'])
+    MODES_ENABLED = [MODE_NORMAL_SURFACE_BIT]
 
     def __init__(self, server=None):
         super(SurfaceBehavior, self).__init__()
@@ -23,13 +24,17 @@ class SurfaceBehavior(Behavior):
 
     def do_start(self, g):
         self.previous_in_surface_dialog = g.state.x_in_surface_dialog
-        g.change_modes([MODE_NORMAL_SURFACE_BIT], [])
 
     def do_step(self, g):
         if self.previous_in_surface_dialog and not g.state.x_in_surface_dialog:
-            self.stop()
+            self.stop(g)
         else:
             self.previous_in_surface_dialog = g.state.x_in_surface_dialog
+
+        if g.state.x_in_surface_dialog:
+            # We need to clear this mode otherwise we'll never stop trying to
+            # surface!
+            g.change_modes([], [MODE_NORMAL_SURFACE_BIT])
 
     def do_abort(self, g):
         pass
