@@ -40,6 +40,23 @@ class Behavior(object):
         self.ensure_modes(g)
         self.do_start(g)
 
+    def do_pause(self, g):
+        pass
+
+    def pause(self, g):
+        assert self.state == 'RUNNING'
+        self.state = 'PAUSED'
+        self.do_pause(g)
+
+    def do_resume(self, g):
+        pass
+
+    def resume(self, g):
+        assert self.state == 'PAUSED'
+        self.state = 'RUNNING'
+        self.ensure_modes(g)
+        self.do_resume(g)
+
     @abstractmethod
     def do_step(self, g):
         pass
