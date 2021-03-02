@@ -1,6 +1,7 @@
 """The actual backseat driver"""
 
 from threading import Lock
+import traceback
 
 import rospy
 from slocum_glider_extctl import GliderExtctlInterface
@@ -112,5 +113,6 @@ Future iterations will likely also sprial in place and set the thruster to max.
                 rate.sleep()
         except Exception as ex:
             print('Unhandled exception', ex)
+            print(traceback.format_exc())
             print('Aborting!')
             self.out_of_band_abort()

@@ -7,6 +7,7 @@ from catkin_pkg.python_setup import generate_distutils_setup
 setup_args = generate_distutils_setup(
     packages=['slocum_glider_mission_controller',
               'slocum_glider_mission_controller.behaviors',
+              'slocum_glider_mission_controller.event_handlers',
               'slocum_glider_mission_controller.missions'],
     package_dir={'': 'src'},
 )

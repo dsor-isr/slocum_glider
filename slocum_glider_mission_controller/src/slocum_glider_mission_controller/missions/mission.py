@@ -74,7 +74,7 @@ processing it.
         """
         # We currently don't allow nesting event handlers. Once we start
         # responding to one we need to finish it before responding to another.
-        if self.handling_event:
+        if self.active_event_handler:
             return
 
         for h in self.event_handlers:
@@ -97,9 +97,9 @@ controls the same things.
             b.state = 'READY'
             b.start(g)
             # Pause any existing behavior that conflicts.
-            for existing_behavior in self.behaviors.copy():
+            for existing_behavior in list(self.behaviors):
                 if b.CONTROLS.intersection(existing_behavior.CONTROLS):
-                    paused_behaviors.pause(g)
+                    existing_behavior.pause(g)
                     paused_behaviors.append(existing_behavior)
                     self.behaviors.remove(existing_behavior)
 
@@ -116,7 +116,8 @@ list and resume all paused behaviors.
         paused_behaviors = self.paused_behaviors
 
         for b in behaviors:
-            self.behaviors.remove(b)
+            if b in self.behaviors:
+                self.behaviors.remove(b)
 
         for b in paused_behaviors:
             self.behaviors.append(b)

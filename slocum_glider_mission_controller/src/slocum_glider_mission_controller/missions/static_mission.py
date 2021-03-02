@@ -29,7 +29,8 @@ state.
     """
 
     def __init__(self, segments):
-        super(StaticMission, self).__init__(list(segments[0].behaviors))
+        super(StaticMission, self).__init__(list(segments[0].behaviors),
+                                            list(segments[0].event_handlers))
         self.segments = segments
 
     def is_finished(self, g):
@@ -59,7 +60,7 @@ state.
         for segment_desc in obj['segments']:
             behaviors = parse_behavior_list(segment_desc['behaviors'])
             event_handlers = []
-            for event_handler_desc in segment_desc['event_handlers']:
+            for event_handler_desc in segment_desc.get('event_handlers', []):
                 (name, args), = event_handler_desc.items()
                 handler_class = event_handler_class_for_name(name)
                 args['behaviors'] = parse_behavior_list(args['behaviors'])

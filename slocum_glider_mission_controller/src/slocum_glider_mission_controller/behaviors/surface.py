@@ -27,9 +27,14 @@ class SurfaceBehavior(Behavior):
 
     def do_step(self, g):
         if self.previous_in_surface_dialog and not g.state.x_in_surface_dialog:
-            self.stop()
+            self.stop(g)
         else:
             self.previous_in_surface_dialog = g.state.x_in_surface_dialog
+
+        if g.state.x_in_surface_dialog:
+            # We need to clear this mode otherwise we'll never stop trying to
+            # surface!
+            g.change_modes([], [MODE_NORMAL_SURFACE_BIT])
 
     def do_abort(self, g):
         pass
