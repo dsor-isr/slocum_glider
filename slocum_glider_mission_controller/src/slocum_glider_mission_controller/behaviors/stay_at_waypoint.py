@@ -24,6 +24,7 @@ estimated position when the behavior starts.
     ACTION = StayAtWaypointAction
     ACTION_NAME = 'stay_at_waypoint'
     CONTROLS = set(['heading'])
+    MODES_ENABLED = [MODE_GOTO_WAYPOINT_BIT]
 
     def __init__(self, x=None, y=None, units='decimal_degrees', server=None):
         super(StayAtWaypointBehavior, self).__init__()
@@ -58,7 +59,6 @@ estimated position when the behavior starts.
             self.y
         )
 
-        g.change_modes([MODE_GOTO_WAYPOINT_BIT], [])
         g.state.u_mission_param_a = lon
         g.state.u_mission_param_b = lat
         self.num_cycles = 0

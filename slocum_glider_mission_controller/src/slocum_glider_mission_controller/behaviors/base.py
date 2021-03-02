@@ -6,6 +6,8 @@ from ..action_server import BehaviorActionServer
 class Behavior(object):
     """The base class for behaviors."""
     __metaclass__ = ABCMeta
+    MODES_DISABLED = []
+    MODES_ENABLED = []
 
     @classmethod
     def make_action_server(cls, backseat_driver):
@@ -24,6 +26,10 @@ class Behavior(object):
     def __init__(self):
         self.state = 'READY'
 
+    def ensure_modes(self, g):
+        if self.MODES_ENABLED or self.MODES_DISABLED:
+            g.change_modes(self.MODES_ENABLED, self.MODES_DISABLED)
+
     @abstractmethod
     def do_start(self, g):
         pass
@@ -31,6 +37,7 @@ class Behavior(object):
     def start(self, g):
         assert self.state == 'READY'
         self.state = 'RUNNING'
+        self.ensure_modes(g)
         self.do_start(g)
 
     @abstractmethod
