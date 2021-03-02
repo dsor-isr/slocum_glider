@@ -52,19 +52,21 @@ estimated position when the behavior starts.
 
     def do_start(self, g):
         # Figure out the coordinates to send to the glider.
-        lon, lat = waypoint_to_decimal_minutes(
+        self.lon, self.lat = waypoint_to_decimal_minutes(
             g,
             self.units,
             self.x,
             self.y
         )
 
-        g.state.u_mission_param_a = lon
-        g.state.u_mission_param_b = lat
+        self.num_cycles = 0
+
+    def do_resume(self, g):
         self.num_cycles = 0
 
     def do_step(self, g):
-        pass
+        g.state.u_mission_param_a = self.lon
+        g.state.u_mission_param_b = self.lat
 
     def do_abort(self, g):
         pass

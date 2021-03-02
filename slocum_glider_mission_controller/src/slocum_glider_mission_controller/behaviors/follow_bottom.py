@@ -55,12 +55,13 @@ size. Abnormally terminates if the constraints cannot be met.
                    server=server)
 
     def do_start(self, g):
-        g.state.u_mission_param_d = self.min_altitude
-        g.state.u_mission_param_f = self.dive_pitch
-        g.state.u_mission_param_h = self.climb_pitch
         self.last_climb_depth = self.max_depth - self.min_depth_band
 
     def do_step(self, g):
+        g.state.u_mission_param_d = self.min_altitude
+        g.state.u_mission_param_f = self.dive_pitch
+        g.state.u_mission_param_h = self.climb_pitch
+
         alt = g.state.m_altitude
         depth = g.state.m_depth
 

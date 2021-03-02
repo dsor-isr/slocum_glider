@@ -61,6 +61,9 @@ estimated position when the behavior starts.
     def do_start(self, g):
         self.num_cycles = 0
 
+    def do_resume(self, g):
+        self.num_cycles = 0
+
     def do_step(self, g):
         wpt = self.waypoints[self.current_waypoint]
         dist = self.waypoints[self.current_waypoint].get('dist',

@@ -43,14 +43,14 @@ Takes 5 parameters.
                    server=server)
 
     def do_start(self, g):
+        pass
+
+    def do_step(self, g):
         g.state.u_mission_param_c = self.dive_depth
         g.state.u_mission_param_d = self.dive_altitude
         g.state.u_mission_param_e = self.climb_depth
         g.state.u_mission_param_f = self.dive_pitch
         g.state.u_mission_param_h = self.climb_pitch
-
-    def do_step(self, g):
-        pass
 
     def do_abort(self, g):
         pass

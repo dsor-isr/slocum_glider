@@ -28,11 +28,11 @@ Takes one argument:
                    server=server)
 
     def do_start(self, g):
-        g.state.u_mission_param_g = self.power
-        g.state.u_mission_param_i = self.power
+        pass
 
     def do_step(self, g):
-        pass
+        g.state.u_mission_param_g = self.power
+        g.state.u_mission_param_i = self.power
 
     def do_abort(self, g):
         pass

@@ -19,11 +19,11 @@ class ThrusterOffBehavior(Behavior):
         return cls(server=server)
 
     def do_start(self, g):
-        g.state.u_mission_param_g = 0
-        g.state.u_mission_param_i = 0
+        pass
 
     def do_step(self, g):
-        pass
+        g.state.u_mission_param_g = 0
+        g.state.u_mission_param_i = 0
 
     def do_abort(self, g):
         pass
