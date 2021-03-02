@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from .mission import Mission
 from ..behaviors import behavior_class_for_name
 from ..event_handlers import event_handler_class_for_name
@@ -62,6 +64,7 @@ state.
             event_handlers = []
             for event_handler_desc in segment_desc.get('event_handlers', []):
                 (name, args), = event_handler_desc.items()
+                args = deepcopy(args)
                 handler_class = event_handler_class_for_name(name)
                 args['behaviors'] = parse_behavior_list(args['behaviors'])
                 event_handlers.append(handler_class(**args))
