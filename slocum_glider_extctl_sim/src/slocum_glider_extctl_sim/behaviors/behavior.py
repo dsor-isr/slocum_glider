@@ -188,6 +188,8 @@ class Behavior(object):
             return BEHAVIOR_STATE_FINISHED
         elif end_action == END_ACTION_RESUME:
             return BEHAVIOR_STATE_WAITING
+        elif end_action == END_ACTION_WAIT_FOR_CTRL_C_RESUME:
+            return BEHAVIOR_STATE_WAITING
         else:
             raise ValueError('Cannot handle end_action '
                              + str(end_action)
@@ -321,3 +323,9 @@ class BehaviorWithSubstates(Behavior):
 
     def should_stop(self, x):
         return self.substate.TERMINAL
+
+    def set_state(self, state):
+        out = super(BehaviorWithSubstates, self).set_state(state)
+        if state == BEHAVIOR_STATE_WAITING:
+            self.substate = self.SUBSTATES[0](self)
+        return out
