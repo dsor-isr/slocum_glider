@@ -28,6 +28,8 @@ added or removed depending on the policies of the concrete implementations.
 starts every behavior.
 
         """
+        self.last_time_on_surface = g.state.m_present_time
+
         for b in self.behaviors:
             b.start(g)
 
@@ -45,10 +47,25 @@ into the STOPPED state.
         for b in to_remove:
             self.behaviors.remove(b)
 
+        self.fire_default_events(g)
+
         # If we're handling an event and become unsafe, that means we've
         # finished handling the event.
         if self.active_event_handler and not self.is_actively_controlled():
             self.stop_handling_event(g)
+
+    def fire_default_events(self, g):
+        """Fire the default set of events produced by the mission (i.e., not produced
+by a specific behavior).
+
+        """
+        if g.state.x_in_surface_dialog:
+            self.last_time_on_surface = g.state.m_present_time
+
+        delta_surface = (g.state.m_present_time - self.last_time_on_surface)
+        if delta_surface >= 0:
+            self.fire_event(g, {'type': 'when_secs_since_surface',
+                                'when_secs': delta_surface})
 
     def fire_event(self, g, event):
         """Determine if any event handler wants to respond to the event. If so, begin
