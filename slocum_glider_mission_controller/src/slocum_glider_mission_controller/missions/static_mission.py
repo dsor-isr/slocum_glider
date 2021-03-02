@@ -6,7 +6,7 @@ from ..event_handlers import event_handler_class_for_name
 class StaticMissionSegment(object):
     def __init__(self, behaviors, event_handlers):
         self.behaviors = behaviors
-        self.event_handler = event_handlers
+        self.event_handlers = event_handlers
 
 
 def parse_behavior_list(behavior_descs):
@@ -43,10 +43,13 @@ state.
 
     def step(self, g):
         super(StaticMission, self).step(g)
-        if self.behaviors != self.segments[0].behaviors:
+        if not self.is_actively_controlled():
             self.segments.pop(0)
             if self.segments:
                 self.behaviors = list(self.segments[0].behaviors)
+                self.event_handlers = list(self.segments[0].event_handlers)
+                self.paused_behaviors = []
+                self.active_event_handler = None
                 for b in self.behaviors:
                     b.start(g)
 
