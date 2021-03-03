@@ -1,7 +1,6 @@
 from slocum_glider_msgs.msg import FollowBottomAction, FollowBottomResult
 
 from .base import Behavior
-from ..modes import MODE_TURN_TO_PORT_BIT, MODE_TURN_TO_STARBOARD_BIT
 
 
 class FollowBottomBehavior(Behavior):
@@ -23,7 +22,6 @@ size. Abnormally terminates if the constraints cannot be met.
     ACTION = FollowBottomAction
     ACTION_NAME = 'follow_bottom'
     CONTROLS = set(['pitch', 'bpump'])
-    MODES_DISABLED = [MODE_TURN_TO_PORT_BIT, MODE_TURN_TO_STARBOARD_BIT]
 
     def __init__(self, min_depth=2, max_depth=100, min_altitude=5,
                  max_altitude=20, min_depth_band=5, use_altimeter=True,
