@@ -15,7 +15,11 @@ class StaticMissionSegment(object):
 def parse_behavior_list(behavior_descs):
     out = []
     for behavior_desc in behavior_descs:
-        (name, args), = behavior_desc.items()
+        if isinstance(behavior_desc, string_types):
+            name = behavior_desc
+            args = {}
+        else:
+            (name, args), = behavior_desc.items()
         b_class = behavior_class_for_name(name)
         if args is None:
             args = {}
