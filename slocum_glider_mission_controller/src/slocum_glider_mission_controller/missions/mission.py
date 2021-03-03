@@ -29,9 +29,18 @@ starts every behavior.
 
         """
         self.last_time_on_surface = g.state.m_present_time
+        enabled_modes = set()
+        disabled_modes = set()
 
         for b in self.behaviors:
             b.start(g)
+            modes_to_enable, modes_to_disable = b.desired_modes()
+            enabled_modes.update(modes_to_enable)
+            disabled_modes.update(modes_to_disable)
+
+        g.change_modes(list(enabled_modes), list(disabled_modes))
+        self.last_enabled_modes = enabled_modes
+        self.last_disabled_modes = disabled_modes
 
     def step(self, g):
         """Move the mission along. g is a reference to the glider's extctl
@@ -40,12 +49,24 @@ into the STOPPED state.
 
         """
         to_remove = []
+        enabled_modes = set()
+        disabled_modes = set()
+
         for b in self.behaviors:
             b.step(g)
+            modes_to_enable, modes_to_disable = b.desired_modes()
+            enabled_modes.update(modes_to_enable)
+            disabled_modes.update(modes_to_disable)
             if b.state == 'STOPPED':
                 to_remove.append(b)
         for b in to_remove:
             self.behaviors.remove(b)
+
+        if self.last_enabled_modes != enabled_modes \
+           or self.last_disabled_modes != disabled_modes:
+            g.change_modes(list(enabled_modes), list(disabled_modes))
+            self.last_enabled_modes = enabled_modes
+            self.last_disabled_modes = disabled_modes
 
         self.fire_default_events(g)
 

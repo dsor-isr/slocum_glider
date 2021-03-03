@@ -6,8 +6,8 @@ from ..action_server import BehaviorActionServer
 class Behavior(object):
     """The base class for behaviors."""
     __metaclass__ = ABCMeta
-    MODES_DISABLED = []
-    MODES_ENABLED = []
+    DEFAULT_MODES_DISABLED = []
+    DEFAULT_MODES_ENABLED = []
 
     @classmethod
     def make_action_server(cls, backseat_driver):
@@ -25,10 +25,23 @@ class Behavior(object):
 
     def __init__(self):
         self.state = 'READY'
+        self._modes_enabled = list(self.DEFAULT_MODES_ENABLED)
+        self._modes_disabled = list(self.DEFAULT_MODES_DISABLED)
 
-    def ensure_modes(self, g):
-        if self.MODES_ENABLED or self.MODES_DISABLED:
-            g.change_modes(self.MODES_ENABLED, self.MODES_DISABLED)
+    def desired_modes(self):
+        return self._modes_enabled, self._modes_disabled
+
+    def enable_mode(self, mode_to_enable):
+        if mode_to_enable not in self._modes_enabled:
+            self._modes_enabled.append(mode_to_enable)
+        if mode_to_enable in self._modes_disabled:
+            self._modes_disabled.remove(mode_to_enable)
+
+    def disable_mode(self, mode_to_disable):
+        if mode_to_disable not in self._modes_disabled:
+            self._modes_disabled.append(mode_to_disable)
+        if mode_to_disable in self._modes_enabled:
+            self._modes_enabled.remove(mode_to_disable)
 
     @abstractmethod
     def do_start(self, g):
@@ -37,7 +50,6 @@ class Behavior(object):
     def start(self, g):
         assert self.state == 'READY'
         self.state = 'RUNNING'
-        self.ensure_modes(g)
         self.do_start(g)
 
     def do_pause(self, g):
@@ -54,7 +66,6 @@ class Behavior(object):
     def resume(self, g):
         assert self.state == 'PAUSED'
         self.state = 'RUNNING'
-        self.ensure_modes(g)
         self.do_resume(g)
 
     @abstractmethod

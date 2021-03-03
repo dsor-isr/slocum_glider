@@ -12,7 +12,7 @@ class SurfaceBehavior(Behavior):
     ACTION = SurfaceAction
     ACTION_NAME = 'surface'
     CONTROLS = set(['pitch', 'bpump'])
-    MODES_ENABLED = [MODE_NORMAL_SURFACE_BIT]
+    DEFAULT_MODES_ENABLED = [MODE_NORMAL_SURFACE_BIT]
 
     def __init__(self, server=None):
         super(SurfaceBehavior, self).__init__()

@@ -24,7 +24,7 @@ estimated position when the behavior starts.
     ACTION = StayAtWaypointAction
     ACTION_NAME = 'stay_at_waypoint'
     CONTROLS = set(['heading'])
-    MODES_ENABLED = [MODE_GOTO_WAYPOINT_BIT]
+    DEFAULT_MODES_ENABLED = [MODE_GOTO_WAYPOINT_BIT]
 
     def __init__(self, x=None, y=None, units='decimal_degrees', server=None):
         super(StayAtWaypointBehavior, self).__init__()
