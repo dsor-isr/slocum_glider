@@ -1,4 +1,5 @@
 from copy import deepcopy
+from six import string_types
 
 from .mission import Mission
 from ..behaviors import behavior_class_for_name
@@ -14,7 +15,11 @@ class StaticMissionSegment(object):
 def parse_behavior_list(behavior_descs):
     out = []
     for behavior_desc in behavior_descs:
-        (name, args), = behavior_desc.items()
+        if isinstance(behavior_desc, string_types):
+            name = behavior_desc
+            args = {}
+        else:
+            (name, args), = behavior_desc.items()
         b_class = behavior_class_for_name(name)
         if args is None:
             args = {}
@@ -59,12 +64,13 @@ state.
     @classmethod
     def from_dict(cls, obj):
         segments = []
+        default_handler_descs = obj.get('event_handlers', [])
         for segment_desc in obj['segments']:
             behaviors = parse_behavior_list(segment_desc['behaviors'])
             event_handlers = []
-            for event_handler_desc in segment_desc.get('event_handlers', []):
+            for event_handler_desc in (segment_desc.get('event_handlers', [])
+                                       + deepcopy(default_handler_descs)):
                 (name, args), = event_handler_desc.items()
-                args = deepcopy(args)
                 handler_class = event_handler_class_for_name(name)
                 args['behaviors'] = parse_behavior_list(args['behaviors'])
                 event_handlers.append(handler_class(**args))

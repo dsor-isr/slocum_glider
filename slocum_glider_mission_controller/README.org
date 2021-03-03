@@ -173,6 +173,10 @@ overridden.
    segment description can also contain the key =event_handlers=, the value of
    which must be a list of event handler descriptions.
 
+   Additionally, =event_handlers= can be specified as a key at the same level
+   of =segments= to specify event handlers that are active for all mission
+   segments.
+
 ** Dynamic Missions
 
    Dynamic missions are described by a list of behaviors. This list can be
