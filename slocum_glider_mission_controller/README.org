@@ -102,7 +102,10 @@ overridden.
    + Action type :: slocum_glider_msgs/SurfaceAction
    + Action name :: surface
    + Controls :: pitch, bpump
-   + args :: None
+   + args ::
+     + climb_pitch :: Defaults to 0.4536 radians/26 degrees
+     + climb_depth :: The depth at which the glider surface behavior is
+       started. Defaults to 2m.
    + Finishes :: When the glider leaves the surface dialog.
 
 ** Thruster Constant Power
