@@ -1,7 +1,10 @@
 # Goal
 #
-# Regular surface. Once triggered, the glider control system will immediately
-# surface. Once triggered it cannot be stopped.
+# Regular surface. Once climb_depth is reached the glider's surface behavior
+# will be triggered and cannot be stopped.
+
+float64 climb_pitch
+float64 climb_depth
 ---
 # Result
 ---

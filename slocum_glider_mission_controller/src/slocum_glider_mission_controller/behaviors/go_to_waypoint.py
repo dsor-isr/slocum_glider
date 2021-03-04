@@ -64,7 +64,7 @@ estimated position when the behavior starts.
     ACTION = GoToWaypointAction
     ACTION_NAME = 'go_to_waypoint'
     CONTROLS = set(['heading'])
-    MODES_ENABLED = [MODE_GOTO_WAYPOINT_BIT]
+    DEFAULT_MODES_ENABLED = [MODE_GOTO_WAYPOINT_BIT]
 
     def __init__(self, x=None, y=None, units='decimal_degrees', dist=10,
                  server=None):

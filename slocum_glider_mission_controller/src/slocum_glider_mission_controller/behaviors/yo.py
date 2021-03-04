@@ -1,7 +1,6 @@
 from slocum_glider_msgs.msg import YoAction, YoResult
 
 from .base import Behavior
-from ..modes import MODE_TURN_TO_PORT_BIT, MODE_TURN_TO_STARBOARD_BIT
 
 
 class YoBehavior(Behavior):
@@ -21,7 +20,6 @@ Takes 5 parameters.
     ACTION = YoAction
     ACTION_NAME = 'yo'
     CONTROLS = set(['pitch', 'bpump'])
-    MODES_DISABLED = [MODE_TURN_TO_PORT_BIT, MODE_TURN_TO_STARBOARD_BIT]
 
     def __init__(self, dive_depth=20, dive_altitude=5, dive_pitch=-0.4536,
                  climb_depth=2, climb_pitch=0.4536, server=None):
