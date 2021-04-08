@@ -237,7 +237,8 @@ class Behavior(object):
         elif when == BAW_SCI_SURFACE:
             return x.sci_wants_surface > 0
         elif when == BAW_NOCOMM_SECS:
-            raise NotImplementedError()
+            return ((x.m_present_time - x.m_comms_tickle_timestamp)
+                    >= self.args.when_secs)
         elif when == BAW_WHEN_UTC_TIME:
             raise NotImplementedError()
         elif when == BAW_HOVER_ACTIVE:
