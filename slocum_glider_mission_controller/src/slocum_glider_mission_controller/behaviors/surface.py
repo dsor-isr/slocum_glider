@@ -58,14 +58,14 @@ Takes 2 parameters.
                 self.enable_mode(MODE_NORMAL_SURFACE_RESUME_BIT)
             else:
                 self.enable_mode(MODE_NORMAL_SURFACE_BIT)
-            self.substate = 'WAITING'
-        elif self.substate == 'WAITING':
-            if g.state.x_surface_active and g.state.m_depth <= 2:
+            self.substate = 'WAITING_FOR_BEHAVIOR_TO_ACTIVATE'
+        elif self.substate == 'WAITING_FOR_BEHAVIOR_TO_ACTIVATE':
+            if g.state.x_surface_active:
                 # We need to exit the surface mode otherwise we'll never stop
                 # trying to surface!
                 self.disable_mode(MODE_NORMAL_SURFACE_BIT)
-                self.substate = 'IN_DIALOG'
-        elif self.substate == 'IN_DIALOG':
+                self.substate = 'WAITING_FOR_BEHAVIOR_TO_END'
+        elif self.substate == 'WAITING_FOR_BEHAVIOR_TO_END':
             if not g.state.x_surface_active:
                 self.stop(g)
                 self.substate = 'DONE'
