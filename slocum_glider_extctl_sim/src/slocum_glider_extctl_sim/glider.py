@@ -174,6 +174,20 @@ class Glider:
         cb = self.update_state_cb
         if cb:
             cb(self)
+
+        # Hackish? Handle comms stuff here. When simulating, assume that we
+        # have comms whenever we reach the surface. This could change in the
+        # future if we want to simulate comms failures, but we currently have
+        # no mechanisms in place to do that.
+        if self.state.m_depth <= self.state.u_reqd_depth_at_surface:
+            self.state.m_console_cd = True
+            # TODO: Add iridium?
+        else:
+            self.state.m_console_cd = False
+
+        if self.state.m_console_cd:
+            self.state.m_comms_tickle_timestamp = self.state.m_present_time
+
         end_time = rospy.get_time()
         self.state.x_sp_time = end_time - start_time
 
