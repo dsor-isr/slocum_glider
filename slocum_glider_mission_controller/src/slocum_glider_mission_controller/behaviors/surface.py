@@ -1,7 +1,7 @@
 from slocum_glider_msgs.msg import SurfaceAction, SurfaceResult
 
 from .base import Behavior
-from ..modes import MODE_NORMAL_SURFACE_BIT
+from ..modes import MODE_NORMAL_SURFACE_BIT, MODE_NORMAL_SURFACE_RESUME_BIT
 
 
 class SurfaceBehavior(Behavior):
@@ -14,17 +14,22 @@ Takes 2 parameters.
 
 + climb_depth (defaults to 2m)
 + climb_pitch (defaults to 0.4536 rad/26 deg)
++ end_action (defaults to "ctrl-c-resume") either "ctrl-c-resume" to print
+  surface dialog and wait for operator interaction before continuing or
+  "resume" to resume the mission without waiting for operator input.
     """
 
     ACTION = SurfaceAction
     ACTION_NAME = 'surface'
     CONTROLS = set(['pitch', 'bpump'])
 
-    def __init__(self, climb_depth=2, climb_pitch=0.4536, server=None):
+    def __init__(self, climb_depth=2, climb_pitch=0.4536,
+                 end_action="ctrl-c-resume", server=None):
         super(SurfaceBehavior, self).__init__()
         self.server = server
         self.climb_depth = climb_depth
         self.climb_pitch = climb_pitch
+        self.end_action = end_action
 
     @classmethod
     def from_goal(cls, goal, server):
@@ -49,16 +54,19 @@ Takes 2 parameters.
             if (g.state.m_depth <= self.climb_depth):
                 self.substate = 'SURFACING'
         elif self.substate == 'SURFACING':
-            self.enable_mode(MODE_NORMAL_SURFACE_BIT)
+            if self.end_action == 'resume':
+                self.enable_mode(MODE_NORMAL_SURFACE_RESUME_BIT)
+            else:
+                self.enable_mode(MODE_NORMAL_SURFACE_BIT)
             self.substate = 'WAITING'
         elif self.substate == 'WAITING':
-            if g.state.x_in_surface_dialog:
+            if g.state.x_surface_active and g.state.m_depth <= 2:
                 # We need to exit the surface mode otherwise we'll never stop
                 # trying to surface!
                 self.disable_mode(MODE_NORMAL_SURFACE_BIT)
                 self.substate = 'IN_DIALOG'
         elif self.substate == 'IN_DIALOG':
-            if not g.state.x_in_surface_dialog:
+            if not g.state.x_surface_active:
                 self.stop(g)
                 self.substate = 'DONE'
 
