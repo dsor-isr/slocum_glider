@@ -201,7 +201,7 @@ class Behavior(object):
         if 'args_from_file' in orig_args and orig_args['args_from_file'] != -1:
             file_name = "%s%02d.ma" % (self.NAME[0:6],
                                        orig_args['args_from_file'])
-            file_name = file_name.upper()
+            # file_name = file_name.upper()
             with closing(self.g.open_flight_file(['mafiles', file_name])) as f:
                 ma_args = parse_ma_file(f.read().splitlines())
             new_args = orig_args.copy()
