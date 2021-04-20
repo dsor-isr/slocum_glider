@@ -30,6 +30,8 @@ ALL_BEHAVIORS = [AbendBehavior, ClimbToBehavior, DiveToBehavior,
 def make_behavior(name, args, index, g):
     for b in ALL_BEHAVIORS:
         if name == b.NAME:
-            return b(args, index, g)
+            behavior = b(args, index, g)
+            behavior.update_ma_args()
+            return behavior
 
     raise ValueError('Unknown behavior ' + name)

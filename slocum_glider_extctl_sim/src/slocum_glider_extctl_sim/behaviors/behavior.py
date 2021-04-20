@@ -201,7 +201,7 @@ class Behavior(object):
         if 'args_from_file' in orig_args and orig_args['args_from_file'] != -1:
             file_name = "%s%02d.ma" % (self.NAME[0:6],
                                        orig_args['args_from_file'])
-            file_name = file_name.upper()
+            # file_name = file_name.upper()
             with closing(self.g.open_flight_file(['mafiles', file_name])) as f:
                 ma_args = parse_ma_file(f.read().splitlines())
             new_args = orig_args.copy()
@@ -237,7 +237,8 @@ class Behavior(object):
         elif when == BAW_SCI_SURFACE:
             return x.sci_wants_surface > 0
         elif when == BAW_NOCOMM_SECS:
-            raise NotImplementedError()
+            return ((x.m_present_time - x.m_comms_tickle_timestamp)
+                    >= self.args.when_secs)
         elif when == BAW_WHEN_UTC_TIME:
             raise NotImplementedError()
         elif when == BAW_HOVER_ACTIVE:
