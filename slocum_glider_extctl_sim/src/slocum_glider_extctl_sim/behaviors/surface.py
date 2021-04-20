@@ -4,6 +4,7 @@ from math import trunc
 from .behavior import (BEHAVIOR_STATE_FINISHED,
                        BEHAVIOR_STATE_MISSION_COMPLETE,
                        BEHAVIOR_STATE_UNINITED, BehaviorWithSubstates,
+                       END_ACTION_RESUME, END_ACTION_WAIT_FOR_CTRL_C_RESUME,
                        Substate)
 from .climb_to import ClimbToBehavior
 from ..modes import (BPUMP_MODE_ABSOLUTE, PITCH_MODE_BATT_POS,
@@ -100,7 +101,17 @@ class SurfaceBehavior(BehaviorWithSubstates):
 
         def next_state(self, parent, x):
             if x.m_gps_full_status == 0:
-                return parent.WaitingForCtrlC(parent)
+                end_action = parent.args.end_action
+                if end_action == END_ACTION_RESUME:
+                    # TODO: This should probably transition to ThrusterBurst?
+                    # Need to fire up shoebox to determine for sure.
+                    return parent.AllDone(parent)
+                elif end_action == END_ACTION_WAIT_FOR_CTRL_C_RESUME:
+                    return parent.WaitingForCtrlC(parent)
+                else:
+                    raise ValueError("Cannot yet handle end_action "
+                                     + str(end_action)
+                                     + " for surface behavior.")
 
     class WaitingForCtrlC(StayAtSurface):
         DESCRIPTION = 'Waiting for control-C to exit/resume'

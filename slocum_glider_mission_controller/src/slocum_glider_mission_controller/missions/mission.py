@@ -80,7 +80,9 @@ into the STOPPED state.
 by a specific behavior).
 
         """
-        if g.state.x_in_surface_dialog:
+        # 2m is the default value for u_reqd_depth_at_surface. Doesn't seem
+        # worthwhile to add it to extctl.ini.
+        if g.state.x_surface_active and g.state.m_depth <= 2:
             self.last_time_on_surface = g.state.m_present_time
 
         delta_surface = (g.state.m_present_time - self.last_time_on_surface)

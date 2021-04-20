@@ -46,11 +46,22 @@ behavior: surface
 #     b_arg: c_pitch_value(X)          0.4528  # 26 deg
 #     b_arg: printout_cycle_time(sec)  60.0    # How often to print dialog
 
-# Surface when requested by backseat driver.
+# Surface when requested by backseat driver and wait for Ctrl-C/Ctrl-R.
 behavior: surface
     b_arg: start_when(enum)          15      # sci_mission_mode
     b_arg: when_secs(sec)            1       # 1s bit
     b_arg: end_action(enum)          1       # ctrl-c
+    b_arg: gps_wait_time(s)          300
+    b_arg: keystroke_wait_time(sec)  180     # Wait for 6 minutes before continuing
+    b_arg: c_use_pitch(enum)         3       # 3:servo
+    b_arg: c_pitch_value(X)          0.4538  # 26 deg
+
+# Surface when requested by backseat driver, without waiting for operator
+# interaction before continuing.
+behavior: surface
+    b_arg: start_when(enum)          15      # sci_mission_mode
+    b_arg: when_secs(sec)            64      # 64s bit
+    b_arg: end_action(enum)          2       # Resume
     b_arg: gps_wait_time(s)          300
     b_arg: keystroke_wait_time(sec)  180     # Wait for 6 minutes before continuing
     b_arg: c_use_pitch(enum)         3       # 3:servo
