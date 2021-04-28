@@ -49,6 +49,38 @@ Build kitchensink image - arm64:
   tags:
     - arm64
 
+Build extctl-serial image - amd64:
+  extends: .Build arch image - kaniko
+  variables:
+    ARCH: amd64
+    DOCKERFILE: docker/Dockerfile.extctl_serial
+    IMAGE_NAME: extctl-serial
+
+Build extctl-serial image - arm64:
+  extends: .Build arch image - kaniko
+  variables:
+    ARCH: arm64
+    DOCKERFILE: docker/Dockerfile.extctl_serial
+    IMAGE_NAME: extctl-serial
+  tags:
+    - arm64
+
+Build mission-controller image - amd64:
+  extends: .Build arch image - kaniko
+  variables:
+    ARCH: amd64
+    DOCKERFILE: docker/Dockerfile.mission_controller
+    IMAGE_NAME: mission-controller
+
+Build mission-controller image - arm64:
+  extends: .Build arch image - kaniko
+  variables:
+    ARCH: arm64
+    DOCKERFILE: docker/Dockerfile.mission_controller
+    IMAGE_NAME: mission-controller
+  tags:
+    - arm64
+
 .Build manifest:
   stage: Build image manifests
   image: alpine:latest
@@ -68,12 +100,54 @@ Build kitchensink sha manifest:
   variables:
     IMAGE_NAME: $CI_RPOJECT_NAME
     TAG: $CI_COMMIT_SHORT_SHA
+  needs:
+    - Build kitchensink image - amd64
+    - Build kitchensink image - arm64
 
-Build kitchensink branch manifest:
+Build kitchensink ref manifest:
   extends: .Build manifest
   variables:
     IMAGE_NAME: $CI_RPOJECT_NAME
     TAG: $CI_COMMIT_REF_NAME
+  needs:
+    - Build kitchensink image - amd64
+    - Build kitchensink image - arm64
+
+Build extctl-serial sha manifest:
+  extends: .Build manifest
+  variables:
+    IMAGE_NAME: extctl-serial
+    TAG: $CI_COMMIT_SHORT_SHA
+  needs:
+    - Build extctl-serial image - amd64
+    - Build extctl-serial image - arm64
+
+Build extctl-serial ref manifest:
+  extends: .Build manifest
+  variables:
+    IMAGE_NAME: extctl-serial
+    TAG: $CI_COMMIT_REF_NAME
+  needs:
+    - Build extctl-serial image - amd64
+    - Build extctl-serial image - arm64
+
+Build mission-controller sha manifest:
+  extends: .Build manifest
+  variables:
+    IMAGE_NAME: mission-controller
+    TAG: $CI_COMMIT_SHORT_SHA
+  needs:
+    - Build mission-controller image - amd64
+    - Build mission-controller image - arm64
+
+Build mission-controller ref manifest:
+  extends: .Build manifest
+  variables:
+    IMAGE_NAME: mission-controller
+    TAG: $CI_COMMIT_REF_NAME
+  needs:
+    - Build mission-controller image - amd64
+    - Build mission-controller image - arm64
 
 Release:
   stage: Release
