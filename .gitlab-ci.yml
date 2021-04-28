@@ -24,61 +24,50 @@ roslint:
     - catkin_make roslint
   needs: []
 
-.Build arch image - dind:
+.Build arch image - kaniko:
   stage: Build images
-  image: docker:19.03
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
   variables:
-    DOCKER_TLS_CERTDIR: "/certs"
-  services:
-    - docker:19.03-dind
-  before_script:
-    - docker info
+    IMAGE_NAME: $CI_PROJECT_NAME
   script:
-    - apk add --no-cache git
-    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
-    - docker pull "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" || true
-    - docker pull "$CI_REGISTRY_IMAGE:$CI_DEFAULT_BRANCH" || true
-    - docker pull "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA" || true
-    - EXTRA_CACHE_FROMS=""
-    - |
-      for sha in $(git rev-parse HEAD^@); do
-        docker pull "$CI_REGISTRY_IMAGE:$sha" || true
-        EXTRA_CACHE_FROMS="--cache-from $CI_REGISTRY_IMAGE:$sha $EXTRA_CACHE_FROMS"
-      done
-    - docker build --pull --cache-from "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" --cache-from "$CI_REGISTRY_IMAGE:$CI_DEFAULT_BRANCH" --cache-from "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA" $EXTRA_CACHE_FROMS -t "$CI_REGISTRY_IMAGE/${ARCH?}/$CI_PROJECT_NAME:$CI_PIPELINE_IID" -f docker/Dockerfile .
-    - docker push "$CI_REGISTRY_IMAGE/${ARCH?}/$CI_PROJECT_NAME:$CI_PIPELINE_IID"
+    - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"username\":\"${CI_REGISTRY_USER}\",\"password\":\"${CI_REGISTRY_PASSWORD}\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor "--context=$CI_PROJECT_DIR" "--dockerfile=$DOCKERFILE" --cache=true --cache-repo="$CI_REGISTRY_IMAGE/kaniko" --destination "$CI_REGISTRY_IMAGE/tmp/$IMAGE_NAME:$CI_PIPELINE_IID"
 
-Build amd64 image:
-  extends: .Build arch image - dind
+Build kitchensink image - amd64:
+  extends: .Build arch image - kaniko
   variables:
     ARCH: amd64
+    DOCKERFILE: docker/Dockerfile
 
-Build arm64 image:
-  extends: .Build arch image - dind
+Build kitchensink image - arm64:
+  extends: .Build arch image - kaniko
   variables:
     ARCH: arm64v8
+    DOCKERFILE: docker/Dockerfile
   tags:
-    - arm64-dind
+    - arm64
 
-Build image manifest:
-  stage: Build image manifests
-  image: docker:19.03
-  environment:
-    name: GitLab Docker registry/$CI_COMMIT_REF_SLUG
-  variables:
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_CLI_EXPERIMENTAL: "enabled"
-  services:
-    - docker:19.03-dind
-  before_script:
-    - docker info
-  script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
-    - docker manifest create "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" "$CI_REGISTRY_IMAGE/amd64/$CI_PROJECT_NAME:$CI_PIPELINE_IID" "$CI_REGISTRY_IMAGE/arm64v8/$CI_PROJECT_NAME:$CI_PIPELINE_IID"
-    - docker manifest create "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA" "$CI_REGISTRY_IMAGE/amd64/$CI_PROJECT_NAME:$CI_PIPELINE_IID" "$CI_REGISTRY_IMAGE/arm64v8/$CI_PROJECT_NAME:$CI_PIPELINE_IID"
-    - docker manifest push -p "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
-    - docker manifest push -p "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
-  resource_group: docker_reg
+# Build kitchensink manifest:
+#   stage: Build image manifests
+#   image: docker:19.03
+#   environment:
+#     name: GitLab Docker registry/$CI_COMMIT_REF_SLUG
+#   variables:
+#     DOCKER_TLS_CERTDIR: "/certs"
+#     DOCKER_CLI_EXPERIMENTAL: "enabled"
+#   services:
+#     - docker:19.03-dind
+#   before_script:
+#     - docker info
+#   script:
+#     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+#     - docker manifest create "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" "$CI_REGISTRY_IMAGE/amd64/$CI_PROJECT_NAME:$CI_PIPELINE_IID" "$CI_REGISTRY_IMAGE/arm64v8/$CI_PROJECT_NAME:$CI_PIPELINE_IID"
+#     - docker manifest create "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA" "$CI_REGISTRY_IMAGE/amd64/$CI_PROJECT_NAME:$CI_PIPELINE_IID" "$CI_REGISTRY_IMAGE/arm64v8/$CI_PROJECT_NAME:$CI_PIPELINE_IID"
+#     - docker manifest push -p "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
+#     - docker manifest push -p "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
+#   resource_group: docker_reg
 
 
 Release:
