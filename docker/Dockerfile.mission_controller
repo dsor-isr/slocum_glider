@@ -19,21 +19,20 @@ FROM ros:$ros_distro-ros-base as deps-extractor
 # the dependency tree...), copy the script to the next image, and run it
 # *before* copying in our source code.
 
-ARG ros_distro
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Initialize the workspace
 WORKDIR /slocum_glider_ws/src
 
 # hadolint ignore=SC1091
-RUN . "/opt/ros/$ros_distro/setup.bash" \
+RUN . "/opt/ros/$ROS_DISTRO/setup.bash" \
     && catkin_init_workspace
 
 # Get the devel, etc. folders created
 WORKDIR /slocum_glider_ws/
 
 # hadolint ignore=SC1091
-RUN . "/opt/ros/$ros_distro/setup.bash" \
+RUN . "/opt/ros/$ROS_DISTRO/setup.bash" \
     && catkin_make
 
 # Copy in all the source code:
@@ -44,7 +43,7 @@ COPY slocum_glider_mission_controller src/slocum_ros/slocum_glider_mission_contr
 
 # Generate the install script, run it, install any deps it doesn't pick up, and
 # build the code.
-RUN . "/opt/ros/$ros_distro/setup.bash" \
+RUN . "/opt/ros/$ROS_DISTRO/setup.bash" \
     && apt-get update \
     && apt-get install -y --no-upgrade --no-install-recommends python-pip \
     && rosdep install --from-paths src --ignore-src -y -s --as-root pip:false --as-root apt:false | sort -u | tee /tmp/install-script \
@@ -55,11 +54,10 @@ RUN . "/opt/ros/$ros_distro/setup.bash" \
 
 FROM ros:$ros_distro-ros-base as deps
 
-ARG ros_distro
 COPY --from=deps-extractor /tmp/install-script /tmp/install-script
 
 # Install the dependencies
-RUN . "/opt/ros/$ros_distro/setup.sh" \
+RUN . "/opt/ros/$ROS_DISTRO/setup.sh" \
     && apt-get update \
     && apt-get install -y --no-upgrade --no-install-recommends python-pip \
     && cat /tmp/install-script \
@@ -79,7 +77,7 @@ WORKDIR /slocum_glider_ws
 COPY --from=deps-extractor /slocum_glider_ws/src src
 
 # make and install!
-RUN . "/opt/ros/$ros_distro/setup.sh" \
+RUN . "/opt/ros/$ROS_DISTRO/setup.sh" \
     && catkin_make \
     && catkin_make install
 
