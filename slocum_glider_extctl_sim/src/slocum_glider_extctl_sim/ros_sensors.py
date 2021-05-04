@@ -3,59 +3,80 @@
 from frl_vehicle_msgs.msg import UwGliderStatus
 import rospy
 
+from sensor_msgs.msg import NavSatFix
+
 from .lmc import decimal_degs_to_decimal_mins
 
 
 class RosSensorsTopic(object):
     def __init__(self):
-        self.msg = None
-        self.sim_status_sub = rospy.Subscriber('/glider_hybrid_whoi/direct_kinematics/UwGliderStatus', UwGliderStatus,
-                                               self.handle_status_msg)
+        self.status_msg = None
+        self.dead_reckon_msg = None
+        self.sim_status_sub = rospy.Subscriber(
+            'glider_hybrid_whoi/kinematics/UwGliderStatus',
+            UwGliderStatus,
+            self.handle_status_msg
+        )
+        self.dead_reckoning_sub = rospy.Subscriber(
+            'deadreckon',
+            NavSatFix,
+            self.handle_dead_reckon_msg
+        )
 
     def handle_status_msg(self, msg):
-        self.msg = msg
+        self.status_msg = msg
+
+    def handle_dead_reckon_msg(self, msg):
+        self.dead_reckon_msg = msg
 
     def update_state(self, g):
         """Given an frl_vehicle_msgs/UwGliderStatus message, update the state instance.
 
         """
-        msg = self.msg
-        self.msg = None
-        if msg is None:
-            return
+        status_msg = self.status_msg
+        self.status_msg = None
+
+        dr_msg = self.dead_reckon_msg
+        self.dead_reckon_msg = None
 
         state = g.state
 
-        state.m_lat = decimal_degs_to_decimal_mins(msg.latitude)
-        state.m_lon = decimal_degs_to_decimal_mins(msg.longitude)
+        if dr_msg is not None:
+            state.m_lat = decimal_degs_to_decimal_mins(dr_msg.latitude)
+            state.m_lon = decimal_degs_to_decimal_mins(dr_msg.longitude)
 
-        # HACK: There is currently no distinction between lat/long coming from
-        # gps locks vs dead reackoning. For now, assume GPS if depth is zero,
-        # dead reckoning otherwise.
-        if msg.depth <= g.state.u_reqd_depth_at_surface:
-            state.m_gps_lat = state.m_lat
-            state.m_gps_lon = state.m_lon
-            state.m_gps_status = 0
-            state.m_gps_full_status = 0
-        else:
-            state.m_gps_status = 1
-            state.m_gps_full_status = 1
+        if status_msg is not None:
+            # HACK: There is currently no distinction between lat/long coming
+            # from gps locks vs dead reckoning. For now, assume GPS if depth is
+            # zero, dead reckoning otherwise.
+            if status_msg.depth <= g.state.u_reqd_depth_at_surface:
+                state.m_gps_lat = decimal_degs_to_decimal_mins(
+                    status_msg.latitude
+                )
+                state.m_gps_lon = decimal_degs_to_decimal_mins(
+                    status_msg.longitude
+                )
+                state.m_gps_status = 0
+                state.m_gps_full_status = 0
+            else:
+                state.m_gps_status = 1
+                state.m_gps_full_status = 1
 
-        state.m_depth = msg.depth
-        state.m_roll = msg.roll
-        state.m_pitch = msg.pitch
-        state.m_heading = msg.heading
+            state.m_depth = status_msg.depth
+            state.m_roll = status_msg.roll
+            state.m_pitch = status_msg.pitch
+            state.m_heading = status_msg.heading
 
-        if msg.altitude >= state.u_min_altimeter \
-           and msg.altitude <= state.u_max_altimeter:
-            state.m_altitude = msg.altitude
-            state.m_altimeter_status = 0
-        else:
-            state.m_altitude = -1
-            state.m_altimeter_status = 1
+            if status_msg.altitude >= state.u_min_altimeter \
+               and status_msg.altitude <= state.u_max_altimeter:
+                state.m_altitude = status_msg.altitude
+                state.m_altimeter_status = 0
+            else:
+                state.m_altitude = -1
+                state.m_altimeter_status = 1
 
-        state.m_thruster_power = msg.motor_power
+            state.m_thruster_power = status_msg.motor_power
 
-        state.m_fin = msg.rudder_angle
-        state.m_battpos = msg.battery_position
-        state.m_de_oil_vol = msg.pumped_volume
+            state.m_fin = status_msg.rudder_angle
+            state.m_battpos = status_msg.battery_position
+            state.m_de_oil_vol = status_msg.pumped_volume
