@@ -13,6 +13,7 @@ class RosSensorsTopic(object):
         self.status_msg = None
         self.dead_reckon_msg = None
         self.dvl_msg = None
+        self.gps_msg = None
 
         self.sim_status_sub = rospy.Subscriber(
             'glider_hybrid_whoi/kinematics/UwGliderStatus',
@@ -23,6 +24,11 @@ class RosSensorsTopic(object):
             'deadreckon',
             NavSatFix,
             self.handle_dead_reckon_msg
+        )
+        self.gps_sub = rospy.Subscriber(
+            'glider_hybrid_whoi/hector_gps',
+            NavSatFix,
+            self.handle_gps_msg
         )
         # TODO: Remove this! To the best of my knowledge, the glider flight
         # software does not use data from the DVL at all. We're using it only
@@ -40,6 +46,9 @@ class RosSensorsTopic(object):
     def handle_dead_reckon_msg(self, msg):
         self.dead_reckon_msg = msg
 
+    def handle_gps_msg(self, msg):
+        self.gps_msg = msg
+
     def handle_dvl_msg(self, msg):
         self.dvl_msg = msg
 
@@ -52,6 +61,9 @@ class RosSensorsTopic(object):
 
         dr_msg = self.dead_reckon_msg
         self.dead_reckon_msg = None
+
+        gps_msg = self.gps_msg
+        self.gps_msg = None
 
         dvl_msg = self.dvl_msg
         self.dvl_msg = None
@@ -71,23 +83,22 @@ class RosSensorsTopic(object):
                 state.m_altitude = -1
                 state.m_altimeter_status = 1
 
-        if status_msg is not None:
-            # HACK: There is currently no distinction between lat/long coming
-            # from gps locks vs dead reckoning. For now, assume GPS if depth is
-            # zero, dead reckoning otherwise.
-            if status_msg.depth <= g.state.u_reqd_depth_at_surface:
-                state.m_gps_lat = decimal_degs_to_decimal_mins(
-                    status_msg.latitude
-                )
-                state.m_gps_lon = decimal_degs_to_decimal_mins(
-                    status_msg.longitude
-                )
-                state.m_gps_status = 0
-                state.m_gps_full_status = 0
-            else:
-                state.m_gps_status = 1
-                state.m_gps_full_status = 1
+        if gps_msg is not None:
+            # The simulator should make sure the message is only published at
+            # the surface.
+            state.m_gps_lat = decimal_degs_to_decimal_mins(
+                gps_msg.latitude
+            )
+            state.m_gps_lon = decimal_degs_to_decimal_mins(
+                gps_msg.longitude
+            )
+            state.m_gps_status = 0
+            state.m_gps_full_status = 0
+        else:
+            state.m_gps_status = 1
+            state.m_gps_full_status = 1
 
+        if status_msg is not None:
             state.m_depth = status_msg.depth
             state.m_roll = status_msg.roll
             state.m_pitch = status_msg.pitch
