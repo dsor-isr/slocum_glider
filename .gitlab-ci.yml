@@ -99,7 +99,7 @@ Build mission-controller image - arm64:
 Build kitchensink sha manifest:
   extends: .Build manifest
   variables:
-    IMAGE_NAME: $CI_RPOJECT_NAME
+    IMAGE_NAME: $CI_PROJECT_NAME
     TAG: $CI_COMMIT_SHORT_SHA
   needs:
     - Build kitchensink image - amd64
@@ -108,7 +108,7 @@ Build kitchensink sha manifest:
 Build kitchensink ref manifest:
   extends: .Build manifest
   variables:
-    IMAGE_NAME: $CI_RPOJECT_NAME
+    IMAGE_NAME: $CI_PROJECT_NAME
     TAG: $CI_COMMIT_REF_NAME
   needs:
     - Build kitchensink image - amd64
