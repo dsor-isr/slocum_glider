@@ -1,8 +1,8 @@
 """Functionality to retrieve sensor data from simulator over ROS."""
 
 from frl_vehicle_msgs.msg import UwGliderStatus
+from ds_sensor_msgs.msg import Dvl
 import rospy
-
 from sensor_msgs.msg import NavSatFix
 
 from .lmc import decimal_degs_to_decimal_mins
@@ -12,6 +12,8 @@ class RosSensorsTopic(object):
     def __init__(self):
         self.status_msg = None
         self.dead_reckon_msg = None
+        self.dvl_msg = None
+
         self.sim_status_sub = rospy.Subscriber(
             'glider_hybrid_whoi/kinematics/UwGliderStatus',
             UwGliderStatus,
@@ -22,12 +24,24 @@ class RosSensorsTopic(object):
             NavSatFix,
             self.handle_dead_reckon_msg
         )
+        # TODO: Remove this! To the best of my knowledge, the glider flight
+        # software does not use data from the DVL at all. We're using it only
+        # because there is currently no separate altimeter in the simulator
+        # yet.
+        self.dvl_sub = rospy.Subscriber(
+            'dvl/dvl',
+            Dvl,
+            self.handle_dvl_msg
+        )
 
     def handle_status_msg(self, msg):
         self.status_msg = msg
 
     def handle_dead_reckon_msg(self, msg):
         self.dead_reckon_msg = msg
+
+    def handle_dvl_msg(self, msg):
+        self.dvl_msg = msg
 
     def update_state(self, g):
         """Given an frl_vehicle_msgs/UwGliderStatus message, update the state instance.
@@ -39,11 +53,23 @@ class RosSensorsTopic(object):
         dr_msg = self.dead_reckon_msg
         self.dead_reckon_msg = None
 
+        dvl_msg = self.dvl_msg
+        self.dvl_msg = None
+
         state = g.state
 
         if dr_msg is not None:
             state.m_lat = decimal_degs_to_decimal_mins(dr_msg.latitude)
             state.m_lon = decimal_degs_to_decimal_mins(dr_msg.longitude)
+
+        if dvl_msg is not None:
+            alt = dvl_msg.altitude
+            if alt <= state.u_max_altimeter and alt >= state.u_min_altimeter:
+                state.m_altitude = alt
+                state.m_altimeter_status = 0
+            else:
+                state.m_altitude = -1
+                state.m_altimeter_status = 1
 
         if status_msg is not None:
             # HACK: There is currently no distinction between lat/long coming
@@ -66,14 +92,6 @@ class RosSensorsTopic(object):
             state.m_roll = status_msg.roll
             state.m_pitch = status_msg.pitch
             state.m_heading = status_msg.heading
-
-            if status_msg.altitude >= state.u_min_altimeter \
-               and status_msg.altitude <= state.u_max_altimeter:
-                state.m_altitude = status_msg.altitude
-                state.m_altimeter_status = 0
-            else:
-                state.m_altitude = -1
-                state.m_altimeter_status = 1
 
             state.m_thruster_power = status_msg.motor_power
 
