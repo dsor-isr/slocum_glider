@@ -1,7 +1,7 @@
 """Functionality to retrieve sensor data from simulator over ROS."""
 
 from frl_vehicle_msgs.msg import UwGliderStatus
-from ds_sensor_msgs.msg import Dvl
+from uuv_sensor_ros_plugins_msgs.msg import DVL
 import rospy
 from sensor_msgs.msg import NavSatFix
 
@@ -12,7 +12,7 @@ class RosSensorsTopic(object):
     def __init__(self):
         self.status_msg = None
         self.dead_reckon_msg = None
-        self.dvl_msg = None
+        self.altimeter_msg = None
         self.gps_msg = None
 
         self.sim_status_sub = rospy.Subscriber(
@@ -30,14 +30,10 @@ class RosSensorsTopic(object):
             NavSatFix,
             self.handle_gps_msg
         )
-        # TODO: Remove this! To the best of my knowledge, the glider flight
-        # software does not use data from the DVL at all. We're using it only
-        # because there is currently no separate altimeter in the simulator
-        # yet.
-        self.dvl_sub = rospy.Subscriber(
-            'dvl/dvl',
-            Dvl,
-            self.handle_dvl_msg
+        self.altimeter_sub = rospy.Subscriber(
+            'glider_hybrid_whoi/altimeter',
+            DVL,
+            self.handle_altimeter_msg
         )
 
     def handle_status_msg(self, msg):
@@ -49,8 +45,8 @@ class RosSensorsTopic(object):
     def handle_gps_msg(self, msg):
         self.gps_msg = msg
 
-    def handle_dvl_msg(self, msg):
-        self.dvl_msg = msg
+    def handle_altimeter_msg(self, msg):
+        self.altimeter_msg = msg
 
     def update_state(self, g):
         """Given an frl_vehicle_msgs/UwGliderStatus message, update the state instance.
@@ -65,8 +61,8 @@ class RosSensorsTopic(object):
         gps_msg = self.gps_msg
         self.gps_msg = None
 
-        dvl_msg = self.dvl_msg
-        self.dvl_msg = None
+        altimeter_msg = self.altimeter_msg
+        self.altimeter_msg = None
 
         state = g.state
 
@@ -74,8 +70,8 @@ class RosSensorsTopic(object):
             state.m_lat = decimal_degs_to_decimal_mins(dr_msg.latitude)
             state.m_lon = decimal_degs_to_decimal_mins(dr_msg.longitude)
 
-        if dvl_msg is not None:
-            alt = dvl_msg.altitude
+        if altimeter_msg is not None:
+            alt = altimeter_msg.altitude
             if alt <= state.u_max_altimeter and alt >= state.u_min_altimeter:
                 state.m_altitude = alt
                 state.m_altimeter_status = 0
