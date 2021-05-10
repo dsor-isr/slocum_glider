@@ -115,3 +115,12 @@ behavior of the glider as it is executing a mission.
       This will initialize the system for operating in Buzzards Bay and start
       the backseat driver's mission (currently a 100mx100m box pattern while
       bottom following).
+   5. In order to echo the commands sent by the sim driver, run:
+      #+begin_src shell
+        docker-compose exec glider_control_sim /ros_entrypoint.sh rostopic echo /glider_hybrid_whoi/kinematics/UwGliderCommand
+      #+end_src
+
+      In order to echo the state sent by gazebo, run:
+      #+begin_src shell
+        docker-compose exec glider_control_sim /ros_entrypoint.sh rostopic echo /glider_hybrid_whoi/kinematics/UwGliderStatus
+      #+end_src

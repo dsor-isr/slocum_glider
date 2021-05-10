@@ -17,7 +17,10 @@
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>slocum_glider_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>frl_vehicle_msgs</exec_depend>
+  <exec_depend>uuv_sensor_ros_plugins_msgs</exec_depend>
+
   <!-- NOTE: Requires at least v1.13 of six, which is not in Bionic's package
        manager -->
   <exec_depend>python-six</exec_depend>
