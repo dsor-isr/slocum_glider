@@ -6,8 +6,6 @@
 
 ARG ros_distro=melodic
 ARG frl_msgs_commit=a41b1d3d192dacd32a7e0a717a9c1b0a30eaca64
-ARG ds_msgs_commit=d22a34092135ee4e69bee9e5703bb6cdd7865e12
-ARG ds_msgs_repo=https://bitbucket.org/whoidsl/ds_msgs.git
 
 FROM ros:$ros_distro-ros-base as deps-extractor
 # Dependency management in ROS has always been a painful experience IMHO. We
@@ -48,17 +46,6 @@ RUN . "/opt/ros/$ros_distro/setup.bash" \
     && git clone https://github.com/Field-Robotics-Lab/frl_msgs.git \
     && git -C frl_msgs archive --prefix=src/frl_msgs/ "$FRL_MSGS_COMMIT" | tar x \
     && rm -rf frl_msgs
-
-# We have to install ds_msgs manually as it's not available via a package
-# manager.
-ARG ds_msgs_commit
-ARG ds_msgs_repo
-ENV DS_MSGS_COMMIT=$ds_msgs_commit
-ENV DS_MSGS_REPO=$ds_msgs_repo
-RUN . "/opt/ros/$ros_distro/setup.bash" \
-    && git clone "$DS_MSGS_REPO" \
-    && git -C ds_msgs archive --prefix=src/ds_msgs/ "$DS_MSGS_COMMIT" | tar x \
-    && rm -rf ds_msgs
 
 # Copy in all the source code:
 COPY slocum_glider src/slocum_ros/slocum_glider
@@ -101,12 +88,6 @@ RUN . "/opt/ros/$ros_distro/setup.sh" \
 ARG frl_msgs_commit
 ENV FRL_MSGS_COMMIT=$frl_msgs_commit
 
-# Carry forward the ds msgs info as env vars in this image
-ARG ds_msgs_commit
-ARG ds_msgs_repo
-ENV DS_MSGS_COMMIT=$ds_msgs_commit
-ENV DS_MSGS_REPO=$ds_msgs_repo
-
 # Copy in the source code. We *could* just do all the COPY commands and git
 # clone frl_msgs again, but why bother since we already have all that available
 # in the previous stage...
@@ -139,12 +120,6 @@ RUN . "/opt/ros/$ros_distro/setup.sh" \
 # Carry forward the FRL msgs commit as an env var in this image
 ARG frl_msgs_commit
 ENV FRL_MSGS_COMMIT=$frl_msgs_commit
-
-# Carry forward the ds msgs info as env vars in this image
-ARG ds_msgs_commit
-ARG ds_msgs_repo
-ENV DS_MSGS_COMMIT=$ds_msgs_commit
-ENV DS_MSGS_REPO=$ds_msgs_repo
 
 # Copy in the install space:
 COPY --from=builder /slocum_glider_ws/install /slocum_glider_ws/install
