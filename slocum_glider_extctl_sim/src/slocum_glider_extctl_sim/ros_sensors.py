@@ -1,5 +1,7 @@
 """Functionality to retrieve sensor data from simulator over ROS."""
 
+from math import cos, radians
+
 from frl_vehicle_msgs.msg import UwGliderStatus
 from uuv_sensor_ros_plugins_msgs.msg import DVL
 import rospy
@@ -70,15 +72,6 @@ class RosSensorsTopic(object):
             state.m_lat = decimal_degs_to_decimal_mins(dr_msg.latitude)
             state.m_lon = decimal_degs_to_decimal_mins(dr_msg.longitude)
 
-        if altimeter_msg is not None:
-            alt = altimeter_msg.altitude
-            if alt <= state.u_max_altimeter and alt >= state.u_min_altimeter:
-                state.m_altitude = alt
-                state.m_altimeter_status = 0
-            else:
-                state.m_altitude = -1
-                state.m_altimeter_status = 1
-
         if gps_msg is not None:
             # The simulator should make sure the message is only published at
             # the surface.
@@ -105,3 +98,15 @@ class RosSensorsTopic(object):
             state.m_fin = status_msg.rudder_angle
             state.m_battpos = status_msg.battery_position
             state.m_de_oil_vol = status_msg.pumped_volume
+
+        if altimeter_msg is not None:
+            alt = altimeter_msg.altitude
+            # The altimeter is mounted so that it is pointing straight down
+            # when the glider is pitched downward by 26 degrees.
+            alt = alt * cos(state.m_pitch + radians(26))
+            if alt <= state.u_max_altimeter and alt >= state.u_min_altimeter:
+                state.m_altitude = alt
+                state.m_altimeter_status = 0
+            else:
+                state.m_altitude = -1
+                state.m_altimeter_status = 1
