@@ -35,20 +35,6 @@ roslint:
     - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"username\":\"${CI_REGISTRY_USER}\",\"password\":\"${CI_REGISTRY_PASSWORD}\"}}}" > /kaniko/.docker/config.json
     - /kaniko/executor "--context=$CI_PROJECT_DIR" "--dockerfile=$DOCKERFILE" --cache=true --cache-repo="$CI_REGISTRY_IMAGE/kaniko" --destination "$CI_REGISTRY_IMAGE/tmp/$IMAGE_NAME-${ARCH?}:$CI_PIPELINE_IID"
 
-Build kitchensink image - amd64:
-  extends: .Build arch image - kaniko
-  variables:
-    ARCH: amd64
-    DOCKERFILE: docker/Dockerfile
-
-Build kitchensink image - arm64:
-  extends: .Build arch image - kaniko
-  variables:
-    ARCH: arm64
-    DOCKERFILE: docker/Dockerfile
-  tags:
-    - arm64
-
 Build extctl-serial image - amd64:
   extends: .Build arch image - kaniko
   variables:
@@ -95,24 +81,6 @@ Build mission-controller image - arm64:
                     --platforms linux/amd64,linux/arm64 \
                     --template $CI_REGISTRY_IMAGE/tmp/$IMAGE_NAME-ARCH:$CI_PIPELINE_IID \
                     --target $CI_REGISTRY_IMAGE/$IMAGE_NAME:$TAG
-
-Build kitchensink sha manifest:
-  extends: .Build manifest
-  variables:
-    IMAGE_NAME: $CI_PROJECT_NAME
-    TAG: $CI_COMMIT_SHORT_SHA
-  needs:
-    - Build kitchensink image - amd64
-    - Build kitchensink image - arm64
-
-Build kitchensink ref manifest:
-  extends: .Build manifest
-  variables:
-    IMAGE_NAME: $CI_PROJECT_NAME
-    TAG: $CI_COMMIT_REF_NAME
-  needs:
-    - Build kitchensink image - amd64
-    - Build kitchensink image - arm64
 
 Build extctl-serial sha manifest:
   extends: .Build manifest
