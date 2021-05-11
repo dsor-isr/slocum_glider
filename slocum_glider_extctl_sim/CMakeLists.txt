@@ -31,3 +31,8 @@ install(PROGRAMS
 install(DIRECTORY example_gliders
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
+
+install(FILES
+  launch/sim_driver.launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)

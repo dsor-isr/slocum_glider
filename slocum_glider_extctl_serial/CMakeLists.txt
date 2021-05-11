@@ -24,3 +24,8 @@ install(PROGRAMS
   scripts/slocum_glider_extctl_serial
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+install(FILES
+  launch/serial_driver.launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)

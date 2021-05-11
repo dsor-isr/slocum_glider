@@ -1,3 +1,4 @@
+import rospy
 from slocum_glider_msgs.msg import FollowBottomAction, FollowBottomResult
 
 from .base import Behavior
@@ -79,6 +80,11 @@ size. Abnormally terminates if the constraints cannot be met.
         self.last_climb_depth = climb_depth
 
         if depth_band < self.min_depth_band:
+            rospy.loginfo(
+                'Aborting follow_bottom. Depth band too small: %s < %s',
+                depth_band,
+                self.min_depth_band
+            )
             self.abort('depth band too small')
         else:
             g.state.u_mission_param_c = dive_depth
