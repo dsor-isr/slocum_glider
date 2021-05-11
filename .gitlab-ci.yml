@@ -33,7 +33,7 @@ roslint:
     IMAGE_NAME: $CI_PROJECT_NAME
   script:
     - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"username\":\"${CI_REGISTRY_USER}\",\"password\":\"${CI_REGISTRY_PASSWORD}\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor "--context=$CI_PROJECT_DIR" "--dockerfile=$DOCKERFILE" --cache=true --cache-repo="$CI_REGISTRY_IMAGE/kaniko" --destination "$CI_REGISTRY_IMAGE/tmp/$IMAGE_NAME-${ARCH?}:$CI_PIPELINE_IID"
+    - /kaniko/executor "--context=$CI_PROJECT_DIR" "--dockerfile=$DOCKERFILE" --cache=true --cache-repo="$CI_REGISTRY_IMAGE/kaniko" --destination "$CI_REGISTRY_IMAGE/$IMAGE_NAME:${ARCH?}-ci-$CI_PIPELINE_IID"
 
 Build extctl-serial image - amd64:
   extends: .Build arch image - kaniko
@@ -78,8 +78,9 @@ Build mission-controller image - arm64:
     - |
       manifest-tool --username "$CI_REGISTRY_USER" --password "$CI_REGISTRY_PASSWORD" \
                     push from-args \
+                    --ignore-missing \
                     --platforms linux/amd64,linux/arm64 \
-                    --template $CI_REGISTRY_IMAGE/tmp/$IMAGE_NAME-ARCH:$CI_PIPELINE_IID \
+                    --template $CI_REGISTRY_IMAGE/$IMAGE_NAME:ARCH-ci-$CI_PIPELINE_IID \
                     --target $CI_REGISTRY_IMAGE/$IMAGE_NAME:$TAG
 
 Build extctl-serial sha manifest:
