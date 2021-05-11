@@ -21,7 +21,7 @@ roslint_python(${${PROJECT_NAME}_PYTHON_SRCS} scripts/slocum_glider_extctl_sim s
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-install(PROGRAMS
+catkin_install_python(PROGRAMS
   scripts/slocum_glider_extctl_sim
   scripts/slocum_glider_sim_console
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

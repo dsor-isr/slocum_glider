@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package format="2">
+<package format="3">
   <name>slocum_glider_extctl</name>
   <version>0.0.1</version>
   <description>The slocum_glider_extctl package</description>
@@ -19,7 +19,8 @@
   <exec_depend>std_msgs</exec_depend>
   <!-- NOTE: Requires at least v1.13 of six, which is not in Bionic's package
        manager -->
-  <exec_depend>python-six</exec_depend>
+  <exec_depend condition="$ROS_PYTHON_VERSION == 2">python-six</exec_depend>
+  <exec_depend condition="$ROS_PYTHON_VERSION == 3">python3-six</exec_depend>
 
   <export/>
 </package>

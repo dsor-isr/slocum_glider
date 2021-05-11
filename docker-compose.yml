@@ -5,11 +5,12 @@ version: "3"
 
 services:
   ros-master:
-    image: ros:melodic-ros-core
+    image: ros:noetic-ros-core
     command: stdbuf -o L roscore
     networks:
       - ros
     restart: always
+
   gazebo:
     image: glider_hybrid_whoi:latest
     build:
@@ -36,6 +37,7 @@ services:
     security_opt:
       - seccomp:unconfined
     user: "${UID:-1000}:${GID:-1000}"
+
   glider_control_sim:
     image: registry.gitlab.com/sentinel-aug/ros/slocum_glider/extctl-sim
     build:
@@ -57,6 +59,7 @@ services:
       - slocum_glider_extctl_sim
       - sim_driver.launch
       - data_dir:=/gliderfs
+
   glider_mission_controller:
     image: registry.gitlab.com/sentinel-aug/ros/slocum_glider/mission-controller
     build:
