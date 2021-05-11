@@ -37,10 +37,10 @@ services:
       - seccomp:unconfined
     user: "${UID:-1000}:${GID:-1000}"
   glider_control_sim:
-    image: registry.gitlab.com/mit-mers/ros/slocum_glider:master
+    image: registry.gitlab.com/sentinel-aug/ros/slocum_glider/extctl-sim
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/Dockerfile.extctl_sim
     networks:
       - ros
     environment:
@@ -58,10 +58,10 @@ services:
       - sim_driver.launch
       - data_dir:=/gliderfs
   glider_mission_controller:
-    image: registry.gitlab.com/mit-mers/ros/slocum_glider:master
+    image: registry.gitlab.com/sentinel-aug/ros/slocum_glider/mission-controller
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/Dockerfile.mission_controller
     networks:
       - ros
     environment:
