@@ -90,7 +90,7 @@ class RosSensorsTopic(object):
         if status_msg is not None:
             state.m_depth = status_msg.depth
             state.m_roll = status_msg.roll
-            state.m_pitch = status_msg.pitch
+            state.m_pitch = - status_msg.pitch
             state.m_heading = status_msg.heading
 
             state.m_thruster_power = status_msg.motor_power
