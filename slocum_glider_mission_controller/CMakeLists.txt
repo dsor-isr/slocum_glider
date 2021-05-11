@@ -21,7 +21,7 @@ roslint_python(${${PROJECT_NAME}_PYTHON_SRCS} scripts/mission_controller)
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-install(PROGRAMS
+catkin_install_python(PROGRAMS
   scripts/mission_controller
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

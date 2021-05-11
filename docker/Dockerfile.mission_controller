@@ -3,7 +3,7 @@
 # the code is located at /slocum_glider_ws and the entrypoint is overridden to
 # source the install space of this workspace.
 
-ARG ros_distro=melodic
+ARG ros_distro=noetic
 
 FROM ros:$ros_distro-ros-base as deps-extractor
 # Dependency management in ROS has always been a painful experience IMHO. We
@@ -45,7 +45,7 @@ COPY slocum_glider_mission_controller src/slocum_ros/slocum_glider_mission_contr
 # build the code.
 RUN . "/opt/ros/$ROS_DISTRO/setup.bash" \
     && apt-get update \
-    && apt-get install -y --no-upgrade --no-install-recommends python-pip \
+    && apt-get install -y --no-upgrade --no-install-recommends python3-pip \
     && rosdep install --from-paths src --ignore-src -y -s --as-root pip:false --as-root apt:false | sort -u | tee /tmp/install-script \
     && sh /tmp/install-script \
     && rm -rf /var/lib/apt/lists/*
@@ -59,12 +59,12 @@ COPY --from=deps-extractor /tmp/install-script /tmp/install-script
 # Install the dependencies
 RUN . "/opt/ros/$ROS_DISTRO/setup.sh" \
     && apt-get update \
-    && apt-get install -y --no-upgrade --no-install-recommends python-pip \
+    && apt-get install -y --no-upgrade --no-install-recommends python3-pip \
     && cat /tmp/install-script \
     && sh /tmp/install-script \
     && rm /tmp/install-script \
-    # The version of six in apt-get is too old
-    && pip install six==1.15.0 \
+    # The version of six in bionic is too old
+    && ([ "$ROS_DISTRO" != "melodic" ] || pip install "six>=1.15.0") \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 

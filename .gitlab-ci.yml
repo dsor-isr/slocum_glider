@@ -24,6 +24,21 @@ roslint:
     - catkin_make roslint
   needs: []
 
+Check if latest release:
+  stage: Build images
+  image: alpine
+  script:
+    - apk add git
+    - |
+      if [ "$CI_COMMIT_TAG" = "$(git tag -l "v*" | grep -v "-" | sort -Vr | head -1)" ]; then
+        echo "TAG_AS_LATEST=yes" > gitlab-ci.env
+      fi
+  artifacts:
+    reports:
+      dotenv: gitlab-ci.env
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+(\.[0-9]+)*(-.*)?$/'
+
 .Build arch image - kaniko:
   stage: Build images
   image:
@@ -106,6 +121,28 @@ Build extctl-sim ref manifest:
   needs:
     - Build extctl-serial image - amd64
 
+Build extctl-sim release manifest:
+  extends: .Build manifest
+  variables:
+    IMAGE_NAME: extctl-sim
+    TAG: $CI_COMMIT_TAG
+  needs:
+    - Build extctl-sim image - amd64
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+(\.[0-9]+)*(-.*)?$/'
+
+Build extctl-sim latest manifest:
+  extends: .Build manifest
+  variables:
+    IMAGE_NAME: extctl-sim
+    TAG: latest
+  needs:
+    - Check if latest release
+    - Build extctl-sim image - amd64
+  rules:
+    - if: '($CI_COMMIT_TAG =~ /^v[0-9]+(\.[0-9]+)*(-.*)?$/) && ($TAG_AS_LATEST == "yes")'
+
+
 Build extctl-serial sha manifest:
   extends: .Build manifest
   variables:
@@ -124,6 +161,29 @@ Build extctl-serial ref manifest:
     - Build extctl-serial image - amd64
     - Build extctl-serial image - arm64
 
+Build extctl-serial release manifest:
+  extends: .Build manifest
+  variables:
+    IMAGE_NAME: extctl-serial
+    TAG: $CI_COMMIT_TAG
+  needs:
+    - Build extctl-serial image - amd64
+    - Build extctl-serial image - arm64
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+(\.[0-9]+)*(-.*)?$/'
+
+Build extctl-serial latest manifest:
+  extends: .Build manifest
+  variables:
+    IMAGE_NAME: extctl-serial
+    TAG: latest
+  needs:
+    - Check if latest release
+    - Build extctl-serial image - amd64
+    - Build extctl-serial image - arm64
+  rules:
+    - if: '($CI_COMMIT_TAG =~ /^v[0-9]+(\.[0-9]+)*(-.*)?$/) && ($TAG_AS_LATEST == "yes")'
+
 Build mission-controller sha manifest:
   extends: .Build manifest
   variables:
@@ -141,6 +201,29 @@ Build mission-controller ref manifest:
   needs:
     - Build mission-controller image - amd64
     - Build mission-controller image - arm64
+
+Build mission-controller release manifest:
+  extends: .Build manifest
+  variables:
+    IMAGE_NAME: mission-controller
+    TAG: $CI_COMMIT_TAG
+  needs:
+    - Build mission-controller image - amd64
+    - Build mission-controller image - arm64
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+(\.[0-9]+)*(-.*)?$/'
+
+Build mission-controller latest manifest:
+  extends: .Build manifest
+  variables:
+    IMAGE_NAME: mission-controller
+    TAG: latest
+  needs:
+    - Check if latest release
+    - Build mission-controller image - amd64
+    - Build mission-controller image - arm64
+  rules:
+    - if: '($CI_COMMIT_TAG =~ /^v[0-9]+(\.[0-9]+)*(-.*)?$/) && ($TAG_AS_LATEST == "yes")'
 
 Release:
   stage: Release
