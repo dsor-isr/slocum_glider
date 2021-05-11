@@ -35,6 +35,13 @@ roslint:
     - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"username\":\"${CI_REGISTRY_USER}\",\"password\":\"${CI_REGISTRY_PASSWORD}\"}}}" > /kaniko/.docker/config.json
     - /kaniko/executor "--context=$CI_PROJECT_DIR" "--dockerfile=$DOCKERFILE" --cache=true --cache-repo="$CI_REGISTRY_IMAGE/kaniko" --destination "$CI_REGISTRY_IMAGE/$IMAGE_NAME:${ARCH?}-ci-$CI_PIPELINE_IID"
 
+Build extctl-sim image - amd64:
+  extends: .Build arch image - kaniko
+  variables:
+    ARCH: amd64
+    DOCKERFILE: docker/Dockerfile.extctl_sim
+    IMAGE_NAME: extctl-sim
+
 Build extctl-serial image - amd64:
   extends: .Build arch image - kaniko
   variables:
@@ -82,6 +89,22 @@ Build mission-controller image - arm64:
                     --platforms linux/amd64,linux/arm64 \
                     --template $CI_REGISTRY_IMAGE/$IMAGE_NAME:ARCH-ci-$CI_PIPELINE_IID \
                     --target $CI_REGISTRY_IMAGE/$IMAGE_NAME:$TAG
+
+Build extctl-sim sha manifest:
+  extends: .Build manifest
+  variables:
+    IMAGE_NAME: extctl-sim
+    TAG: $CI_COMMIT_SHORT_SHA
+  needs:
+    - Build extctl-sim image - amd64
+
+Build extctl-sim ref manifest:
+  extends: .Build manifest
+  variables:
+    IMAGE_NAME: extctl-sim
+    TAG: $CI_COMMIT_REF_NAME
+  needs:
+    - Build extctl-serial image - amd64
 
 Build extctl-serial sha manifest:
   extends: .Build manifest
