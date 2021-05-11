@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>slocum_glider_mission_controller</name>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <description>The slocum_glider_mission_controller package</description>
 
   <maintainer email="mers-scouts@mit.edu">MIT MERS Scouts Team</maintainer>

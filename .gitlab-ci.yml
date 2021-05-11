@@ -29,6 +29,7 @@ Check if latest release:
   image: alpine
   script:
     - apk add git
+    - touch gitlab-ci.env
     - |
       if [ "$CI_COMMIT_TAG" = "$(git tag -l "v*" | grep -v "-" | sort -Vr | head -1)" ]; then
         echo "TAG_AS_LATEST=yes" > gitlab-ci.env
@@ -48,7 +49,7 @@ Check if latest release:
     IMAGE_NAME: $CI_PROJECT_NAME
   script:
     - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"username\":\"${CI_REGISTRY_USER}\",\"password\":\"${CI_REGISTRY_PASSWORD}\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor "--context=$CI_PROJECT_DIR" "--dockerfile=$DOCKERFILE" --cache=true --cache-repo="$CI_REGISTRY_IMAGE/kaniko" --destination "$CI_REGISTRY_IMAGE/$IMAGE_NAME:${ARCH?}-ci-$CI_PIPELINE_IID"
+    - /kaniko/executor "--context=$CI_PROJECT_DIR" "--dockerfile=$DOCKERFILE" --cache=true --cache-repo="$CI_REGISTRY_IMAGE/kaniko/$IMAGE_NAME" --destination "$CI_REGISTRY_IMAGE/tmp/$IMAGE_NAME-${ARCH?}:$CI_PIPELINE_IID"
 
 Build extctl-sim image - amd64:
   extends: .Build arch image - kaniko
@@ -102,7 +103,7 @@ Build mission-controller image - arm64:
                     push from-args \
                     --ignore-missing \
                     --platforms linux/amd64,linux/arm64 \
-                    --template $CI_REGISTRY_IMAGE/$IMAGE_NAME:ARCH-ci-$CI_PIPELINE_IID \
+                    --template $CI_REGISTRY_IMAGE/tmp/$IMAGE_NAME-ARCH:$CI_PIPELINE_IID \
                     --target $CI_REGISTRY_IMAGE/$IMAGE_NAME:$TAG
 
 Build extctl-sim sha manifest:
