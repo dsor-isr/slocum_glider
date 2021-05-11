@@ -62,9 +62,6 @@ behavior of the glider as it is executing a mission.
   The =slocum_glider_msgs= package contains all the message, service, and
   action definitions needed to interact with the ROS API.
 
-  The =slocum_glider_launch= package contains various launch files for starting
-  the various services.
-
   The =slocum_glider_missions= package contains some commonly used missions.
 
 * Running

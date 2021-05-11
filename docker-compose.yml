@@ -54,7 +54,7 @@ services:
       - L
       - roslaunch
       - --wait
-      - slocum_glider_launch
+      - slocum_glider_extctl_sim
       - sim_driver.launch
       - data_dir:=/gliderfs
   glider_mission_controller:
