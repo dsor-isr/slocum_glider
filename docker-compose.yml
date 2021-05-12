@@ -13,6 +13,13 @@ services:
 
   gazebo:
     image: glider_hybrid_whoi:latest
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities:
+              - gpu
     build:
       context: ../glider_hybrid_whoi
       dockerfile: docker/Dockerfile
