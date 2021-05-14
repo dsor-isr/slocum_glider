@@ -1,0 +1,11 @@
+# An override file to make sure nvidia runtime is used for Gazebo.
+
+services:
+  gazebo:
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities:
+              - gpu
