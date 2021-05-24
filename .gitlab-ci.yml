@@ -120,7 +120,7 @@ Build extctl-sim ref manifest:
     IMAGE_NAME: extctl-sim
     TAG: $CI_COMMIT_REF_NAME
   needs:
-    - Build extctl-serial image - amd64
+    - Build extctl-sim image - amd64
 
 Build extctl-sim release manifest:
   extends: .Build manifest
