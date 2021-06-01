@@ -71,4 +71,17 @@ def parse_masterdata_file(f):
             default = parse_value(units, line[2])
             this_behavior_args[name] = MasterdataBehaviorArg(name, units,
                                                              default)
+    # Fixup the masterdata.
+    #
+    # There is a mismatch between masterdata.mi and implementation. The
+    # masterdata file says goto_list's wpt_units_N defaults to 0. However, in
+    # practice it seems that it defaults to 2. It's also questionable whether
+    # or not anything other than 2 can be set. We perform the fixup here
+    # (instead of in the masterdata.mi) because if we ever update the
+    # masterdata, we want to avoid non-obvious bugs from forgetting to make the
+    # change.
+
+    for i in range(8):
+        behaviors['goto_list'].args['wpt_units_%d' % i].default_value = 2
+
     return Masterdata(sensors, behaviors)

@@ -52,6 +52,8 @@ class GotoWptBehavior(Behavior):
                 x
             )
         elif wpt_units == WPT_UNITS_LAT_LONG:
+            x.c_wpt_lat = wpt_y
+            x.c_wpt_lon = wpt_x
             c_wpt_x_lmc, c_wpt_y_lmc = latlon_to_lmc(wpt_y, wpt_x, x)
         else:
             raise ValueError('Unknown value for wpt_units: ' + str(wpt_units))

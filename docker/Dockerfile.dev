@@ -5,7 +5,7 @@
 # devel space of this workspace.
 
 ARG ros_distro=melodic
-ARG frl_msgs_commit=ab362d2f7264ce8be4d6b12bf41538ca4215bfba
+ARG frl_msgs_commit=a41b1d3d192dacd32a7e0a717a9c1b0a30eaca64
 
 FROM ros:$ros_distro-ros-base as deps-extractor
 # Dependency management in ROS has always been a painful experience IMHO. We
