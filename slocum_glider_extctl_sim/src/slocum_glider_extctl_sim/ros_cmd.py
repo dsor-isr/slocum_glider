@@ -59,10 +59,9 @@ class RosCmdTopic(object):
             # oops, glider has pitch negative down, but message is negative up.
             msg.target_pitch_value = -state.cc_final_pitch_value
 
-        # TODO: Revive once dynamic control handles the thruster
-        # # Set thruster
-        # msg.motor_cmd_type = THRUSTER_CMD_MAP[state.cc_final_thruster_mode]
-        # msg.target_motor_cmd = state.cc_final_thruster_value
+        # Set thruster
+        msg.motor_cmd_type = THRUSTER_CMD_MAP[state.cc_final_thruster_mode]
+        msg.target_motor_cmd = state.cc_final_thruster_value
 
         # Set rudder
         msg.rudder_control_mode = RUDDER_CMD_MAP[state.cc_final_heading_mode]
