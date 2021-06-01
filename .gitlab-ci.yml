@@ -12,6 +12,7 @@ stages:
 roslint:
   stage: Test
   script:
+    - apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
     - apt-get update
     - apt-get install ros-${ROS_VERSION}-roslint
     - source /opt/ros/${ROS_VERSION}/setup.bash

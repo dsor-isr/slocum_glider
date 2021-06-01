@@ -44,6 +44,7 @@ COPY slocum_glider_mission_controller src/slocum_ros/slocum_glider_mission_contr
 # Generate the install script, run it, install any deps it doesn't pick up, and
 # build the code.
 RUN . "/opt/ros/$ROS_DISTRO/setup.bash" \
+    && apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 \
     && apt-get update \
     && apt-get install -y --no-upgrade --no-install-recommends python3-pip \
     && rosdep install --from-paths src --ignore-src -y -s --as-root pip:false --as-root apt:false | sort -u | tee /tmp/install-script \
@@ -58,6 +59,7 @@ COPY --from=deps-extractor /tmp/install-script /tmp/install-script
 
 # Install the dependencies
 RUN . "/opt/ros/$ROS_DISTRO/setup.sh" \
+    && apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 \
     && apt-get update \
     && apt-get install -y --no-upgrade --no-install-recommends python3-pip \
     && cat /tmp/install-script \
