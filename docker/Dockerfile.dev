@@ -48,7 +48,8 @@ RUN . "/opt/ros/$ros_distro/setup.bash" \
     && rm -rf frl_msgs
 
 # Install pip.
-RUN apt-get update \
+RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 \
+    && apt-get update \
     && apt-get install -y --no-upgrade --no-install-recommends python-pip \
     && rm -rf /var/lib/apt/lists/*
 
@@ -63,6 +64,7 @@ COPY slocum_glider_mission_controller src/slocum_ros/slocum_glider_mission_contr
 
 # Generate the install script!
 RUN . "/opt/ros/$ros_distro/setup.bash" \
+    && apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 \
     && apt-get update \
     && rosdep install --from-paths src --ignore-src -y -s --as-root pip:false --as-root apt:false | sort -u | tee /tmp/install-script \
     && rm -rf /var/lib/apt/lists/*
@@ -79,7 +81,8 @@ ARG GROUP=ros
 # Add fixuid so we can fixup file permissions at runtime. It's very sad we have
 # to revert to this and Docker doesn't have a better first-class solution.
 ARG fixuid_version=0.5
-RUN apt-get update \
+RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 \
+    && apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates sudo \
     && curl -fSsL https://github.com/boxboat/fixuid/releases/download/v$fixuid_version/fixuid-$fixuid_version-linux-amd64.tar.gz | tar -C /usr/local/bin -xzf - \
     && chown root:root /usr/local/bin/fixuid \
@@ -98,6 +101,7 @@ COPY --from=deps-extractor /tmp/install-script /tmp/install-script
 
 # Install the dependencies
 RUN . "/opt/ros/$ros_distro/setup.sh" \
+    && apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 \
     && apt-get update \
     && apt-get install -y --no-upgrade --no-install-recommends python-pip \
     && cat /tmp/install-script \
