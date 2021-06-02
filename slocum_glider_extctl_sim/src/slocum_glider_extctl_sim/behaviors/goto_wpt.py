@@ -36,6 +36,16 @@ class GotoWptBehavior(Behavior):
         return sqrt((c_wpt_x_lmc - x.m_x_lmc)**2
                     + (c_wpt_y_lmc - x.m_y_lmc)**2)
 
+    # TODO: Figure out when the actual glider hardware sets (and clears
+    # x_hit_a_waypoint)
+    def should_stop(self, x):
+        result = super(GotoWptBehavior, self).should_stop(x)
+        if result:
+            x.x_hit_a_waypoint = True
+            x.x_last_wpt_x_lmc = x.c_wpt_x_lmc
+            x.x_last_wpt_y_lmc = x.c_wpt_y_lmc
+        return result
+
     def compute_controls(self, x):
         wpt_units = self.args.wpt_units
         wpt_x = maybe_deref(self.args.wpt_x, x)
@@ -60,6 +70,11 @@ class GotoWptBehavior(Behavior):
 
         x.c_wpt_x_lmc = c_wpt_x_lmc
         x.c_wpt_y_lmc = c_wpt_y_lmc
+
+        if x.x_hit_a_waypoint \
+           and (c_wpt_x_lmc != x.x_last_wpt_x_lmc
+                or c_wpt_y_lmc != x.x_last_wpt_y_lmc):
+            x.x_hit_a_waypoint = False
 
         # Heading is measured from north, so that's why we have x and y
         # "reversed" here.

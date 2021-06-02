@@ -51,21 +51,18 @@ class GotoListBehavior(Behavior):
         if self.active_waypoint is None:
             self.active_waypoint = self.compute_initial_waypoint(x)
 
-        prev_sub = None
         sub = self.sub_behaviors[self.active_waypoint]
 
-        while prev_sub != sub:
-            prev_sub = sub
-            sub = self.sub_behaviors[self.active_waypoint]
-            sub.step(x)
-            if sub.state == BEHAVIOR_STATE_FINISHED:
-                sub.set_state(BEHAVIOR_STATE_WAITING)
-                self.num_waypoints_done += 1
-                self.active_waypoint += 1
-                self.active_waypoint = (self.active_waypoint
-                                        % int(self.args.num_waypoints))
-                if not self.should_stop(x):
-                    sub = self.sub_behaviors[self.active_waypoint]
+        # This used to immediately start the next goto in the same control
+        # cycle that the previous one finished. However, that didn't give time
+        # for x_hit_a_waypoint to propagate.
+        sub.step(x)
+        if sub.state == BEHAVIOR_STATE_FINISHED:
+            sub.set_state(BEHAVIOR_STATE_WAITING)
+            self.num_waypoints_done += 1
+            self.active_waypoint += 1
+            self.active_waypoint = (self.active_waypoint
+                                    % int(self.args.num_waypoints))
 
     def should_stop(self, x):
         num_legs_to_run = self.args.num_legs_to_run
