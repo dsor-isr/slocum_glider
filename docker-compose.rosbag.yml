@@ -1,0 +1,29 @@
+# Run this command to create a docker-compose overwrite file for your local workspace if saving bags locally if desired
+#
+# Command: ln -s docker-compose.rosbag.yml docker-compose.override
+#
+# OR run docker-compose -f docker-compose.yml -f docker-compose.rosbag.yml up(for example, I am already using the override for the nvidia docker-compose file)
+#
+
+version: "3"
+
+services:
+    rosbag:
+        image: registry.gitlab.com/sentinel-aug/ros/slocum_glider/extctl-sim
+        build:
+          context: .
+          dockerfile: docker/Dockerfile.extctl_sim
+        networks:
+          - ros
+        environment:
+          - "ROS_MASTER_URI=http://ros-master:11311"
+        working_dir: /rosbags
+        volumes:  
+          - "./rosbags_sim:/rosbags" #"./folder you want rosbags to be saved to locally:/path to where rosbags are output in container which is the root folder in this case"
+        command:
+          - stdbuf
+          - -o
+          - L
+          - rosbag
+          - record
+          - a

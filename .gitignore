@@ -170,3 +170,9 @@ CATKIN_IGNORE
 .idea/
 
 /local_glider_files
+
+# Docker
+*.override.yml
+
+#ROS
+/rosbags_sim
