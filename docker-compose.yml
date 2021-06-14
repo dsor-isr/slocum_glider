@@ -12,10 +12,7 @@ services:
     restart: always
 
   gazebo:
-    image: glider_hybrid_whoi:latest
-    build:
-      context: ../glider_hybrid_whoi
-      dockerfile: docker/Dockerfile
+    image: woensugchoi/glider_hybrid_whoi:latest
     networks:
       - ros
     environment:
@@ -25,6 +22,7 @@ services:
     volumes:
       - "/tmp/.X11-unix:/tmp/.X11-unix"
       - "/etc/localtime:/etc/localtime:ro"
+    entrypoint: /ros_entrypoint.sh
     command:
       - stdbuf
       - -o
