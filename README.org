@@ -64,9 +64,28 @@ behavior of the glider as it is executing a mission.
 
   The =slocum_glider_missions= package contains some commonly used missions.
 
-* Running
+* Simulation
 
-** Simulation
+** Building
+   1. Any time you make a change to the code (this repo =slocum_glider= (local), or the master branch of the =glider_hybrd_whoi= (not local) ),
+      run the following. This will use the pull from the latest master branch in the =glider_hybrd_whoi= docker image from Docker Hub.
+      #+begin_src shell
+         docker-compose build --pull
+      #+end_src
+   2. If only the =glider_hybrd_whoi= repo is changed run,
+      #+begin_src shell
+         docker-compose  pull
+      #+end_src
+   3. If you want to use a different branch than the master branch of the =glider_hybrd_whoi= repo for development purposes locally,
+      1. Clone [[https://github.com/Field-Robotics-Lab/glider_hybrid_whoi/]] to the
+         same directory as this repo.
+      2. Run =ln -s docker-compose.dev.yml docker-compose.override.yml= to make a softlink of the overwriting yml to use local =glider_hybrid_whoi= repo.
+   
+      3. Run =docker-compose build= and =docker-compose up= to build and run a image from local repo of whichever branch its set to.
+
+      (Optionally) If you don't want to make softlink, you can use command like =docker-compose -f docker-compose.yml -f docker-compose.dev.yml build= and =docker-compose -f docker-compose.yml -f docker-compose.dev.yml up=
+      
+** Running
 
    To run in simulation, perform the following steps:
 
@@ -115,23 +134,7 @@ behavior of the glider as it is executing a mission.
       #+end_src
    6. For more information on running the simulator, please see the following utility guide [[https://docs.google.com/document/d/1Rlh-2ZkqkKEEsECacgi9XIiPgPHdoRVjJmTLnLg1Bu4/edit?usp=sharing]].
 
-** Development
-   1. Any time you make a change to the code (this repo =slocum_glider= (local), or the master branch of the =glider_hybrd_whoi= (not local) ),
-      run the following. This will use the pull from the latest master branch in the =glider_hybrd_whoi= docker image from Docker Hub.
-      #+begin_src shell
-         docker-compose build --pull
-      #+end_src
-   2. If only the =glider_hybrd_whoi= repo is changed run,
-      #+begin_src shell
-         docker-compose  pull
-      #+end_src
-   3. If you want to use a different branch than the master branch of the =glider_hybrd_whoi= repo for development purposes locally,
-      1. Clone [[https://github.com/Field-Robotics-Lab/glider_hybrid_whoi/]] to the
-         same directory as this repo.
-      2. Run =ln -s docker-compose.dev.yml docker-compose.override.yml= to make a softlink of the overwriting yml to use local =glider_hybrid_whoi= repo.
-   
-      3. Run =docker-compose build= and =docker-compose up= to build and run a image from local repo of whichever branch its set to.
 
-      (Optionally) If you don't want to make softlink, you can use command like =docker-compose -f docker-compose.yml -f docker-compose.dev.yml build= and =docker-compose -f docker-compose.yml -f docker-compose.dev.yml up=
+
 
 
