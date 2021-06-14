@@ -134,3 +134,5 @@ behavior of the glider as it is executing a mission.
       3. Run =docker-compose build= and =docker-compose up= to build and run a image from local repo of whichever branch its set to.
 
       (Optionally) If you don't want to make softlink, you can use command like =docker-compose -f docker-compose.yml -f docker-compose.dev.yml build= and =docker-compose -f docker-compose.yml -f docker-compose.dev.yml up=
+
+For more information on running the simulator, please see the following utility guide [[https://docs.google.com/document/d/1Rlh-2ZkqkKEEsECacgi9XIiPgPHdoRVjJmTLnLg1Bu4/edit?usp=sharing]].
