@@ -27,7 +27,6 @@ services:
       - stdbuf
       - -o
       - L
-      #- gazebo
       - roslaunch
       - --wait
       - glider_hybrid_whoi_gazebo
