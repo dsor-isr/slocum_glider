@@ -70,6 +70,7 @@ overridden.
        the behavior starts.
      + dist :: acceptance distance (m). Defaults to 10.
    + Finishes :: When distance to waypoint is less than dist.
+   + Relative Units :: For an example of how =default_units:relative= works, see =relative_units_ex.png= in this repo
 
 ** Go To Waypoint List
 
@@ -83,6 +84,7 @@ overridden.
      + waypoints :: List of dictionaries with the keys =x=, =y=, =units=
        (optional), and =dist= (optional).
    + Finishes :: When every waypoint has been hit.
+   + Relative Units :: For an example of how =default_units:relative= works, see =relative_units_ex.png= in this repo
 
 ** Stay At Waypoint
 
