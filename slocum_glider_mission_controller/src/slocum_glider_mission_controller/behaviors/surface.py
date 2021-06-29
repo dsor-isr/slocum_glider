@@ -3,6 +3,8 @@ from slocum_glider_msgs.msg import SurfaceAction, SurfaceResult
 from .base import Behavior
 from ..modes import MODE_NORMAL_SURFACE_BIT, MODE_NORMAL_SURFACE_RESUME_BIT
 
+MIN_DEPTH = 3
+
 
 class SurfaceBehavior(Behavior):
     """A behavior that brings the glider to the surface.
@@ -44,12 +46,12 @@ Takes 2 parameters.
 
         if self.substate == 'START':
             # Trigger an inflection immediately
-            g.state.u_mission_param_c = g.state.m_depth - 1
-            g.state.u_mission_param_e = max(self.climb_depth - 5, 1)
+            g.state.u_mission_param_c = max(g.state.m_depth - 1, MIN_DEPTH)
+            g.state.u_mission_param_e = max(self.climb_depth - 5, MIN_DEPTH)
             g.state.u_mission_param_h = self.climb_pitch
             self.substate = 'CLIMBING'
         elif self.substate == 'CLIMBING':
-            g.state.u_mission_param_e = max(self.climb_depth - 5, 1)
+            g.state.u_mission_param_e = max(self.climb_depth - 5, MIN_DEPTH)
             g.state.u_mission_param_h = self.climb_pitch
             if (g.state.m_depth <= self.climb_depth):
                 self.substate = 'SURFACING'
