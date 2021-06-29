@@ -4,8 +4,8 @@ from math import trunc
 from .behavior import (BEHAVIOR_STATE_FINISHED,
                        BEHAVIOR_STATE_MISSION_COMPLETE,
                        BEHAVIOR_STATE_UNINITED, BehaviorWithSubstates,
-                       END_ACTION_RESUME, END_ACTION_WAIT_FOR_CTRL_C_RESUME,
-                       Substate)
+                       END_ACTION_QUIT, END_ACTION_RESUME,
+                       END_ACTION_WAIT_FOR_CTRL_C_RESUME, Substate)
 from .climb_to import ClimbToBehavior
 from ..modes import (BPUMP_MODE_ABSOLUTE, PITCH_MODE_BATT_POS,
                      THRUSTER_MODE_POWER)
@@ -108,6 +108,11 @@ class SurfaceBehavior(BehaviorWithSubstates):
                     return parent.AllDone(parent)
                 elif end_action == END_ACTION_WAIT_FOR_CTRL_C_RESUME:
                     return parent.WaitingForCtrlC(parent)
+                elif end_action == END_ACTION_QUIT:
+                    parent.terminate_mission = True
+                    x.x_in_surface_dialog = 0
+                    # TODO: This transition is yet to be observed.
+                    return parent.AllDone(parent)
                 else:
                     raise ValueError("Cannot yet handle end_action "
                                      + str(end_action)
