@@ -31,6 +31,8 @@ services:
       - --wait
       - glider_hybrid_whoi_gazebo
       - BuzzBay_stratified_current_docker.launch
+      - latitude:=${LATITUDE:-41.5522}
+      - longitude:=${LONGITUDE:--70.6803}
     privileged: true
     security_opt:
       - seccomp:unconfined
