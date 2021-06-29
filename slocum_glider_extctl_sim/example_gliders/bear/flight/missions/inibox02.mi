@@ -27,7 +27,7 @@ behavior: surface
 behavior: goto_list
     b_arg: start_when(enum) 0         # Immediately
     b_arg: num_waypoints(nodim) 4
-    b_arg: num_legs_to_run(nodim) 1  # Traverse list once
+    b_arg: num_legs_to_run(nodim) -2  # Traverse list once
     b_arg: initial_wpt(enum) 0
     b_arg: list_stop_when(enum) 7     # Dist to waypoint
     b_arg: list_when_wpt_dist(m) 10   # is 10m or less
