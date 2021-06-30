@@ -20,7 +20,7 @@ science computer.
     def send_file(self, req):
 
         file_name = req.name
-        contents = req.content
+        contents = req.contents
 
         root, ext = splitext(file_name)
 
