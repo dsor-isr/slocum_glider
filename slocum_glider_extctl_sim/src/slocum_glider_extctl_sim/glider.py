@@ -93,7 +93,7 @@ class Glider:
             state.dc_c_oil_volume = max(min(final_bpump_value,
                                             state.x_ballast_pumped_max),
                                         -state.x_ballast_pumped_max)
-        elif state.cc_final_pitch_mode == MODE_IGNORE:
+        elif state.cc_final_bpump_mode == MODE_IGNORE:
             pass
         elif state.cc_final_bpump_mode == MODE_UNSET:
             pass
