@@ -64,6 +64,38 @@ behavior of the glider as it is executing a mission.
 
   The =slocum_glider_missions= package contains some commonly used missions.
 
+* Real Hardware
+
+  You can query the status of the backseat driver by running the =bsdsta01.mi=
+  mission. This will print the status (currently a very simple check) to a log
+  file on the science computer.
+
+  These steps should perform let you check the BSD status and then get it back
+  into a state ready for operations.
+
+  #+begin_src shell
+    # Do a quick check. If this prints 1, things are *probably* ok. If this prints
+    # 0, something is definitely wrong.
+    get u_mission_param_k
+    # If this exits with an error, something is definitely wrong.
+    run bsdsta01.mi
+    consci
+    # This will print the diagnostics to screen.
+    type logs\bsd.log
+    # Once you're done viewing, delete the log so that it's obvious what's wrong
+    # the next time bsdsta01 is run.
+    del logs\bsd.log
+    # disconnect from the science computer by hitting Ctrl-C
+    Ctrl-C
+    # Reset some flags the backseat driver uses to maintain state on the glider.
+    run bsdinit.mi
+  #+end_src
+
+  Note that in simulation you will be unable to perform the steps between the
+  =consci= and =Ctrl-C= (inclusive). This is because the =consci= command is
+  not implemented (yet?). Instead, you can look at that file and delete it
+  using you file manager.
+
 * Simulation
 
 ** Building
