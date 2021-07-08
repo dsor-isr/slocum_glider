@@ -21,7 +21,7 @@ class SendFileService:
 
         file_name = req.name
         block = req.block
-        contents = req.content
+        contents = req.contents
 
         rospy.logwarn('Got request: %s, %s', file_name, block)
         acquired = self.transfer_semaphore.acquire(block)

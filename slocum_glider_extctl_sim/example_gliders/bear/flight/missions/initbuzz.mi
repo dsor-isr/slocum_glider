@@ -8,4 +8,5 @@ sensor: u_mission_param_g(X) 5
 sensor: u_mission_param_h(X) 0.4536
 sensor: u_mission_param_i(X) 5
 sensor: u_mission_param_j(X) 0
+sensor: u_mission_param_l(X) 0
 sensor: u_mission_mode(X)    0

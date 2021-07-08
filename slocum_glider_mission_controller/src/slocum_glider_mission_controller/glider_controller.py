@@ -8,7 +8,7 @@ from slocum_glider_extctl import GliderExtctlInterface
 
 from .behaviors import BEHAVIOR_CLASSES
 from .missions import mission_from_yaml_string
-from .modes import MODE_EMERGENCY_SURFACE_BIT
+from .modes import MODE_EMERGENCY_SURFACE_BIT, MODE_NORMAL_SURFACE_BIT
 
 
 class GliderController(object):
@@ -70,6 +70,8 @@ Future iterations will likely also sprial in place and set the thruster to max.
         # Wait for us to have a complete view of the glider sensors.
         self.extctl.wait_for_all_inputs()
 
+        gave_status = False
+
         rate = rospy.Rate(0.5)
         try:
             while not rospy.is_shutdown():
@@ -78,7 +80,7 @@ Future iterations will likely also sprial in place and set the thruster to max.
                     # Tell the user that we're ready!
                     g.state.u_mission_param_k = 1
                     if (not g.state.x_in_gliderdos) \
-                       and g.state.u_mission_param_l:
+                       and g.state.u_mission_param_l == 1:
                         # We are in a mission that we can control. Start a
                         # mission if none are currently active.
                         if self.mission is None:
@@ -100,9 +102,23 @@ Future iterations will likely also sprial in place and set the thruster to max.
                                 rospy.logerr('Mission is unsafe')
                             self.mission = None
                             self.out_of_band_abort()
+                    elif ((not g.state.x_in_gliderdos)
+                          and g.state.u_mission_param_l == 2):
+                        # user has asked for a status update!
+                        if gave_status:
+                            continue
+                        gave_status = True
+                        g.send_file(
+                            'bsd.log',
+                            'The backseat driver is operating normally.\n'
+                        )
+                        self.extctl.change_modes([MODE_NORMAL_SURFACE_BIT,
+                                                  MODE_EMERGENCY_SURFACE_BIT],
+                                                 [])
                     else:
                         # Not in a mission we can control. End the current
                         # mission if one is set.
+                        gave_status = False
                         if self.mission:
                             rospy.loginfo(
                                 'Glider mission finished, ending my mission'

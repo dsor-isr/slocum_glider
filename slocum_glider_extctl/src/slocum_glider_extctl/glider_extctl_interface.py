@@ -8,8 +8,9 @@ from six import iteritems
 from six.moves import collections_abc
 
 from slocum_glider_msgs.msg import Extctl
-from slocum_glider_msgs.srv import (GetFile, GetFileRequest, SetByte,
-                                    SetFloat32, SetFloat64, SetMode)
+from slocum_glider_msgs.srv import (GetFile, GetFileRequest, SendFile,
+                                    SendFileRequest, SetByte, SetFloat32,
+                                    SetFloat64, SetMode)
 from std_msgs.msg import Byte, Float64, Float32
 
 # Translation from glider "units" to ROS message types.
@@ -101,6 +102,7 @@ class GliderExtctlInterface(object):
         self._have_extctl_condition = Condition(self._lock)
         self._mode_srv = rospy.ServiceProxy('extctl/set_mode', SetMode)
         self._get_file_srv = rospy.ServiceProxy('extctl/get_file', GetFile)
+        self._send_file_srv = rospy.ServiceProxy('extctl/send_file', SendFile)
         self.state = GliderState(self, self._values)
 
     def _extctl_cb(self, msg):
@@ -162,6 +164,12 @@ class GliderExtctlInterface(object):
     def get_file(self, name, block=True):
         res = self._get_file_srv(GetFileRequest(name=name, block=block))
         return res.success, res.contents
+
+    def send_file(self, name, contents, block=True):
+        res = self._send_file_srv(SendFileRequest(name=name,
+                                                  contents=contents,
+                                                  block=block))
+        return res.success
 
     def set_sensor(self, name, value):
         self._backseat_outputs[name](value)

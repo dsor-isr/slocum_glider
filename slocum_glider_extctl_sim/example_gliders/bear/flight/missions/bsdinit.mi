@@ -1,0 +1,3 @@
+# Reset some glider side state of the backseat driver
+sensor: u_mission_mode(X) 0
+sensor: u_mission_param_l(X) 0
