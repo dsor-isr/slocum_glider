@@ -63,6 +63,8 @@ estimated position when the behavior starts.
 
     def do_resume(self, g):
         self.num_cycles = 0
+        # We need to force do_step to resend the waypoint to the glider.
+        self.previous_waypoint = -1
 
     def do_step(self, g):
         wpt = self.waypoints[self.current_waypoint]
