@@ -170,6 +170,7 @@ CATKIN_IGNORE
 .idea/
 
 /local_glider_files
+/local_log_files
 
 # Docker
 *.override.yml
