@@ -48,7 +48,6 @@ driver connects to a software simulated glider in Gazebo or similar.
 
     def log(self, msg):
         self.log_pub.publish(msg)
-        rospy.loginfo(msg)
 
     def ros_cmd(self, msg):
         self.glider.cmd(msg.data)
