@@ -2,37 +2,38 @@ import threading
 
 import rospy
 import serial
+from six import byte2int, iterbytes
 from slocum_glider_msgs.msg import (Extctl as ExtctlMsg, ExtctlEntry)
 
-from get_file_service import GetFileService
-from send_file_service import SendFileService
-from sensors import SensorInterface
-from tty import SerialConsole
-from set_mode_service import SetModeService
-from set_string_service import SetStringService
+from .get_file_service import GetFileService
+from .send_file_service import SendFileService
+from .sensors import SensorInterface
+from .tty import SerialConsole
+from .set_mode_service import SetModeService
+from .set_string_service import SetStringService
 
 
 def nmea_checksum(s):
     """Return the checksum for the data part of a NMEA sentence as a string."""
     result = 0
-    for c in s:
-        result ^= ord(c)
-    return '%02X' % result
+    for c in iterbytes(s):
+        result ^= c
+    return b'%02X' % result
 
 
 def nmea(s):
     """Add delimiters and checksum to name an NMEA sentence"""
     checksum = nmea_checksum(s)
-    return '$' + s + '*' + checksum
+    return b'$' + s + b'*' + checksum
 
 
 def is_valid_nmea_sentence(line):
     """Returns True iff line is a valid NMEA sentence."""
     if len(line) < 4:
         return False
-    if line[0] != '$':
+    if line[0] != byte2int(b'$'):
         return False
-    if line[-3] != '*':
+    if line[-3] != byte2int(b'*'):
         return False
     got_checksum = line[-2:]
     body = line[1:-3]
@@ -68,7 +69,7 @@ class SerialInterface:
                 # it is a timing issue. Therefore, we don't reject any of the
                 # file transfer messages for being invalid and just let the
                 # file transfer code handle the restarts.
-                if line.startswith('$FI'):
+                if line.startswith(b'$FI'):
                     rospy.logwarn('Timing condition in file transfer '
                                   'triggered! Got sentence: %s', line)
                     for cb in self.message_cbs:
@@ -85,7 +86,7 @@ class SerialInterface:
         with self.send_lock:
             rospy.logdebug('Sending serial message: %s', sentence)
             self.ser.write(sentence)
-            self.ser.write('\r\n')
+            self.ser.write(b'\r\n')
 
     def start(self):
         self.stop_flag = False
@@ -188,14 +189,14 @@ class Extctl:
         return self.file_getter.get_file('extctl.ini', True)
 
     def handle_serial_msg(self, msg):
-        if msg.startswith('SD,'):
+        if msg.startswith(b'SD,'):
             if self.sensors is None:
                 return
             self.sensors.handle_serial_msg(msg)
-        elif msg.startswith('FI') or msg.startswith('$FI'):
+        elif msg.startswith(b'FI') or msg.startswith(b'$FI'):
             self.file_getter.handle_serial_msg(msg)
-        elif msg == 'TT':
-            self.ser.send_message('TS,S')
+        elif msg == b'TT':
+            self.ser.send_message(b'TS,S')
             serial_console = SerialConsole(self.serial_port_name)
             self.ser.ser.close()
             serial_console.run()

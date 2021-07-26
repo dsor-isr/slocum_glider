@@ -1,6 +1,6 @@
 import rospy
 
-from extctl import Extctl
+from .extctl import Extctl
 
 
 class BackseatInterface:

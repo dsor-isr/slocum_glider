@@ -1,5 +1,6 @@
 import rospy
 
+from six import ensure_binary
 from slocum_glider_msgs.srv import SendFile, SendFileResponse
 from threading import Semaphore
 import base64
@@ -19,7 +20,7 @@ class SendFileService:
 
     def send_file(self, req):
 
-        file_name = req.name
+        file_name = ensure_binary(req.name)
         block = req.block
         contents = req.contents
 
@@ -36,17 +37,17 @@ class SendFileService:
         # request to the glider to start a transfer, wait on it to finish,
         # release the semaphore, and return the result.
         # Send the request to the glider to start transferring the file from here:
-        self.ser.send_message('FW,'+file_name)
+        self.ser.send_message(b'FW,'+file_name)
 
         # Encode
-        s64 = str(base64.b64encode(contents.encode()))
-        while s64 != '':
-            self.ser.send_message('FO,'+s64[:256])
+        s64 = base64.b64encode(contents.encode())
+        while s64 != b'':
+            self.ser.send_message(b'FO,'+s64[:256])
             s64 = s64[256:]
             # TODO: adjust this sleep time based on testing.
             rospy.sleep(0.25)
 
-        self.ser.send_message('FC')
+        self.ser.send_message(b'FC')
 
         # Release the semaphore.
         self.transfer_semaphore.release()
