@@ -1,5 +1,6 @@
 import rospy
 
+from six import ensure_binary
 from slocum_glider_msgs.srv import SetMode, SetModeResponse
 
 
@@ -25,12 +26,12 @@ class SetModeService:
         if modes_to_activate:
             activate_mask = sum([2**i for i in modes_to_activate])
             rospy.loginfo('Enabling modes with mask %s', activate_mask)
-            self.ser.send_message('MD,{},{}'.format(activate_mask, 255))
+            self.ser.send_message(ensure_binary('MD,{},{}'.format(activate_mask, 255)))
 
         if modes_to_deactivate:
             # Compute mask to deactivate (assume modes are 0-indexed)
             deactivate_mask = sum([2**i for i in modes_to_deactivate])
             rospy.loginfo('Disabling modes with mask %s', deactivate_mask)
-            self.ser.send_message('MD,{},{}'.format(deactivate_mask, 0))
+            self.ser.send_message(ensure_binary('MD,{},{}'.format(deactivate_mask, 0)))
 
         return SetModeResponse(success=True)

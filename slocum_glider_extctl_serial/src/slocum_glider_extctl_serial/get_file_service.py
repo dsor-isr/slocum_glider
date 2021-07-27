@@ -1,5 +1,6 @@
 import rospy
 import random
+from six import ensure_binary
 from slocum_glider_msgs.srv import GetFile, GetFileResponse
 from threading import Event, Semaphore
 import base64
@@ -25,7 +26,7 @@ class GetFileService:
         # Create an event used to signal when a transfer is complete.
         self.transfer_finished_event = Event()
 
-        self.base64 = ''
+        self.base64 = b''
         self.current_transfer_file_name = None
 
         # Keeping track of corrupted transfers.
@@ -54,7 +55,8 @@ class GetFileService:
             # in progress and the caller has asked us to not block.
             raise FileTransferFailed('another transfer is in progress')
 
-        self.base64 = ''
+        self.base64 = b''
+        file_name = ensure_binary(file_name)
         self.current_transfer_file_name = file_name
         self.current_transfer_corrupted = False
         self.corrupted_transfer_counter = 0
@@ -65,7 +67,7 @@ class GetFileService:
         # release the semaphore, and return the result.
         self.transfer_finished_event.clear()
         # Send the request to the glider to start transferring the file here:
-        self.ser.send_message('FR,' + file_name)
+        self.ser.send_message(b'FR,' + file_name)
         # Wait for the transfer to finish
         self.transfer_finished_event.wait()
 
@@ -98,9 +100,9 @@ class GetFileService:
             self.transfer_finished_event.set()
         else:
             # Try again!
-            self.base64 = ''
+            self.base64 = b''
             self.current_transfer_corrupted = False
-            self.ser.send_message('FR,' + self.current_transfer_file_name)
+            self.ser.send_message(b'FR,' + self.current_transfer_file_name)
 
     def handle_serial_msg(self, msg):
         """Called when a sentence of type FI is received over the serial port.
@@ -113,9 +115,9 @@ class GetFileService:
         # When the file transfer is complete, signal the waiting service
         # handler by calling
         # Change to check for stuff
-        if msg == 'FI':
+        if msg == b'FI':
             self.transfer_finished_event.set()
-        elif msg.startswith('$FI'):
+        elif msg.startswith(b'$FI'):
             # This is an invalid message... Ignore it until the final message
             # comes in then retry the transfer.
             self.current_transfer_corrupted = True
@@ -124,7 +126,7 @@ class GetFileService:
             timer = self.corrupted_transfer_timer
             if timer:
                 timer.shutdown()
-            if '$FI*0f' in msg:
+            if b'$FI*0f' in msg:
                 # The glider thinks the file transfer has finished. We can
                 # request that a new one starts at any point. We wait a random
                 # amount of time in order to try and avoid hitting the glider

@@ -96,6 +96,39 @@ behavior of the glider as it is executing a mission.
   not implemented (yet?). Instead, you can look at that file and delete it
   using you file manager.
 
+** Testing
+
+   Perform the following steps to test the extctl_serial driver on the real
+   hardware.
+
+   1. Start the driver.
+   2. Make sure sensor updates are sent to the backseat driver:
+      #+begin_src shell
+        rostopic echo /extctl/sensors/m_depth
+      #+end_src
+   3. Make sure the glider can update sensors:
+      #+begin_src shell
+        # Check the value of the sensor on the glider:
+        get u_mission_param_a
+
+        # On the BSD, set it to something different:
+        rosservice call /extctl/sensors/set_u_mission_param_a 1
+
+        # Make sure it got updated on the glider:
+        get u_mission_param_a
+      #+end_src
+   4. Make sure you can read files from the glider:
+      #+begin_src shell
+        rosservice call /extctl/get_file extctl.ini False
+      #+end_src
+   5. Make sure you can send files to the glider:
+      #+begin_src shell
+        rosservice call /extctl/send_file bsdtest.txt "$(date)" False
+
+        # Make sure it made it to the glider:
+        type logs\bsdtest.txt
+      #+end_src
+
 * Simulation
 
 ** Building

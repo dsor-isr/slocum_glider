@@ -74,7 +74,7 @@ class WriteableSensor:
 
         """
         data = req.data
-        self.ser.send_message('SW,%d:%f' % (self.index, float(data)))
+        self.ser.send_message(b'SW,%d:%f' % (self.index, float(data)))
         return self.response_type(success=True)
 
 
@@ -91,14 +91,14 @@ class SensorInterface:
             index += 1
 
     def handle_serial_msg(self, data):
-        fields = data.split(',')
-        if fields[0] != 'SD':
+        fields = data.split(b',')
+        if fields[0] != b'SD':
             raise ValueError('Invalid data')
 
         del fields[0]
 
         for s in fields:
-            (index_str, val_str) = s.split(':')
+            (index_str, val_str) = s.split(b':')
             value = float(val_str)
             index = int(index_str)
             self.sensors[index].publish(value)
