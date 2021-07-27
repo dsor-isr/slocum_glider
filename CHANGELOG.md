@@ -1,5 +1,13 @@
 ## Unreleased
 
+## v0.2.0 - July 27, 2021
+
++ Goto list imporvements
++ Report thruster to simulator
++ Better surface behavior with `END_ACTION_QUIT`
++ Added a bsd status mission
++ python3 support for extctl_serial
+
 ## v0.1.1 - May 11, 2021
 
 + Separated Kaniko caches for images. There seemed to be some cross talk.
