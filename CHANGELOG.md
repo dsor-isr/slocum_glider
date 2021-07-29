@@ -1,8 +1,12 @@
 ## Unreleased
 
+## v0.2.1 - July 29, 2021
+
++ Fix sending Byte sensor messages from the serial driver.
+
 ## v0.2.0 - July 27, 2021
 
-+ Goto list imporvements
++ Goto list improvements
 + Report thruster to simulator
 + Better surface behavior with `END_ACTION_QUIT`
 + Added a bsd status mission

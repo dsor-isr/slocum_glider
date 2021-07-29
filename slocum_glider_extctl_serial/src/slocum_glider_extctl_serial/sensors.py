@@ -101,4 +101,7 @@ class SensorInterface:
             (index_str, val_str) = s.split(b':')
             value = float(val_str)
             index = int(index_str)
-            self.sensors[index].publish(value)
+            sensor = self.sensors[index]
+            if get_msg_type(sensor.units) is Byte:
+                value = int(value)
+            sensor.publish(value)
