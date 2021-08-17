@@ -63,14 +63,14 @@ overridden.
    + Action name :: go_to_waypoint
    + Controls :: heading
    + args ::
-     + units :: One of decmial_degrees (default), decimal_minutes, or relative
+     + units :: One of decmial_degrees (default) DEG.XXXX, decimal_minutes DEGMIN.XXX, or relative XXX
      + x :: longitude or easting. If None, initilizes to glider's position when
        the behavior starts.
      + y :: latitude or northing. If None, initilizes to glider's position when
        the behavior starts.
      + dist :: acceptance distance (m). Defaults to 10.
    + Finishes :: When distance to waypoint is less than dist.
-   + Relative Units :: For an example of how =default_units:relative= works, see =relative_units_ex.png= in this repo
+   + Relative Units :: For an example of how =default_units: relative= works, see =relative_units_ex.png= in this repo. Northings and eastings relative to glider's belief in where North is.
 
 ** Go To Waypoint List
 
@@ -78,13 +78,13 @@ overridden.
    + Action name :: go_to_waypoint_list
    + Controls :: heading
    + args ::
-     + default_units :: One of decmial_degrees (default), decimal_minutes, or
-       relative
+     + default_units :: One of decmial_degrees (default) DEG.XXXX, decimal_minutes DEGMIN.XXX, or relative XXX
      + default_dist :: acceptance distance (m). Defaults to 10.
      + waypoints :: List of dictionaries with the keys =x=, =y=, =units=
        (optional), and =dist= (optional).
    + Finishes :: When every waypoint has been hit.
-   + Relative Units :: For an example of how =default_units:relative= works, see =relative_units_ex.png= in this repo
+   + Relative Units :: For an example of how =default_units:relative= works, see =relative_units_ex.png= in this repo. Northings and eastings relative to glider's belief in where North is.
+
 
 ** Stay At Waypoint
 
