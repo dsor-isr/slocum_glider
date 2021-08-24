@@ -10,10 +10,10 @@ from std_msgs.msg import Bool
 # This node is the interface between the backseat driver and the GPIO pins used to control
 # the power for the Explorer DVL, the Micron Sonar, and the two external USBs.
 #
-# The BackseatPwrCtl class will check the launch file for a bool and decide whether to 
-# intitialize the pin for each respective device high or low. 
+# The BackseatPwrCtl class will check the launch file for a bool and decide whether to
+# intitialize the pin for each respective device high or low.
 #
-# Ros topics XXX_pwr_status are published for each device allowing other processes to 
+# Ros topics XXX_pwr_status are published for each device allowing other processes to
 # determine if device is powered on or off.
 #
 # In order to set a pin low in-flight, ros services have been implemented using the ROS
@@ -60,15 +60,13 @@ class BackseatPwrCtl:
         self.dvl_service = rospy.Service('set_dvl_pwr', SetBool, self.handle_dvl_pwr)
         self.micron_service = rospy.Service('set_micron_pwr', SetBool, self.handle_micron_pwr)
         self.usb1_service = rospy.Service('set_usb1_pwr', SetBool, self.handle_usb1_pwr)
-        self.usb2_service = rospy.Service('set_usb2_pwr', SetBool, self.handle_usb2_pwr)   
+        self.usb2_service = rospy.Service('set_usb2_pwr', SetBool, self.handle_usb2_pwr)
 
         # Topics
         self.dvl_pwr_status = rospy.Publisher('dvl_pwr_status', Bool, queue_size=1, latch=True)
         self.micron_pwr_status = rospy.Publisher('micron_pwr_status', Bool, queue_size=1, latch=True)
         self.usb1_pwr_status = rospy.Publisher('usb1_pwr_status', Bool, queue_size=1, latch=True)
         self.usb2_pwr_status = rospy.Publisher('usb2_pwr_status', Bool, queue_size=1, latch=True)
-
-
 
     def start(self):
         # If enabled in launch file, initialize with pin high.
