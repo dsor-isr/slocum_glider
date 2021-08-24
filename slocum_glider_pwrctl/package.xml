@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>slocum_glider_pwrctl/name>
+  <version>0.1.0</version>
+  <description>The slocum_glider_pwrctl package</description>
+
+  <maintainer email="rcamilli@whoi.edu">Rich Camilli</maintainer>
+
+  <license>BSD-2</license>
+
+  <author email="etimmons@mit.edu">Eric Timmons</author>
+  <author email="gburgess@mit.edu">Greg Burgess</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roslint</build_depend>
+
+  <exec_depend>message_runtime</exec_depend>
+
+  <!-- <exec_depend condition="$ROS_PYTHON_VERSION == 2">python-rpi.gpio</exec_depend> -->
+  <!-- <exec_depend condition="$ROS_PYTHON_VERSION == 3">python3-rpi.gpio</exec_depend> -->
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>std_srvs</exec_depend>
+  <exec_depend>rospy</exec_depend>
+
+  <export/>
+</package>
