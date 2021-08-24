@@ -1,0 +1,163 @@
+#!/usr/bin/env python
+
+import rospy
+import RPi.GPIO as GPIO
+
+from std_srvs.srv import SetBool, SetBoolResponse
+from std_msgs.msg import Bool
+
+
+# This node is the interface between the backseat driver and the GPIO pins used to control
+# the power for the Explorer DVL, the Micron Sonar, and the two external USBs.
+#
+# The BackseatPwrCtl class will check the launch file for a bool and decide whether to
+# intitialize the pin for each respective device high or low.
+#
+# Ros topics XXX_pwr_status are published for each device allowing other processes to
+# determine if device is powered on or off.
+#
+# In order to set a pin low in-flight, ros services have been implemented using the ROS
+# standard services SetBool and SetBoolResponse.
+#
+# Note: pins HIGH will power on DVL and MICRON. pins LOW will power on external USBs
+#       However, services are set so if True bool is sent. Then the true bool will set
+#       the device to ON. (i.e. True will set pin LOW for USBs and HIGH for DVL/MICRON)
+
+
+class BackseatPwrCtl:
+    def __init__(self):
+
+        # GPIO Control for powering on/off DVL, Micron, USBs
+        ####################################################
+        # Set up GPIO pins
+        GPIO.setmode(GPIO.BOARD)
+        GPIO.setwarnings(False)
+
+        # Individual Pin Assignments
+        self.pin_dvl = 18
+        self.pin_micron = 16
+        self.pin_usb1 = 11
+        self.pin_usb2 = 12
+
+        # Check to see if devices are enabled in launch file
+        if rospy.get_param('~dvl/enabled'):
+            self.dvl_ctrl = True
+        else:
+            self.dvl_ctrl = False
+
+        if rospy.get_param('~micron/enabled'):
+            self.micron_ctrl = True
+        else:
+            self.micron_ctrl = False
+
+        if rospy.get_param('~usb1/enabled'):
+            self.usb1_ctrl = True
+        else:
+            self.usb1_ctrl = False
+
+        if rospy.get_param('~usb2/enabled'):
+            self.usb2_ctrl = True
+        else:
+            self.usb2_ctrl = False
+
+        # Services
+        self.dvl_service = rospy.Service('set_dvl_pwr', SetBool, self.handle_dvl_pwr)
+        self.micron_service = rospy.Service('set_micron_pwr', SetBool, self.handle_micron_pwr)
+        self.usb1_service = rospy.Service('set_usb1_pwr', SetBool, self.handle_usb1_pwr)
+        self.usb2_service = rospy.Service('set_usb2_pwr', SetBool, self.handle_usb2_pwr)
+
+        # Topics
+        self.dvl_pwr_status = rospy.Publisher('dvl_pwr_status', Bool, queue_size=1, latch=True)
+        self.micron_pwr_status = rospy.Publisher('micron_pwr_status', Bool, queue_size=1, latch=True)
+        self.usb1_pwr_status = rospy.Publisher('usb1_pwr_status', Bool, queue_size=1, latch=True)
+        self.usb2_pwr_status = rospy.Publisher('usb2_pwr_status', Bool, queue_size=1, latch=True)
+
+    def start(self):
+        # If enabled in launch file, initialize with pin high for DVL and Mircron
+        if self.dvl_ctrl:
+            GPIO.setup(self.pin_dvl, GPIO.OUT, initial=GPIO.HIGH)
+        else:
+            GPIO.setup(self.pin_dvl, GPIO.OUT, initial=GPIO.LOW)
+
+        if self.micron_ctrl:
+            GPIO.setup(self.pin_micron, GPIO.OUT, initial=GPIO.HIGH)
+        else:
+            GPIO.setup(self.pin_micron, GPIO.OUT, initial=GPIO.LOW)
+
+        # If enabled in launch file, initialize with pin low for USBs
+        # For USBs, default state (LOW) powers on USBs. To use power saving feature,
+        # and turn of peripherals, must set pins HIGH.
+        if self.usb1_ctrl:
+            GPIO.setup(self.pin_usb1, GPIO.OUT, initial=GPIO.LOW)
+        else:
+            GPIO.setup(self.pin_usb1, GPIO.OUT, initial=GPIO.HIGH)
+
+        if self.usb2_ctrl:
+            GPIO.setup(self.pin_usb2, GPIO.OUT, initial=GPIO.LOW)
+        else:
+            GPIO.setup(self.pin_usb2, GPIO.OUT, initial=GPIO.HIGH)
+
+        self.dvl_pwr_status.publish(self.dvl_ctrl)
+        self.micron_pwr_status.publish(self.micron_ctrl)
+        self.usb1_pwr_status.publish(self.usb1_ctrl)
+        self.usb2_pwr_status.publish(self.usb2_ctrl)
+
+    def stop(self):
+        # On stop, turn pin low.
+        if self.dvl_ctrl:
+            GPIO.output(self.pin_dvl, 0)
+        if self.micron_ctrl:
+            GPIO.output(self.pin_micron, 0)
+        if self.usb1_ctrl:
+            GPIO.output(self.pin_usb1, 0)
+        if self.usb2_ctrl:
+            GPIO.output(self.pin_usb2, 0)
+
+        self.dvl_pwr_status.publish(False)
+        self.micron_pwr_status.publish(False)
+        self.usb1_pwr_status.publish(True)
+        self.usb2_pwr_status.publish(True)
+
+    def handle_dvl_pwr(self, req):
+        new_val = req.data
+        if new_val:
+            GPIO.output(self.pin_dvl, 1)
+        else:
+            GPIO.output(self.pin_dvl, 0)
+        self.dvl_pwr_status.publish(new_val)
+        return SetBoolResponse(True, "")
+
+    def handle_micron_pwr(self, req):
+        new_val = req.data
+        if new_val:
+            GPIO.output(self.pin_micron, 1)
+        else:
+            GPIO.output(self.pin_micron, 0)
+        self.micron_pwr_status.publish(new_val)
+        return SetBoolResponse(True, "")
+
+    def handle_usb1_pwr(self, req):
+        new_val = req.data
+        if new_val:
+            GPIO.output(self.pin_usb1, 0)
+        else:
+            GPIO.output(self.pin_usb2, 1)
+        self.usb1_pwr_status.publish(new_val)
+        return SetBoolResponse(True, "")
+
+    def handle_usb2_pwr(self, req):
+        new_val = req.data
+        if new_val:
+            GPIO.output(self.pin_usb2, 0)
+        else:
+            GPIO.output(self.pin_usb2, 1)
+        self.usb2_pwr_status.publish(new_val)
+        return SetBoolResponse(True, "")
+
+
+if __name__ == '__main__':
+    rospy.init_node('slocum_glider_pwrctl')
+    interface = BackseatPwrCtl()
+    interface.start()
+    rospy.spin()
+    interface.stop()
