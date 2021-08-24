@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="3">
-  <name>slocum_glider_pwrctl/name>
+  <name>slocum_glider_pwrctl</name>
   <version>0.1.0</version>
   <description>The slocum_glider_pwrctl package</description>
 
