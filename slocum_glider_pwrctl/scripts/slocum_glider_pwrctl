@@ -18,6 +18,10 @@ from std_msgs.msg import Bool
 #
 # In order to set a pin low in-flight, ros services have been implemented using the ROS
 # standard services SetBool and SetBoolResponse.
+#
+# Note: pins HIGH will power on DVL and MICRON. pins LOW will power on external USBs
+#       However, services are set so if True bool is sent. Then the true bool will set
+#       the device to ON. (i.e. True will set pin LOW for USBs and HIGH for DVL/MICRON)
 
 
 class BackseatPwrCtl:
@@ -69,7 +73,7 @@ class BackseatPwrCtl:
         self.usb2_pwr_status = rospy.Publisher('usb2_pwr_status', Bool, queue_size=1, latch=True)
 
     def start(self):
-        # If enabled in launch file, initialize with pin high.
+        # If enabled in launch file, initialize with pin high for DVL and Mircron
         if self.dvl_ctrl:
             GPIO.setup(self.pin_dvl, GPIO.OUT, initial=GPIO.HIGH)
         else:
@@ -80,15 +84,18 @@ class BackseatPwrCtl:
         else:
             GPIO.setup(self.pin_micron, GPIO.OUT, initial=GPIO.LOW)
 
+        # If enabled in launch file, initialize with pin low for USBs
+        # For USBs, default state (LOW) powers on USBs. To use power saving feature,
+        # and turn of peripherals, must set pins HIGH.
         if self.usb1_ctrl:
-            GPIO.setup(self.pin_usb1, GPIO.OUT, initial=GPIO.HIGH)
-        else:
             GPIO.setup(self.pin_usb1, GPIO.OUT, initial=GPIO.LOW)
+        else:
+            GPIO.setup(self.pin_usb1, GPIO.OUT, initial=GPIO.HIGH)
 
         if self.usb2_ctrl:
-            GPIO.setup(self.pin_usb2, GPIO.OUT, initial=GPIO.HIGH)
-        else:
             GPIO.setup(self.pin_usb2, GPIO.OUT, initial=GPIO.LOW)
+        else:
+            GPIO.setup(self.pin_usb2, GPIO.OUT, initial=GPIO.HIGH)
 
         self.dvl_pwr_status.publish(self.dvl_ctrl)
         self.micron_pwr_status.publish(self.micron_ctrl)
@@ -108,8 +115,8 @@ class BackseatPwrCtl:
 
         self.dvl_pwr_status.publish(False)
         self.micron_pwr_status.publish(False)
-        self.usb1_pwr_status.publish(False)
-        self.usb2_pwr_status.publish(False)
+        self.usb1_pwr_status.publish(True)
+        self.usb2_pwr_status.publish(True)
 
     def handle_dvl_pwr(self, req):
         new_val = req.data
@@ -132,18 +139,18 @@ class BackseatPwrCtl:
     def handle_usb1_pwr(self, req):
         new_val = req.data
         if new_val:
-            GPIO.output(self.pin_usb1, 1)
+            GPIO.output(self.pin_usb1, 0)
         else:
-            GPIO.output(self.pin_usb2, 0)
+            GPIO.output(self.pin_usb2, 1)
         self.usb1_pwr_status.publish(new_val)
         return SetBoolResponse(True, "")
 
     def handle_usb2_pwr(self, req):
         new_val = req.data
         if new_val:
-            GPIO.output(self.pin_usb2, 1)
-        else:
             GPIO.output(self.pin_usb2, 0)
+        else:
+            GPIO.output(self.pin_usb2, 1)
         self.usb2_pwr_status.publish(new_val)
         return SetBoolResponse(True, "")
 
