@@ -185,6 +185,11 @@ class Glider:
         else:
             self.state.m_console_cd = False
 
+        self.state.m_surface_depth_reached = (
+            self.state.x_surface_active
+            and self.state.m_depth <= self.state.u_reqd_depth_at_surface
+        )
+
         if self.state.m_console_cd:
             self.state.m_comms_tickle_timestamp = self.state.m_present_time
 
