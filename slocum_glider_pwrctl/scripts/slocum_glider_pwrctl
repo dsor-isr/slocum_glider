@@ -101,7 +101,6 @@ class BackseatPwrCtl:
             GPIO.setup(self.pin_micron, GPIO.OUT, initial=GPIO.HIGH)
         else:
             GPIO.setup(self.pin_micron, GPIO.OUT, initial=GPIO.LOW)
-        
         self.micron_pwr_status.publish(self.micron_ctrl)
 
     def stop(self):
