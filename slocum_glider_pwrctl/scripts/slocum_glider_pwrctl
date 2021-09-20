@@ -78,6 +78,11 @@ class BackseatPwrCtl:
             GPIO.setup(self.pin_dvl, GPIO.OUT, initial=GPIO.HIGH)
         else:
             GPIO.setup(self.pin_dvl, GPIO.OUT, initial=GPIO.LOW)
+        
+        if self.micron_ctrl:
+            GPIO.setup(self.pin_micron, GPIO.OUT, initial=GPIO.HIGH)
+        else:
+            GPIO.setup(self.pin_micron, GPIO.OUT, initial=GPIO.LOW)
 
         # If enabled in launch file, initialize with pin low for USBs
         # For USBs, default state (LOW) powers on USBs. To use power saving feature,
@@ -93,15 +98,9 @@ class BackseatPwrCtl:
             GPIO.setup(self.pin_usb2, GPIO.OUT, initial=GPIO.HIGH)
 
         self.dvl_pwr_status.publish(self.dvl_ctrl)
+        self.micron_pwr_status.publish(self.micron_ctrl)
         self.usb1_pwr_status.publish(self.usb1_ctrl)
         self.usb2_pwr_status.publish(self.usb2_ctrl)
-
-        if self.micron_ctrl:
-            rospy.sleep(20.)
-            GPIO.setup(self.pin_micron, GPIO.OUT, initial=GPIO.HIGH)
-        else:
-            GPIO.setup(self.pin_micron, GPIO.OUT, initial=GPIO.LOW)
-        self.micron_pwr_status.publish(self.micron_ctrl)
 
     def stop(self):
         # On stop, turn pin low.
