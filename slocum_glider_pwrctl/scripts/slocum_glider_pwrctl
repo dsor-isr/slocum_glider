@@ -78,12 +78,10 @@ class BackseatPwrCtl:
             GPIO.setup(self.pin_dvl, GPIO.OUT, initial=GPIO.HIGH)
         else:
             GPIO.setup(self.pin_dvl, GPIO.OUT, initial=GPIO.LOW)
-        
         if self.micron_ctrl:
             GPIO.setup(self.pin_micron, GPIO.OUT, initial=GPIO.HIGH)
         else:
             GPIO.setup(self.pin_micron, GPIO.OUT, initial=GPIO.LOW)
-
         # If enabled in launch file, initialize with pin low for USBs
         # For USBs, default state (LOW) powers on USBs. To use power saving feature,
         # and turn of peripherals, must set pins HIGH.
