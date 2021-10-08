@@ -106,6 +106,7 @@ Future iterations will likely also sprial in place and set the thruster to max.
                           and g.state.u_mission_param_l == 2):
                         # user has asked for a status update!
                         if gave_status:
+                            rate.sleep()
                             continue
                         gave_status = True
                         g.send_file(
