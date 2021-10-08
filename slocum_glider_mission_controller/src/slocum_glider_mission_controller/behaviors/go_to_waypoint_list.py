@@ -83,7 +83,7 @@ estimated position when the behavior starts.
             self.previous_waypoint = self.current_waypoint
 
         self.num_cycles += 1
-        if self.num_cycles <= 4:
+        if self.num_cycles <= 8:
             # Give the glider some time to compute the distance to the
             # waypoint.
             return
