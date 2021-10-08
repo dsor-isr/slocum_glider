@@ -63,6 +63,7 @@ class SerialInterface:
             if not line:
                 continue
             line = line.strip()
+            rospy.logdebug('Received serial message: %s', line)
             if not is_valid_nmea_sentence(line):
                 # HACK: the extctl proglet sometimes has trouble transferring
                 # files. It can theoretically happen with any size file since
