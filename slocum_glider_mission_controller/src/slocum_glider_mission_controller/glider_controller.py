@@ -75,6 +75,7 @@ Future iterations will likely also sprial in place and set the thruster to max.
         rate = rospy.Rate(0.5)
         try:
             while not rospy.is_shutdown():
+                rate.sleep()
                 with self.mission_lock:
                     g = self.extctl.snapshot()
                     # Tell the user that we're ready!
@@ -106,7 +107,6 @@ Future iterations will likely also sprial in place and set the thruster to max.
                           and g.state.u_mission_param_l == 2):
                         # user has asked for a status update!
                         if gave_status:
-                            rate.sleep()
                             continue
                         gave_status = True
                         g.send_file(
@@ -126,8 +126,6 @@ Future iterations will likely also sprial in place and set the thruster to max.
                             )
                             self.mission.end(g)
                             self.mission = None
-
-                rate.sleep()
         except Exception as ex:
             print('Unhandled exception', ex)
             print(traceback.format_exc())
