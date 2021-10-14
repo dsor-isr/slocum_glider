@@ -64,7 +64,17 @@ class SerialInterface:
                 continue
             line = line.strip()
             rospy.logdebug('Received serial message: %s', line)
-            if not is_valid_nmea_sentence(line):
+            is_valid = is_valid_nmea_sentence(line)
+            if not is_valid:
+                # This is primarily here for startup. During boot, the Glider
+                # can put a bunch of crap on the serial line. If the line isn't
+                # valid, try finding the latest $ in the line, cutting the
+                # beginning of the line, and processing it again.
+                last_index = line.rfind('$')
+                if last_index > 0:
+                    line = line[last_index:]
+                    is_valid = is_valid_nmea_sentence(line)
+            if not is_valid:
                 # HACK: the extctl proglet sometimes has trouble transferring
                 # files. It can theoretically happen with any size file since
                 # it is a timing issue. Therefore, we don't reject any of the
