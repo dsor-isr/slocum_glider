@@ -60,6 +60,7 @@ class SerialInterface:
     def listener(self):
         while not self.stop_flag:
             line = self.ser.readline()
+            rospy.loginfo('Got raw line: %s', line)
             if not line:
                 continue
             line = line.strip()
