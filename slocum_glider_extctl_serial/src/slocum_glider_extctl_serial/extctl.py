@@ -63,7 +63,7 @@ class SerialInterface:
             if not line:
                 continue
             line = line.strip()
-            rospy.logdebug('Received serial message: %s', line)
+            rospy.loginfo('Received serial message: %s', line)
             is_valid = is_valid_nmea_sentence(line)
             if not is_valid:
                 # This is primarily here for startup. During boot, the Glider
