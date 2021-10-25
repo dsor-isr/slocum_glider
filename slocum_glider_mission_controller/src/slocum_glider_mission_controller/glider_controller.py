@@ -107,8 +107,12 @@ Future iterations will likely also sprial in place and set the thruster to max.
                           and g.state.u_mission_param_l == 2):
                         # user has asked for a status update!
                         if gave_status:
+                            rospy.loginfo(
+                                'Already provided status, continuing'
+                            )
                             continue
                         gave_status = True
+                        rospy.loginfo('Sending bsd.log')
                         g.send_file(
                             'bsd.log',
                             'The backseat driver is operating normally.\n'
@@ -120,6 +124,7 @@ Future iterations will likely also sprial in place and set the thruster to max.
                         # Not in a mission we can control. End the current
                         # mission if one is set.
                         gave_status = False
+                        rospy.loginfo('No mission in progress')
                         if self.mission:
                             rospy.loginfo(
                                 'Glider mission finished, ending my mission'
@@ -130,4 +135,6 @@ Future iterations will likely also sprial in place and set the thruster to max.
             print('Unhandled exception', ex)
             print(traceback.format_exc())
             print('Aborting!')
+            rospy.logerr('Unhandled exception %s', ex)
+            rospy.logerr('Traceback: %s', traceback.format_exc())
             self.out_of_band_abort()
