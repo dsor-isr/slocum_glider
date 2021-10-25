@@ -58,6 +58,13 @@ class SerialInterface:
         self.message_cbs.remove(cb)
 
     def listener(self):
+        try:
+            self.listener2()
+        except Exception as e:
+            rospy.logwarn('Listener thread died!: %s', e)
+            print(e)
+
+    def listener2(self):
         while not self.stop_flag:
             line = self.ser.readline()
             rospy.loginfo('Got raw line: %s', line)
