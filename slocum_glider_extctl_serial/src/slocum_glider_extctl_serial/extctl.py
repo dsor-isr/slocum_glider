@@ -69,11 +69,10 @@ class SerialInterface:
     def listener2(self):
         while not self.stop_flag:
             line = self.ser.readline()
-            rospy.loginfo('Got raw line: %s', line)
             if not line:
                 continue
             line = line.strip()
-            rospy.loginfo('Received serial message: %s', line)
+            rospy.logdebug('Received serial message: %s', line)
             is_valid = is_valid_nmea_sentence(line)
             if not is_valid:
                 # This is primarily here for startup. During boot, the Glider
@@ -105,7 +104,7 @@ class SerialInterface:
     def send_message(self, msg):
         sentence = nmea(msg)
         with self.send_lock:
-            rospy.loginfo('Sending serial message: %s', sentence)
+            rospy.logdebug('Sending serial message: %s', sentence)
             self.ser.write(sentence)
             self.ser.write(b'\r\n')
 
