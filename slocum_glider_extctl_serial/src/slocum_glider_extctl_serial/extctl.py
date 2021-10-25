@@ -96,7 +96,7 @@ class SerialInterface:
     def send_message(self, msg):
         sentence = nmea(msg)
         with self.send_lock:
-            rospy.logdebug('Sending serial message: %s', sentence)
+            rospy.loginfo('Sending serial message: %s', sentence)
             self.ser.write(sentence)
             self.ser.write(b'\r\n')
 
