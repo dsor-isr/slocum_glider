@@ -78,7 +78,6 @@ Future iterations will likely also sprial in place and set the thruster to max.
         try:
             while not rospy.is_shutdown():
                 rate.sleep()
-                rospy.loginfo('Woke up')
                 with self.mission_lock:
                     g = self.extctl.snapshot()
                     # Tell the user that we're ready!
@@ -127,7 +126,6 @@ Future iterations will likely also sprial in place and set the thruster to max.
                         # Not in a mission we can control. End the current
                         # mission if one is set.
                         gave_status = False
-                        rospy.loginfo('No mission in progress')
                         if self.mission:
                             rospy.loginfo(
                                 'Glider mission finished, ending my mission'
