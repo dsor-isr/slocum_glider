@@ -68,7 +68,9 @@ Future iterations will likely also sprial in place and set the thruster to max.
         self.extctl.state.u_mission_param_k = 0
 
         # Wait for us to have a complete view of the glider sensors.
+        rospy.loginfo('Waiting for all inputs')
         self.extctl.wait_for_all_inputs()
+        rospy.loginfo('All inputs received')
 
         gave_status = False
 
@@ -76,6 +78,7 @@ Future iterations will likely also sprial in place and set the thruster to max.
         try:
             while not rospy.is_shutdown():
                 rate.sleep()
+                rospy.loginfo('Woke up')
                 with self.mission_lock:
                     g = self.extctl.snapshot()
                     # Tell the user that we're ready!
