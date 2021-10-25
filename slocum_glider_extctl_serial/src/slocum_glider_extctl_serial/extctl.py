@@ -1,4 +1,5 @@
 import threading
+import traceback
 
 import rospy
 import serial
@@ -62,6 +63,7 @@ class SerialInterface:
             self.listener2()
         except Exception as e:
             rospy.logwarn('Listener thread died!: %s', e)
+            rospy.logwarn(traceback.format_exc())
             print(e)
 
     def listener2(self):
