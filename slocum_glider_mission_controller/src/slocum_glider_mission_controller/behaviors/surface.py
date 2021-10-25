@@ -46,8 +46,12 @@ Takes 2 parameters.
 
         if self.substate == 'START':
             # Trigger an inflection immediately
-            g.state.u_mission_param_c = max(g.state.m_depth - 1, MIN_DEPTH)
-            g.state.u_mission_param_e = max(self.climb_depth - 5, MIN_DEPTH)
+            d_target_depth = max(g.state.m_depth - 1, MIN_DEPTH + 1)
+            c_target_depth = max(self.climb_depth - 5, MIN_DEPTH)
+
+            g.state.u_mission_param_c = d_target_depth
+            g.state.u_mission_param_e = c_target_depth
+
             g.state.u_mission_param_h = self.climb_pitch
             self.substate = 'CLIMBING'
         elif self.substate == 'CLIMBING':
