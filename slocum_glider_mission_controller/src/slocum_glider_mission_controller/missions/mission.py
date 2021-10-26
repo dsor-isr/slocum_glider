@@ -60,6 +60,7 @@ into the STOPPED state.
             if b.state == 'STOPPED':
                 to_remove.append(b)
         for b in to_remove:
+            rospy.loginfo('Removing behavior %s', b)
             self.behaviors.remove(b)
 
         if self.last_enabled_modes != enabled_modes \
@@ -128,6 +129,8 @@ controls the same things.
 
         self.behaviors.extend(behaviors)
         self.paused_behaviors = paused_behaviors
+        rospy.loginfo('Entering event handler %s', handler)
+        rospy.loginfo('Added %s, paused %s', behaviors, paused_behaviors)
 
     def stop_handling_event(self, g):
         """Remove the active event handler. Remove all its behaviors from the active
@@ -138,6 +141,7 @@ list and resume all paused behaviors.
         behaviors = handler.behaviors
         paused_behaviors = self.paused_behaviors
 
+        rospy.loginfo('Stoping event handler %s', handler)
         for b in behaviors:
             if b in self.behaviors:
                 self.behaviors.remove(b)
