@@ -82,7 +82,8 @@ by a specific behavior).
 
         """
 
-        if g.state.m_surface_depth_reached and g.state.m_surfacing:
+        if (g.state.m_surface_depth_reached and g.state.m_surfacing) \
+           or g.state.x_in_surface_dialog > 0:
             self.last_time_on_surface = g.state.m_present_time
 
         delta_surface = (g.state.m_present_time - self.last_time_on_surface)
