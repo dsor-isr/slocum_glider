@@ -1,3 +1,4 @@
+import rospy
 from slocum_glider_msgs.msg import SurfaceAction, SurfaceResult
 
 from .base import Behavior
@@ -44,6 +45,7 @@ Takes 2 parameters.
 
     def do_step(self, g):
 
+        rospy.loginfo('SURFACING: Substate: %s', self.substate)
         if self.substate == 'START':
             # Trigger an inflection immediately
             d_target_depth = max(g.state.m_depth - 1, MIN_DEPTH + 1)
@@ -52,6 +54,8 @@ Takes 2 parameters.
             g.state.u_mission_param_c = d_target_depth
             g.state.u_mission_param_e = c_target_depth
 
+            rospy.loginfo('SURFACING: c_target_depth: %s d_target_depth: %s',
+                          c_target_depth, d_target_depth)
             g.state.u_mission_param_h = self.climb_pitch
             self.substate = 'CLIMBING'
         elif self.substate == 'CLIMBING':
