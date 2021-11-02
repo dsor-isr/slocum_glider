@@ -10,8 +10,8 @@ sensor: u_use_ctd_depth_for_flying(bool) 0
 # Use current correction.  TODO: Think if this should be turned off.
 sensor: u_use_current_correction(nodim) 1
 
-# Automatically adapt to overshoots when yo'ing.
-sensor: u_adj_overshoot(bool) 1
+# Do not automatically adapt to overshoots when yo'ing.
+sensor: u_adj_overshoot(bool) 0
 
 # Tell the backseat driver it should control this mission.
 sensor: u_mission_param_l(X) 1
