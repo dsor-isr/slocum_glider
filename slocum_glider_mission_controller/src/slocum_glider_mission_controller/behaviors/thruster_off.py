@@ -22,8 +22,8 @@ class ThrusterOffBehavior(Behavior):
         pass
 
     def do_step(self, g):
-        g.state.u_mission_param_g = 0
-        g.state.u_mission_param_i = 0
+        g.state.u_mission_param_g = 1
+        g.state.u_mission_param_i = 1
 
     def do_abort(self, g):
         pass
