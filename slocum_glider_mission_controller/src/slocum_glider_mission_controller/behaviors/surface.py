@@ -15,7 +15,7 @@ glider's surface behavior.
 
 Takes 2 parameters.
 
-+ climb_depth (defaults to 2m)
++ climb_depth (defaults to 3m)
 + climb_pitch (defaults to 0.4536 rad/26 deg)
 + end_action (defaults to "ctrl-c-resume") either "ctrl-c-resume" to print
   surface dialog and wait for operator interaction before continuing or
@@ -26,7 +26,7 @@ Takes 2 parameters.
     ACTION_NAME = 'surface'
     CONTROLS = set(['pitch', 'bpump'])
 
-    def __init__(self, climb_depth=2, climb_pitch=0.4536,
+    def __init__(self, climb_depth=3, climb_pitch=0.4536,
                  end_action="ctrl-c-resume", server=None):
         super(SurfaceBehavior, self).__init__()
         self.server = server
