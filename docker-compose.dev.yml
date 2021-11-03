@@ -1,6 +1,6 @@
 # An override file to use local glider_hybrid_whoi repo for Gazebo.
 # Without this overwride, docker-compose up will use the image
-#  of Docker Hub which is autobuild from master branch of the repo.
+#  of Docker Hub which is from master branch of the repo.
 
 services:
   gazebo:

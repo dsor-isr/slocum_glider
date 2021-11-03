@@ -22,15 +22,17 @@ services:
     volumes:
       - "/tmp/.X11-unix:/tmp/.X11-unix"
       - "/etc/localtime:/etc/localtime:ro"
+      - "./local_glider_files:/local_glider_files"
     entrypoint: /ros_entrypoint.sh
+    env_file:
+      - ./local_glider_files/simulation/initialLatLon.env
     command:
       - stdbuf
       - -o
       - L
       - roslaunch
       - --wait
-      - glider_hybrid_whoi_gazebo
-      - BuzzBay_stratified_current_docker.launch
+      - ./local_glider_files/simulation/BuzzBay_stratified_current_docker.launch
       - latitude:=${LATITUDE:-41.5522}
       - longitude:=${LONGITUDE:--70.6803}
     privileged: true
