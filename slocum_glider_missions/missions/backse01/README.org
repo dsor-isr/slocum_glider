@@ -30,6 +30,8 @@ u_mission_params to safe values.
   control the mission.
 + =u_mission_param_m= :: If 1, the backseat driver should compute altitude
   using the DVL, otherwise the Glider altimeter.
++ =u_mission_param_n= :: A number 0-99. Determines which file
+  (=backse%02d.ini=) on the science computer contains the mission.
 
 The bits of =u_mission_mode= control the following behaviors:
 
