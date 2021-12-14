@@ -13,16 +13,6 @@ sensor: u_use_current_correction(nodim) 1
 # Do not automatically adapt to overshoots when yo'ing.
 sensor: u_adj_overshoot(bool) 0
 
-# HACK: We set m_dist_to_wpt to an absurd number here. The glider will update
-# it when all the behaviors finally start ticking after starting the
-# mission. The mission controller needs this because if it is a small number,
-# it instantly thinks all waypoints have been reached (there's currently no way
-# to robustly detect when the glider has finished starting the mission. We can
-# fix this after we get a firmware update by reporting back the target wpts and
-# waiting until those are set before trying to read m_dist_to_wpt.
-
-sensor: m_dist_to_wpt(m) 1000
-
 # Tell the backseat driver it should control this mission.
 sensor: u_mission_param_l(X) 1
 
