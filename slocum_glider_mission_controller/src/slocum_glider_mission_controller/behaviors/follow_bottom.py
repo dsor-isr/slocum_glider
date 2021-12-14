@@ -64,8 +64,7 @@ size. Abnormally terminates if the constraints cannot be met.
         alt = g.state.altitude
         depth = g.state.m_depth
 
-        # TODO: need to abstract this for use with DVL as well
-        if g.state.m_altimeter_status == 0:
+        if g.state.altimeter_status == 0:
             dive_depth = depth + alt - self.min_altitude
             climb_depth = depth + alt - self.max_altitude
         else:

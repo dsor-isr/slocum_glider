@@ -127,6 +127,7 @@ class GliderExtctlInterface(object):
             # TODO: Gotta figure out a better way of doing this when we add
             # more than just altitude...
             all_keys.add('altitude')
+            all_keys.add('altimeter_status')
             if keys_received == all_keys:
                 self._have_all_inputs = True
                 self._have_all_inputs_condition.notify_all()
@@ -139,9 +140,12 @@ class GliderExtctlInterface(object):
                 # know what the name is when we construct this closure, so we
                 # should be able to elide irrelevent pieces
                 # here... somehow. This would be trivial in Common Lisp...
-                if name == 'm_altitude' \
-                   and self._altitude_source == 'altimeter':
-                    self._values['altitude'] = msg.data
+                if name == 'm_altitude':
+                    if self._altitude_source == 'altimeter':
+                        self._values['altitude'] = msg.data
+                elif name == 'm_altimeter_status':
+                    if self._altitude_source == 'altimeter':
+                        self._values['altimeter_status'] = msg.data
                 elif name == 'u_mission_param_m':
                     if msg.data == 1:
                         self._altitude_source = 'dvl'
