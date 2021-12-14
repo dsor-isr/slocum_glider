@@ -103,6 +103,7 @@ class GliderExtctlInterface(object):
         self._mode_srv = rospy.ServiceProxy('extctl/set_mode', SetMode)
         self._get_file_srv = rospy.ServiceProxy('extctl/get_file', GetFile)
         self._send_file_srv = rospy.ServiceProxy('extctl/send_file', SendFile)
+        self._altitude_source = 'altimeter'
         self.state = GliderState(self, self._values)
 
     def _extctl_cb(self, msg):
@@ -119,16 +120,34 @@ class GliderExtctlInterface(object):
             self._have_extctl = True
             self._have_extctl_condition.notify_all()
 
+    def _check_all_inputs_received(self):
+        if not self._have_all_inputs:
+            keys_received = set(self._values.keys())
+            all_keys = set(self._backseat_inputs.keys())
+            # TODO: Gotta figure out a better way of doing this when we add
+            # more than just altitude...
+            all_keys.add('altitude')
+            if keys_received == all_keys:
+                self._have_all_inputs = True
+                self._have_all_inputs_condition.notify_all()
+
     def _make_topic_cb(self, name):
         def cb(msg):
             with self._lock:
                 self._values[name] = msg.data
-                if not self._have_all_inputs:
-                    keys_received = set(self._values.keys())
-                    all_keys = set(self._backseat_inputs.keys())
-                    if keys_received == all_keys:
-                        self._have_all_inputs = True
-                        self._have_all_inputs_condition.notify_all()
+                # Ugggghhh. There's got to be a better way of doing this. We
+                # know what the name is when we construct this closure, so we
+                # should be able to elide irrelevent pieces
+                # here... somehow. This would be trivial in Common Lisp...
+                if name == 'm_altitude' \
+                   and self._altitude_source == 'altimeter':
+                    self._values['altitude'] = msg.data
+                elif name == 'u_mission_param_m':
+                    if msg.data == 1:
+                        self._altitude_source = 'dvl'
+                    else:
+                        self._altitude_source = 'altimeter'
+                self._check_all_inputs_received()
         return cb
 
     def _register_topics(self, _backseat_inputs):
