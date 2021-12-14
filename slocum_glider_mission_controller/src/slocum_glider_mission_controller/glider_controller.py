@@ -68,13 +68,16 @@ Future iterations will likely also sprial in place and set the thruster to max.
         self.extctl.state.u_mission_param_k = 0
 
         # Wait for us to have a complete view of the glider sensors.
+        rospy.loginfo('Waiting for all inputs')
         self.extctl.wait_for_all_inputs()
+        rospy.loginfo('All inputs received')
 
         gave_status = False
 
         rate = rospy.Rate(0.5)
         try:
             while not rospy.is_shutdown():
+                rate.sleep()
                 with self.mission_lock:
                     g = self.extctl.snapshot()
                     # Tell the user that we're ready!
@@ -106,8 +109,12 @@ Future iterations will likely also sprial in place and set the thruster to max.
                           and g.state.u_mission_param_l == 2):
                         # user has asked for a status update!
                         if gave_status:
+                            rospy.loginfo(
+                                'Already provided status, continuing'
+                            )
                             continue
                         gave_status = True
+                        rospy.loginfo('Sending bsd.log')
                         g.send_file(
                             'bsd.log',
                             'The backseat driver is operating normally.\n'
@@ -125,10 +132,12 @@ Future iterations will likely also sprial in place and set the thruster to max.
                             )
                             self.mission.end(g)
                             self.mission = None
+                            self.extctl.change_modes([], [0, 1, 2, 3, 4, 5, 6])
 
-                rate.sleep()
         except Exception as ex:
             print('Unhandled exception', ex)
             print(traceback.format_exc())
             print('Aborting!')
+            rospy.logerr('Unhandled exception %s', ex)
+            rospy.logerr('Traceback: %s', traceback.format_exc())
             self.out_of_band_abort()

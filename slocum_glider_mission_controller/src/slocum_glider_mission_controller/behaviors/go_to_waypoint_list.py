@@ -36,6 +36,8 @@ estimated position when the behavior starts.
         self.waypoints = list(waypoints)
         self.current_waypoint = 0
         self.previous_waypoint = -1
+        self.current_lon = None
+        self.current_lat = None
         self.server = server
 
     @classmethod
@@ -63,8 +65,9 @@ estimated position when the behavior starts.
 
     def do_resume(self, g):
         self.num_cycles = 0
-        # We need to force do_step to resend the waypoint to the glider.
-        self.previous_waypoint = -1
+        # We need to resend the waypoint.
+        g.state.u_mission_param_a = self.current_lon
+        g.state.u_mission_param_b = self.current_lat
 
     def do_step(self, g):
         wpt = self.waypoints[self.current_waypoint]
@@ -78,12 +81,14 @@ estimated position when the behavior starts.
                 wpt['x'],
                 wpt['y']
             )
+            self.current_lon = lon
+            self.current_lat = lat
             g.state.u_mission_param_a = lon
             g.state.u_mission_param_b = lat
             self.previous_waypoint = self.current_waypoint
 
         self.num_cycles += 1
-        if self.num_cycles <= 4:
+        if self.num_cycles <= 8:
             # Give the glider some time to compute the distance to the
             # waypoint.
             return

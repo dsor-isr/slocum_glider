@@ -70,15 +70,16 @@ class SurfaceBehavior(BehaviorWithSubstates):
         def init(self):
             self.parent_behavior.climb_behavior.set_state(BEHAVIOR_STATE_UNINITED)  # noqa: E501
 
-        def compute_controls(self, x):
-            self.parent_behavior.climb_behavior.step(x)
-
         def next_state(self, parent, x):
             if parent.climb_behavior.state == BEHAVIOR_STATE_FINISHED:
                 return parent.WaitingVarious(parent)
 
     class WaitingVarious(StayAtSurface):
         DESCRIPTION = 'Waiting for various sensors'
+
+        def compute_controls(self, x):
+            x.m_surfacing = False
+            super(SurfaceBehavior.WaitingVarious, self).compute_controls(x)
 
         def next_state(self, parent, x):
             return parent.WaitingGPS(parent)
@@ -160,6 +161,7 @@ class SurfaceBehavior(BehaviorWithSubstates):
         def compute_controls(self, x):
             # Let other surfacing actions run
             x.x_surface_active = 0
+            x.m_surfacing = True
 
     # 1 climb_to the surface
     # 2 Waiting for various sensors

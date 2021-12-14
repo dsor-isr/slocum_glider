@@ -72,6 +72,9 @@ class Glider:
         state.dc_c_battpos = min(0.1, state.x_battpos_max)
         state.dc_c_oil_volume = state.x_ballast_pumped_max
 
+        # Clear some state
+        state.m_surfacing = True
+
     def compute_lmc_position(self):
         """Translate the current coordinates of the glider into LMC."""
         state = self.state

@@ -1,5 +1,6 @@
 from copy import deepcopy
 from six import string_types
+import rospy
 
 from .mission import Mission
 from ..behaviors import behavior_class_for_name
@@ -54,12 +55,15 @@ state.
         if not self.is_actively_controlled():
             self.segments.pop(0)
             if self.segments:
+                rospy.loginfo('Moving to next mission segment')
                 self.behaviors = list(self.segments[0].behaviors)
                 self.event_handlers = list(self.segments[0].event_handlers)
                 self.paused_behaviors = []
                 self.active_event_handler = None
                 for b in self.behaviors:
                     b.start(g)
+            else:
+                rospy.loginfo('No more segments')
 
     @classmethod
     def from_dict(cls, obj):
