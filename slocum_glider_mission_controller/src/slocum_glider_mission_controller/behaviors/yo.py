@@ -23,7 +23,7 @@ Takes 5 parameters.
     CONTROLS = set(['pitch', 'bpump'])
 
     def __init__(self, dive_depth=20, dive_altitude=5, dive_pitch=-0.4536,
-                 climb_depth=2, climb_pitch=0.4536, safety_factor = 0, server=None):
+                 climb_depth=2, climb_pitch=0.4536, safety_factor=0, server=None):
         super(YoBehavior, self).__init__()
         self.dive_depth = dive_depth
         self.dive_altitude = dive_altitude
