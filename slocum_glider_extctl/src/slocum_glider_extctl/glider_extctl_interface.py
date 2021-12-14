@@ -93,8 +93,7 @@ class GliderExtctlInterface(object):
     def __init__(self):
         self._extctl_sub = rospy.Subscriber('extctl/ini', Extctl,
                                             self._extctl_cb)
-        self._dvl_sub = rospy.Subscriber('/devices/dvl/dvl', Dvl,
-                                            self._dvl_cb)
+        self._dvl_sub = rospy.Subscriber('/devices/dvl/dvl', Dvl, self._dvl_cb)
         self._values = {}
         self._backseat_inputs = {}
         self._backseat_outputs = {}
