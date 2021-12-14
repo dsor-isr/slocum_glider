@@ -132,8 +132,6 @@ Future iterations will likely also sprial in place and set the thruster to max.
                             )
                             self.mission.end(g)
                             self.mission = None
-                            self.extctl.change_modes([], [0, 1, 2, 3, 4, 5, 6])
-
         except Exception as ex:
             print('Unhandled exception', ex)
             print(traceback.format_exc())
