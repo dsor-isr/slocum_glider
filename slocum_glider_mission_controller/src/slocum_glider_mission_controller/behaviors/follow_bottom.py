@@ -61,9 +61,10 @@ size. Abnormally terminates if the constraints cannot be met.
         g.state.u_mission_param_f = self.dive_pitch
         g.state.u_mission_param_h = self.climb_pitch
 
-        alt = g.state.m_altitude
+        alt = g.state.altitude
         depth = g.state.m_depth
 
+        # TODO: need to abstract this for use with DVL as well
         if g.state.m_altimeter_status == 0:
             dive_depth = depth + alt - self.min_altitude
             climb_depth = depth + alt - self.max_altitude
