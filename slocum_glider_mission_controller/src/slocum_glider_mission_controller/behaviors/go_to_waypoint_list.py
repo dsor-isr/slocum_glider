@@ -7,6 +7,10 @@ from .go_to_waypoint import waypoint_to_decimal_minutes
 from ..modes import MODE_GOTO_WAYPOINT_BIT
 
 
+C_WPT_TOLERANCE = 1e-6
+MAX_CYCLES_TO_WAIT = 5 * 60 * 4  # about 5 minutes
+
+
 class GoToWaypointListBehavior(Behavior):
     """A behavior that navigates to a waypoint and stays at that
 waypoint. Terminates when the waypoint is reached.
@@ -62,9 +66,11 @@ estimated position when the behavior starts.
 
     def do_start(self, g):
         self.num_cycles = 0
+        self.num_cycles_waiting = 0
 
     def do_resume(self, g):
         self.num_cycles = 0
+        self.num_cycles_waiting = 0
         # We need to resend the waypoint.
         g.state.u_mission_param_a = self.current_lon
         g.state.u_mission_param_b = self.current_lat
@@ -87,10 +93,24 @@ estimated position when the behavior starts.
             g.state.u_mission_param_b = lat
             self.previous_waypoint = self.current_waypoint
 
+        c_wpt_lat = g.state.c_wpt_lat
+        c_wpt_lon = g.state.c_wpt_lon
+
+        # Wait until what the glider thinks the waypoint is matches what we
+        # commanded.
+        if abs(c_wpt_lat - self.current_lat) >= C_WPT_TOLERANCE \
+           or abs(c_wpt_lon - self.current_lon) >= C_WPT_TOLERANCE:
+            self.num_cycles_waiting += 1
+            if self.num_cycles_waiting >= MAX_CYCLES_TO_WAIT:
+                self.abort(g, text='Waited too long for glider to update wpt')
+                return
+            else:
+                return
+
+        # Now that we and the glider think we're going to the same place, give
+        # it some time to update the dist to wpt.
         self.num_cycles += 1
         if self.num_cycles <= 8:
-            # Give the glider some time to compute the distance to the
-            # waypoint.
             return
         dist_to_wpt = g.state.m_dist_to_wpt
 
@@ -105,6 +125,7 @@ estimated position when the behavior starts.
         if dist_to_wpt <= dist:
             self.current_waypoint += 1
             self.num_cycles = 0
+            self.num_cycles_waiting = 0
         if self.current_waypoint == len(self.waypoints):
             self.stop(g, text='reached all waypoints')
 
