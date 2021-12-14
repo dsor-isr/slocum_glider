@@ -12,6 +12,7 @@ from slocum_glider_msgs.srv import (GetFile, GetFileRequest, SendFile,
                                     SendFileRequest, SetByte, SetFloat32,
                                     SetFloat64, SetMode)
 from std_msgs.msg import Byte, Float64, Float32
+from ds_msgs.msg import Dvl
 
 # Translation from glider "units" to ROS message types.
 GLIDER_MSG_TYPES = {
@@ -92,6 +93,8 @@ class GliderExtctlInterface(object):
     def __init__(self):
         self._extctl_sub = rospy.Subscriber('extctl/ini', Extctl,
                                             self._extctl_cb)
+        self._dvl_sub = rospy.Subscriber('/devices/dvl/dvl', Dvl,
+                                            self._dvl_cb)
         self._values = {}
         self._backseat_inputs = {}
         self._backseat_outputs = {}
@@ -105,6 +108,16 @@ class GliderExtctlInterface(object):
         self._send_file_srv = rospy.ServiceProxy('extctl/send_file', SendFile)
         self._altitude_source = 'altimeter'
         self.state = GliderState(self, self._values)
+
+    def _dvl_cb(self, msg):
+        # check to see if altitude source is 'dvl'
+        if self._altitude_source == 'dvl':
+            if msg.altitude is not None:
+                self._values['altitude'] = msg.altitude
+                self._values['altimeter_status'] = 0
+            else:
+                self._values['altimeter_status'] = 1
+        self._check_all_inputs_received()
 
     def _extctl_cb(self, msg):
         _backseat_inputs = {}
