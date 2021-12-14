@@ -138,6 +138,8 @@ overridden.
      + dive_pitch :: Defaults to -0.4536 radians/-26 degrees
      + climb_depth :: Defaults to 2m
      + climb_pitch :: Defaults to 0.4536 radians/26 degrees
+     + safety factor :: Defaults to 0m. When using DVL to monitor altitude, 
+        buffers adjusted dive depth when too close to the bottom.
    + Finishes :: Never
 
 * Event Handlers

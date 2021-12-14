@@ -12,7 +12,7 @@ from slocum_glider_msgs.srv import (GetFile, GetFileRequest, SendFile,
                                     SendFileRequest, SetByte, SetFloat32,
                                     SetFloat64, SetMode)
 from std_msgs.msg import Byte, Float64, Float32
-from ds_msgs.msg import Dvl
+from ds_sensor_msgs.msg import Dvl
 
 # Translation from glider "units" to ROS message types.
 GLIDER_MSG_TYPES = {
@@ -109,14 +109,14 @@ class GliderExtctlInterface(object):
         self.state = GliderState(self, self._values)
 
     def _dvl_cb(self, msg):
-        # check to see if altitude source is 'dvl'
-        if self._altitude_source == 'dvl':
-            if msg.altitude is not None:
-                self._values['altitude'] = msg.altitude
-                self._values['altimeter_status'] = 0
-            else:
-                self._values['altimeter_status'] = 1
-        self._check_all_inputs_received()
+        with self._lock:
+            if self._altitude_source == 'dvl':
+                if msg.num_good_beams > 0:
+                    self._values['altitude'] = msg.altitude
+                    self._values['altimeter_status'] = 0
+                else:
+                    self._values['altimeter_status'] = 1
+            self._check_all_inputs_received()
 
     def _extctl_cb(self, msg):
         _backseat_inputs = {}
