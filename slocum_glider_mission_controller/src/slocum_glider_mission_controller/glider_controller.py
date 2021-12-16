@@ -88,7 +88,8 @@ Future iterations will likely also sprial in place and set the thruster to max.
                         # mission if none are currently active.
                         if self.mission is None:
                             rospy.loginfo('Beginning mission')
-                            _, mission_str = g.get_file('backseat.ini')
+                            n = g.state.u_mission_param_n
+                            _, mission_str = g.get_file('backse%02d.ini' % n)
                             print(mission_str)
                             self.mission = mission_from_yaml_string(
                                 mission_str
@@ -132,8 +133,6 @@ Future iterations will likely also sprial in place and set the thruster to max.
                             )
                             self.mission.end(g)
                             self.mission = None
-                            self.extctl.change_modes([], [0, 1, 2, 3, 4, 5, 6])
-
         except Exception as ex:
             print('Unhandled exception', ex)
             print(traceback.format_exc())

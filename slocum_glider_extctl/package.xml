@@ -17,6 +17,7 @@
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>slocum_glider_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>
+  <exec_depend>ds_sensor_msgs</exec_depend>
   <!-- NOTE: Requires at least v1.13 of six, which is not in Bionic's package
        manager -->
   <exec_depend condition="$ROS_PYTHON_VERSION == 2">python-six</exec_depend>

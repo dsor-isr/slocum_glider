@@ -12,6 +12,7 @@ from slocum_glider_msgs.srv import (GetFile, GetFileRequest, SendFile,
                                     SendFileRequest, SetByte, SetFloat32,
                                     SetFloat64, SetMode)
 from std_msgs.msg import Byte, Float64, Float32
+from ds_sensor_msgs.msg import Dvl
 
 # Translation from glider "units" to ROS message types.
 GLIDER_MSG_TYPES = {
@@ -92,6 +93,7 @@ class GliderExtctlInterface(object):
     def __init__(self):
         self._extctl_sub = rospy.Subscriber('extctl/ini', Extctl,
                                             self._extctl_cb)
+        self._dvl_sub = rospy.Subscriber('/devices/dvl/dvl', Dvl, self._dvl_cb)
         self._values = {}
         self._backseat_inputs = {}
         self._backseat_outputs = {}
@@ -103,7 +105,18 @@ class GliderExtctlInterface(object):
         self._mode_srv = rospy.ServiceProxy('extctl/set_mode', SetMode)
         self._get_file_srv = rospy.ServiceProxy('extctl/get_file', GetFile)
         self._send_file_srv = rospy.ServiceProxy('extctl/send_file', SendFile)
+        self._altitude_source = 'altimeter'
         self.state = GliderState(self, self._values)
+
+    def _dvl_cb(self, msg):
+        with self._lock:
+            if self._altitude_source == 'dvl':
+                if msg.num_good_beams > 0:
+                    self._values['altitude'] = msg.altitude
+                    self._values['altimeter_status'] = 0
+                else:
+                    self._values['altimeter_status'] = 1
+            self._check_all_inputs_received()
 
     def _extctl_cb(self, msg):
         _backseat_inputs = {}
@@ -119,16 +132,38 @@ class GliderExtctlInterface(object):
             self._have_extctl = True
             self._have_extctl_condition.notify_all()
 
+    def _check_all_inputs_received(self):
+        if not self._have_all_inputs:
+            keys_received = set(self._values.keys())
+            all_keys = set(self._backseat_inputs.keys())
+            # TODO: Gotta figure out a better way of doing this when we add
+            # more than just altitude...
+            all_keys.add('altitude')
+            all_keys.add('altimeter_status')
+            if keys_received == all_keys:
+                self._have_all_inputs = True
+                self._have_all_inputs_condition.notify_all()
+
     def _make_topic_cb(self, name):
         def cb(msg):
             with self._lock:
                 self._values[name] = msg.data
-                if not self._have_all_inputs:
-                    keys_received = set(self._values.keys())
-                    all_keys = set(self._backseat_inputs.keys())
-                    if keys_received == all_keys:
-                        self._have_all_inputs = True
-                        self._have_all_inputs_condition.notify_all()
+                # Ugggghhh. There's got to be a better way of doing this. We
+                # know what the name is when we construct this closure, so we
+                # should be able to elide irrelevent pieces
+                # here... somehow. This would be trivial in Common Lisp...
+                if name == 'm_altitude':
+                    if self._altitude_source == 'altimeter':
+                        self._values['altitude'] = msg.data
+                elif name == 'm_altimeter_status':
+                    if self._altitude_source == 'altimeter':
+                        self._values['altimeter_status'] = msg.data
+                elif name == 'u_mission_param_m':
+                    if msg.data == 1:
+                        self._altitude_source = 'dvl'
+                    else:
+                        self._altitude_source = 'altimeter'
+                self._check_all_inputs_received()
         return cb
 
     def _register_topics(self, _backseat_inputs):

@@ -5,6 +5,7 @@
 
 ARG ros_distro=melodic
 ARG frl_msgs_commit=a41b1d3d192dacd32a7e0a717a9c1b0a30eaca64
+ARG ds_msgs_ref=c674705e647a6ba375280687c1120571db953f9f
 
 FROM ros:$ros_distro-ros-base as deps-extractor
 # Dependency management in ROS has always been a painful experience IMHO. We
@@ -44,6 +45,17 @@ RUN . "/opt/ros/$ROS_DISTRO/setup.bash" \
     && git clone https://github.com/Field-Robotics-Lab/frl_msgs.git \
     && git -C frl_msgs archive --prefix=src/frl_msgs/ "$FRL_MSGS_COMMIT" | tar x \
     && rm -rf frl_msgs
+
+# Install ds_msgs
+RUN apt-get update \
+    && apt-get install -y --no-upgrade curl \
+    && rm -rf /var/lib/apt/lists/*
+
+ARG ds_msgs_ref
+WORKDIR /slocum_glider_ws/src/ds_msgs
+RUN curl -fsSL https://gitlab.com/sentinel-aug/ds_msgs/-/archive/$ds_msgs_ref/ds_msgs-$ds_msgs_ref.tar.gz | tar -z --strip-components=1 -xf -
+
+WORKDIR /slocum_glider_ws/
 
 # Copy in all the source code:
 COPY slocum_glider_extctl src/slocum_ros/slocum_glider_extctl
