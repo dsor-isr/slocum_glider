@@ -4,6 +4,7 @@
 # source the install space of this workspace.
 
 ARG ros_distro=noetic
+ARG ds_msgs_ref=c674705e647a6ba375280687c1120571db953f9f
 
 FROM ros:$ros_distro-ros-base as deps-extractor
 # Dependency management in ROS has always been a painful experience IMHO. We
@@ -34,6 +35,17 @@ WORKDIR /slocum_glider_ws/
 # hadolint ignore=SC1091
 RUN . "/opt/ros/$ROS_DISTRO/setup.bash" \
     && catkin_make
+
+# Install ds_msgs
+RUN apt-get update \
+    && apt-get install -y --no-upgrade curl \
+    && rm -rf /var/lib/apt/lists/*
+
+ARG ds_msgs_ref
+WORKDIR /slocum_glider_ws/src/ds_msgs
+RUN curl -fsSL https://gitlab.com/sentinel-aug/ds_msgs/-/archive/$ds_msgs_ref/ds_msgs-$ds_msgs_ref.tar.gz | tar -z --strip-components=1 -xf -
+
+WORKDIR /slocum_glider_ws/
 
 # Copy in all the source code:
 COPY slocum_glider_extctl src/slocum_ros/slocum_glider_extctl
