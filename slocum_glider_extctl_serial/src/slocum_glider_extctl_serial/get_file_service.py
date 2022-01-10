@@ -26,7 +26,7 @@ class GetFileService:
         # Create an event used to signal when a transfer is complete.
         self.transfer_finished_event = Event()
 
-        self.base64 = b''
+        self.base64 = []
         self.current_transfer_file_name = None
 
         # Keeping track of corrupted transfers.
@@ -55,7 +55,7 @@ class GetFileService:
             # in progress and the caller has asked us to not block.
             raise FileTransferFailed('another transfer is in progress')
 
-        self.base64 = b''
+        self.base64 = []
         file_name = ensure_binary(file_name)
         self.current_transfer_file_name = file_name
         self.current_transfer_corrupted = False
@@ -79,7 +79,7 @@ class GetFileService:
             raise FileTransferFailed('transfer corrupted')
 
         # Takes the base64 message and decodes it
-        s64 = base64.b64decode(self.base64).decode('utf-8')
+        s64 = b''.join(map(base64.b64decode, self.base64)).decode('utf-8')
         # Return the results.
         return s64
 
@@ -100,15 +100,15 @@ class GetFileService:
             self.transfer_finished_event.set()
         else:
             # Try again!
-            self.base64 = b''
+            self.base64 = []
             self.current_transfer_corrupted = False
             self.ser.send_message(b'FR,' + self.current_transfer_file_name)
 
     def handle_serial_msg(self, msg):
         """Called when a sentence of type FI is received over the serial port.
 
-        msg is a string starting with "FI," followed by up to 256 bytes of
-        base64 encoded data.
+        msg is a string starting with "FI," followed by up some number of bytes
+        of base64 encoded data.
 
         """
 
@@ -142,4 +142,9 @@ class GetFileService:
                                     oneshot=True)
             self.corrupted_transfer_timer = timer
         else:
-            self.base64 += msg[3:]
+            # We push to a list of base64 messages instead of concatenating
+            # them into one big byte string because it's possible that padding
+            # requirements will result in an = character in the
+            # message. Python's base64 decoder will then stop decoding once it
+            # hits the first =.
+            self.base64.append(msg[3:])
