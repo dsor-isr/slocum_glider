@@ -39,7 +39,7 @@ Takes 5 parameters.
                    dive_altitude=goal.dive_altitude,
                    dive_pitch=goal.dive_pitch,
                    climb_depth=goal.climb_depth,
-                   climp_pitch=goal.climb_pitch,
+                   climb_pitch=goal.climb_pitch,
                    server=server)
 
     def do_start(self, g):
