@@ -52,7 +52,7 @@ class DiveToBehavior(BehaviorWithSubstates):
         def next_state(self, parent, x):
             if x.m_depth >= maybe_deref(self.args.target_depth, x):
                 return parent.Complete(parent)
-            if x.m_altitude <= maybe_deref(self.args.target_altitude, x):
+            if x.m_altimeter_status == 0 and x.m_altitude <= maybe_deref(self.args.target_altitude, x):
                 return parent.Complete(parent)
 
     class Complete(Substate):
