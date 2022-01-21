@@ -6244,6 +6244,18 @@ sensor: u_mission_param_i(X) 0
 sensor: u_mission_param_j(X) 0
 sensor: u_mission_param_k(X) 0
 sensor: u_mission_param_l(X) 0
+sensor: u_mission_param_m(X) 0
+sensor: u_mission_param_n(X) 0
+sensor: u_mission_param_o(X) 0
+sensor: u_mission_param_p(X) 0
+sensor: u_mission_param_q(X) 0
+sensor: u_mission_param_r(X) 0
+sensor: u_mission_param_s(X) 0
+sensor: u_mission_param_t(X) 0
+sensor: u_mission_param_u(X) 0
+sensor: u_mission_param_v(X) 0
+sensor: u_mission_param_w(X) 0
+sensor: u_mission_param_x(X) 0
 sensor: u_mission_mode(X)    0
 
 # Some documentation on b_args common to all behaviors
