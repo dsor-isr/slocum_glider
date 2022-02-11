@@ -1,5 +1,22 @@
+from six import string_types
+
 from ..behaviors import behavior_class_for_name
 from .mission import Mission
+
+
+def parse_behavior_list(behavior_descs):
+    out = []
+    for behavior_desc in behavior_descs:
+        if isinstance(behavior_desc, string_types):
+            name = behavior_desc
+            args = {}
+        else:
+            (name, args), = behavior_desc.items()
+        b_class = behavior_class_for_name(name)
+        if args is None:
+            args = {}
+        out.append(b_class(**args))
+    return out
 
 
 class DynamicMission(Mission):
@@ -33,13 +50,5 @@ runtime, typically by some onboard planning and execution process.
 
     @classmethod
     def from_dict(cls, obj):
-        behaviors = []
-        initial_desc = obj['initial']
-        for desc in initial_desc:
-            (name, args), = desc.items()
-            b_class = behavior_class_for_name(name)
-            if args is None:
-                args = {}
-            behaviors.append(b_class(**args))
-
-        cls(behaviors)
+        behaviors = parse_behavior_list(obj['initial_behaviors'])
+        return cls(behaviors)

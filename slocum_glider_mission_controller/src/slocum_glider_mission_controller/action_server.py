@@ -22,7 +22,7 @@ class BehaviorActionServer(object):
         self.server.start()
 
     def goal_cb(self):
-        goal = self.server.accept_new_goal
+        goal = self.server.accept_new_goal()
         if goal is None:
             return
 
@@ -32,7 +32,7 @@ class BehaviorActionServer(object):
             )
             return
 
-        behavior = self.behavior_class.from_goal(goal)
+        behavior = self.behavior_class.from_goal(goal, self)
 
         result = self.glider_controller.start_behavior(behavior)
 
