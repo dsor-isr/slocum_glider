@@ -3,7 +3,7 @@
 # the code is located at /slocum_glider_ws and the entrypoint is overridden to
 # source the install space of this workspace.
 
-ARG ros_distro=melodic
+ARG ros_distro=noetic
 ARG frl_msgs_commit=a41b1d3d192dacd32a7e0a717a9c1b0a30eaca64
 ARG ds_msgs_ref=c674705e647a6ba375280687c1120571db953f9f
 
@@ -88,7 +88,7 @@ RUN . "/opt/ros/$ROS_DISTRO/setup.sh" \
     && sh /tmp/install-script \
     && rm /tmp/install-script \
     # The version of six in apt-get is too old
-    && pip install six==1.15.0 \
+    && ([ "$ROS_DISTRO" != "melodic" ] || pip install "six>=1.15.0") \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 

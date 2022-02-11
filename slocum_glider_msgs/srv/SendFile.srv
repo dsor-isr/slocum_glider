@@ -1,5 +1,5 @@
 string name
-string contents
+uint8[] contents
 bool block
 ---
 bool success

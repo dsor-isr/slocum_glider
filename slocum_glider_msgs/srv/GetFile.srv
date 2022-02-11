@@ -3,4 +3,4 @@ bool block
 ---
 bool success
 string message
-string contents
+uint8[] contents

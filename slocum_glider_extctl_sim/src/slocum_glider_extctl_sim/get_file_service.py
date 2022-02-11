@@ -32,5 +32,5 @@ science computer.
             return GetFileResponse(success=False, message='file name invalid')
 
         rospy.loginfo('Reading file %s', file_name)
-        with closing(self.science_fs.open([b'config', file_name], 'rb')) as f:
+        with closing(self.science_fs.open(['config', file_name], 'rb')) as f:
             return GetFileResponse(success=True, contents=f.read())
