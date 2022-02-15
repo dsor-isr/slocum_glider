@@ -1,17 +1,28 @@
+import itertools
 import threading
 import traceback
 
 import rospy
 import serial
-from six import byte2int, iterbytes
+from six import byte2int, ensure_binary, iterbytes
 from slocum_glider_msgs.msg import (Extctl as ExtctlMsg, ExtctlEntry)
 
+from .clear_cached_values_service import ClearCachedValuesService
 from .get_file_service import GetFileService
 from .send_file_service import SendFileService
 from .sensors import SensorInterface
 from .tty import SerialConsole
 from .set_mode_service import SetModeService
 from .set_string_service import SetStringService
+
+
+def chunked(it, size):
+    it = iter(it)
+    while True:
+        p = tuple(itertools.islice(it, size))
+        if not p:
+            break
+        yield p
 
 
 def nmea_checksum(s):
@@ -50,7 +61,12 @@ class SerialInterface:
         self.port = port
         self.message_cbs = []
         self.send_lock = threading.Lock()
+        self.value_lock = threading.Lock()
         self.stop_flag = False
+
+        self.sensor_values = {}
+        self.mode_mask = 0
+        self.mode_value = 0
 
     def add_message_cb(self, cb):
         self.message_cbs.append(cb)
@@ -101,6 +117,64 @@ class SerialInterface:
             for cb in self.message_cbs:
                 cb(body)
 
+    def clear_cached_values(self):
+        with self.value_lock:
+            self.mode_mask = 0
+            self.mode_value = 0
+            self.sensor_values = {}
+
+    def writer(self):
+        try:
+            self.writer2()
+        except Exception as e:
+            rospy.logwarn('Writer thread died!: %s', e)
+            rospy.logwarn(traceback.format_exc())
+            print(e)
+
+    def writer2(self):
+        while not self.stop_flag:
+            rospy.sleep(16)
+            self.send_all_sensor_values()
+            self.send_mode_msg()
+
+    # Assume modes are 0 indexed.
+    def activate_modes(self, modes):
+        with self.value_lock:
+            activate_mask = sum([2**i for i in modes])
+            self.mode_mask |= activate_mask
+            self.mode_value |= activate_mask
+
+    def deactivate_modes(self, modes):
+        with self.value_lock:
+            deactivate_mask = sum([2**i for i in modes])
+            self.mode_mask |= deactivate_mask
+            self.mode_value &= ~deactivate_mask
+
+    def send_mode_msg(self):
+        with self.value_lock:
+            mask = self.mode_mask
+            value = self.mode_value
+
+        rospy.loginfo('Sending mode message mask %s and value %s',
+                      mask, value)
+        self.send_message(ensure_binary('MD,{},{}'.format(mask, value)))
+
+    def send_sensor_value(self, index, data):
+        data = float(data)
+        with self.value_lock:
+            self.sensor_values[index] = data
+        self.send_message(b'SW,%d:%f' % (index, data))
+
+    def send_all_sensor_values(self):
+        with self.value_lock:
+            # Send in chunks of 4. Should moderately more efficient than
+            # individually, while keeping us well below the line length.
+            for chunk in chunked(self.sensor_values.items(), 4):
+                msg = b'SW'
+                for index, value in chunk:
+                    msg += b',%d:%f' % (index, value)
+                self.send_message(msg)
+
     def send_message(self, msg):
         sentence = nmea(msg)
         with self.send_lock:
@@ -110,13 +184,16 @@ class SerialInterface:
 
     def start(self):
         self.stop_flag = False
-        self.thread = threading.Thread(target=self.listener)
+        self.read_thread = threading.Thread(target=self.listener)
         self.ser = serial.Serial(self.port, baudrate=9600, timeout=1.0)
-        self.thread.start()
+        self.write_thread = threading.Thread(target=self.writer)
+        self.read_thread.start()
+        self.write_thread.start()
 
     def stop(self):
         self.stop_flag = True
-        self.thread.join()
+        self.read_thread.join()
+        self.write_thread.join()
         self.ser.close()
 
 
@@ -163,6 +240,9 @@ class Extctl:
 
         # Start the string setting service for debugging purposes
         self.string_setter = SetStringService(self.ser)
+
+        # Start the service to clear cached values.
+        self.clear_cached_values_service = ClearCachedValuesService(self.ser)
 
         # The publisher for the extctl.ini file.
         self.extctl_pub = rospy.Publisher('extctl/ini', ExtctlMsg,
