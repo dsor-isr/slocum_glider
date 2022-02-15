@@ -6257,6 +6257,7 @@ sensor: u_mission_param_v(X) 0
 sensor: u_mission_param_w(X) 0
 sensor: u_mission_param_x(X) 0
 sensor: u_mission_mode(X)    0
+sensor: u_mission_mode_clear(bool)    0
 
 # Some documentation on b_args common to all behaviors
 # NOTE: When you add these common b_args, put them at END of b_arg

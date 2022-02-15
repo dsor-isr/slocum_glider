@@ -143,6 +143,10 @@ class Glider:
         state.cc_time_til_inflect = -1
         state.cc_behavior_state = MODE_UNSET
 
+        # Next, clear the mission mode if asked to:
+        if state.u_mission_mode_clear:
+            state.u_mission_mode = 0
+
         mission = self.active_mission
         mission_complete = False
         if mission:
