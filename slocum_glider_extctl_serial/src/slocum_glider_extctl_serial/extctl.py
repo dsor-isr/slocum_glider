@@ -99,7 +99,7 @@ class SerialInterface:
                 # can put a bunch of crap on the serial line. If the line isn't
                 # valid, try finding the latest $ in the line, cutting the
                 # beginning of the line, and processing it again.
-                last_index = line.rfind('$')
+                last_index = line.rfind(b'$')
                 if last_index > 0:
                     line = line[last_index:]
                     is_valid = is_valid_nmea_sentence(line)
