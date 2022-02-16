@@ -1,4 +1,5 @@
 import itertools
+import logging
 import threading
 import traceback
 
@@ -15,6 +16,8 @@ from .tty import SerialConsole
 from .set_mode_service import SetModeService
 from .set_string_service import SetStringService
 
+
+serial_logger = logging.getLogger('serial')
 
 def chunked(it, size):
     it = iter(it)
@@ -89,6 +92,7 @@ class SerialInterface:
                 continue
             line = line.strip()
             rospy.logdebug('Received serial message: %s', line)
+            serial_logger('received: %s', line)
             is_valid = is_valid_nmea_sentence(line)
             if not is_valid:
                 # This is primarily here for startup. During boot, the Glider
@@ -179,6 +183,7 @@ class SerialInterface:
         sentence = nmea(msg)
         with self.send_lock:
             rospy.logdebug('Sending serial message: %s', sentence)
+            serial_logger('sending: %s', sentence)
             self.ser.write(sentence)
             self.ser.write(b'\r\n')
 
