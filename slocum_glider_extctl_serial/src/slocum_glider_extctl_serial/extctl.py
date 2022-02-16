@@ -19,6 +19,7 @@ from .set_string_service import SetStringService
 
 serial_logger = logging.getLogger('serial').info
 
+
 def chunked(it, size):
     it = iter(it)
     while True:
@@ -159,9 +160,10 @@ class SerialInterface:
             mask = self.mode_mask
             value = self.mode_value
 
-        rospy.loginfo('Sending mode message mask %s and value %s',
-                      mask, value)
-        self.send_message(ensure_binary('MD,{},{}'.format(mask, value)))
+        if mask != 0:
+            rospy.loginfo('Sending mode message mask %s and value %s',
+                          mask, value)
+            self.send_message(ensure_binary('MD,{},{}'.format(mask, value)))
 
     def send_sensor_value(self, index, data):
         data = float(data)
