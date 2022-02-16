@@ -17,7 +17,7 @@ from .set_mode_service import SetModeService
 from .set_string_service import SetStringService
 
 
-serial_logger = logging.getLogger('serial')
+serial_logger = logging.getLogger('serial').info
 
 def chunked(it, size):
     it = iter(it)
