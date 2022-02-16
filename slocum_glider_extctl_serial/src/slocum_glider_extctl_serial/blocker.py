@@ -28,3 +28,5 @@ def block_until_start(port):
             line = line.strip()
             if line == b'$HI*01':
                 break
+
+    ser.close()
