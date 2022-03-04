@@ -24,6 +24,7 @@
   <exec_depend condition="$ROS_PYTHON_VERSION == 3">python3-six</exec_depend>
   <exec_depend>slocum_glider_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>
+  <exec_depend>std_srvs</exec_depend>
 
   <export/>
 </package>

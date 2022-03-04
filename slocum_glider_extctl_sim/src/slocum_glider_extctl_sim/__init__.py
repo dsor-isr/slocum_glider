@@ -3,6 +3,7 @@ from threading import Thread
 import rospy
 from std_msgs.msg import String
 
+from .clear_cached_values_service import ClearCachedValuesService
 from .get_file_service import GetFileService
 from .glider import Glider
 from .glider_files import FilesystemDriver
@@ -45,6 +46,9 @@ driver connects to a software simulated glider in Gazebo or similar.
 
         # Start the file writing service
         self.send_file_service = SendFileService(self.science_fs)
+
+        # Start the clear cached values service
+        self.clear_cached_values_service = ClearCachedValuesService()
 
     def log(self, msg):
         self.log_pub.publish(msg)

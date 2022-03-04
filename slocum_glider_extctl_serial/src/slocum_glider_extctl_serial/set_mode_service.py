@@ -22,16 +22,12 @@ class SetModeService:
         if coll:
             return SetModeResponse(success=False, message="Cannot activate & deactivate mode(s): {}".format(list(coll)))
 
-        # Compute mask to activate (assume modes are 0-indexed)
         if modes_to_activate:
-            activate_mask = sum([2**i for i in modes_to_activate])
-            rospy.loginfo('Enabling modes with mask %s', activate_mask)
-            self.ser.send_message(ensure_binary('MD,{},{}'.format(activate_mask, 255)))
+            self.ser.activate_modes(modes_to_activate)
 
         if modes_to_deactivate:
-            # Compute mask to deactivate (assume modes are 0-indexed)
-            deactivate_mask = sum([2**i for i in modes_to_deactivate])
-            rospy.loginfo('Disabling modes with mask %s', deactivate_mask)
-            self.ser.send_message(ensure_binary('MD,{},{}'.format(deactivate_mask, 0)))
+            self.ser.deactivate_modes(modes_to_deactivate)
+
+        self.ser.send_mode_msg()
 
         return SetModeResponse(success=True)

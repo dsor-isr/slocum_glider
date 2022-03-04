@@ -74,7 +74,7 @@ class WriteableSensor:
 
         """
         data = req.data
-        self.ser.send_message(b'SW,%d:%f' % (self.index, float(data)))
+        self.ser.send_sensor_value(self.index, data)
         return self.response_type(success=True)
 
 
