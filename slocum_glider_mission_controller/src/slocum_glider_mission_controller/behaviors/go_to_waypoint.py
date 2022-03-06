@@ -1,6 +1,8 @@
+from math import atan2, degrees, sqrt
+
+from pyproj import Geod
 from slocum_glider_msgs.msg import (GoToWaypointAction, GoToWaypointFeedback,
                                     GoToWaypointGoal, GoToWaypointResult)
-from utm import from_latlon, to_latlon
 
 from .base import Behavior
 from ..modes import MODE_GOTO_WAYPOINT_BIT
@@ -9,6 +11,9 @@ from ..utils import decimal_degs_to_decimal_mins, decimal_mins_to_decimal_degs
 
 C_WPT_TOLERANCE = 1e-6
 MAX_CYCLES_TO_WAIT = 5 * 60 * 4  # about 5 minutes
+
+
+G = Geod(ellps="WGS84")
 
 
 def waypoint_to_decimal_minutes(g, units, x, y):
@@ -31,18 +36,21 @@ def waypoint_to_decimal_minutes(g, units, x, y):
         else:
             lon = g.state.m_lon
     elif units == 'relative':
+        if not x:
+            x = 0
+        if not y:
+            y = 0
 
-        easting, northing, zone_num, zone_char = from_latlon(
+        azimuth = degrees(atan2(x, y))
+        distance = sqrt(x**2 + y**2)
+        lon, lat, _ = G.fwd(
+            decimal_mins_to_decimal_degs(g.state.m_lon),
             decimal_mins_to_decimal_degs(g.state.m_lat),
-            decimal_mins_to_decimal_degs(g.state.m_lon)
+            azimuth,
+            distance,
+            False
         )
 
-        if x:
-            easting += x
-        if y:
-            northing += y
-
-        lat, lon = to_latlon(easting, northing, zone_num, zone_char)
         lat = decimal_degs_to_decimal_mins(lat)
         lon = decimal_degs_to_decimal_mins(lon)
 

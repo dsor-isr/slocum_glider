@@ -1,21 +1,141 @@
 variables:
-  ROS_VERSION: melodic
+  PACKAGES: "slocum_glider_msgs slocum_glider_extctl_serial slocum_glider_extctl slocum_glider_mission_controller slocum_glider_pwrctl"
+  THIRD_PARTY_DEBS: "https://gitlab.com/sentinel-aug/ds_msgs/-/jobs/artifacts/master/raw/ros-ROSDIST-ds-core-msgs_ARCH.deb?job=collect-artifacts https://gitlab.com/sentinel-aug/ds_msgs/-/jobs/artifacts/master/raw/ros-ROSDIST-ds-nmea-msgs_ARCH.deb?job=collect-artifacts https://gitlab.com/sentinel-aug/ds_msgs/-/jobs/artifacts/master/raw/ros-ROSDIST-ds-sensor-msgs_ARCH.deb?job=collect-artifacts"
 
-image: ros:${ROS_VERSION}-ros-base
+# This section is not strictly required, but prevents Gitlab CI from launching
+# multiple redundent pipelines when a Merge Request is opened.
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+    - if: '$CI_COMMIT_TAG'
 
-stages:
-  - Test
-  - Build images
-  - Build image manifests
-  - Release
+build debs:
+  image: ros:$ROS_VERSION-ros-base
+  script:
+    - arch="$(dpkg --print-architecture)"
+    - apt-get update
+    - apt-get install -y fakeroot debhelper
+    - '[ "$ROS_VERSION" = "melodic" ] || apt-get install -y python3-bloom python3-pip'
+    - '[ "$ROS_VERSION" != "melodic" ] || apt-get install -y python-bloom python-pip'
+    - |
+      for deb in $THIRD_PARTY_DEBS; do
+        url="$(echo "$deb" | sed s/ROSDIST/$ROS_VERSION/ | sed s/ARCH/$arch/)"
+        file="$(mktemp)"
+        echo "Downloading $url to $file"
+        curl -fsSL "$url" > "$file"
+        dpkg -i "$file"
+      done
+    - echo "yaml https://gitlab.com/sentinel-aug/ros/rosdep/-/raw/main/$ROS_VERSION.yaml" > /etc/ros/rosdep/sources.list.d/30-user.list
+    - rosdep update
+    - source /opt/ros/$ROS_VERSION/setup.bash
+    - mkdir -p /catkin_ws/src
+    - ln -s $(pwd) /catkin_ws/src/${CI_PROJECT_NAME}
+    - pushd /catkin_ws/src
+    - catkin_init_workspace
+    - pushd $CI_PROJECT_NAME
+    - rosdep install -y -r -i --from-paths $PACKAGES
+    - popd
+    - popd
+    - |
+      for package in $PACKAGES; do
+        echo "working on $package"
+        kebab_package="$(echo "$package" | tr _ -)"
+        pushd "$package"
+        bloom-generate rosdebian --native
+        fakeroot debian/rules binary
+        popd
+        mv "ros-$ROS_DISTRO-${kebab_package}_"*.deb "ros-$ROS_DISTRO-${kebab_package}_$arch.deb"
+        dpkg -i "ros-$ROS_DISTRO-${kebab_package}_$arch.deb"
+        rosversion "$package" > "$kebab_package-version.txt"
+      done
+  artifacts:
+    paths:
+      - "*.deb"
+      - "*-version.txt"
+  parallel:
+    matrix:
+      - ROS_VERSION: [melodic, noetic]
+        RUNNER: [docker, arm64]
+  tags:
+    - "$RUNNER"
+
+collect-artifacts:
+  script:
+    - echo "collecting artifacts"
+  artifacts:
+    paths:
+      - "*.deb"
+      - version.txt
+  needs:
+    - build debs
+
+check versions:
+  image: alpine:latest
+  script:
+    - |
+      for package in $PACKAGES; do
+        kebab_package="$(echo "$package" | tr _ -)"
+        if [ "$(cat "$kebab_package-version.txt")" != "${CI_COMMIT_TAG#v}" ]; then
+          echo "Unexpected version for $kebab_package"
+          exit 1
+        fi
+      done
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+(\.[0-9]+)*(-.*)?$/'
+  needs:
+    - collect-artifacts
+
+upload debs:
+  image: curlimages/curl:latest
+  script:
+    - |
+      for package in $PACKAGES; do
+        echo "working on $package"
+        kebab_package="$(echo "$package" | tr _ -)"
+        for dist in melodic noetic; do
+          for arch in amd64 arm64; do
+            file_name="ros-$dist-${kebab_package}_$arch.deb"
+            curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload "$file_name" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/ros-$dist-$kebab_package/$CI_COMMIT_TAG/$file_name"
+          done
+        done
+      done
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+(\.[0-9]+)*(-.*)?$/'
+  needs:
+    - collect-artifacts
+    - check versions
+
+release:
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  script:
+    - assets=""
+    - |
+      for package in $PACKAGES; do
+        kebab_package="$(echo "$package" | tr _ -)"
+        for dist in melodic noetic; do
+          for arch in amd64 arm64; do
+            file_name="ros-$dist-${kebab_package}_$arch.deb"
+            assets="$assets --assets-link {\"name\":\"$file_name\",\"url\":\"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/ros-$dist-$kebab_package/$CI_COMMIT_TAG/$file_name\"}"
+          done
+        done
+      done
+    - |
+      release-cli create --name "$CI_PROJECT_NAME $CI_COMMIT_TAG" --tag-name "$CI_COMMIT_TAG" $assets
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+(\.[0-9]+)*(-.*)?$/'
+  needs:
+    - collect-artifacts
+    - check versions
 
 roslint:
-  stage: Test
+  image: ros:noetic-ros-base
   script:
-    - apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
     - apt-get update
-    - apt-get install ros-${ROS_VERSION}-roslint
-    - source /opt/ros/${ROS_VERSION}/setup.bash
+    - apt-get install -y ros-noetic-roslint
+    - source /opt/ros/noetic/setup.bash
     - mkdir -p /catkin_ws/src
     - ln -s $(pwd) /catkin_ws/src/${CI_PROJECT_NAME}
     - cd /catkin_ws/src
@@ -24,218 +144,3 @@ roslint:
     - catkin_make
     - catkin_make roslint
   needs: []
-
-Check if latest release:
-  stage: Build images
-  image: alpine
-  script:
-    - apk add git
-    - touch gitlab-ci.env
-    - |
-      if [ "$CI_COMMIT_TAG" = "$(git tag -l "v*" | grep -v "-" | sort -Vr | head -1)" ]; then
-        echo "TAG_AS_LATEST=yes" > gitlab-ci.env
-      fi
-  artifacts:
-    reports:
-      dotenv: gitlab-ci.env
-  rules:
-    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+(\.[0-9]+)*(-.*)?$/'
-
-.Build arch image - kaniko:
-  stage: Build images
-  image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
-  variables:
-    IMAGE_NAME: $CI_PROJECT_NAME
-  script:
-    - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"username\":\"${CI_REGISTRY_USER}\",\"password\":\"${CI_REGISTRY_PASSWORD}\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor "--context=$CI_PROJECT_DIR" "--dockerfile=$DOCKERFILE" --cache=true --cache-repo="$CI_REGISTRY_IMAGE/kaniko/$IMAGE_NAME" --destination "$CI_REGISTRY_IMAGE/tmp/$IMAGE_NAME-${ARCH?}:$CI_PIPELINE_IID"
-
-Build extctl-sim image - amd64:
-  extends: .Build arch image - kaniko
-  variables:
-    ARCH: amd64
-    DOCKERFILE: docker/Dockerfile.extctl_sim
-    IMAGE_NAME: extctl-sim
-
-Build extctl-serial image - amd64:
-  extends: .Build arch image - kaniko
-  variables:
-    ARCH: amd64
-    DOCKERFILE: docker/Dockerfile.extctl_serial
-    IMAGE_NAME: extctl-serial
-
-Build extctl-serial image - arm64:
-  extends: .Build arch image - kaniko
-  variables:
-    ARCH: arm64
-    DOCKERFILE: docker/Dockerfile.extctl_serial
-    IMAGE_NAME: extctl-serial
-  tags:
-    - arm64
-
-Build mission-controller image - amd64:
-  extends: .Build arch image - kaniko
-  variables:
-    ARCH: amd64
-    DOCKERFILE: docker/Dockerfile.mission_controller
-    IMAGE_NAME: mission-controller
-
-Build mission-controller image - arm64:
-  extends: .Build arch image - kaniko
-  variables:
-    ARCH: arm64
-    DOCKERFILE: docker/Dockerfile.mission_controller
-    IMAGE_NAME: mission-controller
-  tags:
-    - arm64
-
-.Build manifest:
-  stage: Build image manifests
-  image: alpine:latest
-  script:
-    - apk add curl ca-certificates
-    - curl -fsSL https://github.com/estesp/manifest-tool/releases/download/v1.0.3/manifest-tool-linux-amd64 > /tmp/manifest-tool
-    - chmod +x /tmp/manifest-tool
-    - mv /tmp/manifest-tool /usr/local/bin/manifest-tool
-    - |
-      manifest-tool --username "$CI_REGISTRY_USER" --password "$CI_REGISTRY_PASSWORD" \
-                    push from-args \
-                    --ignore-missing \
-                    --platforms linux/amd64,linux/arm64 \
-                    --template $CI_REGISTRY_IMAGE/tmp/$IMAGE_NAME-ARCH:$CI_PIPELINE_IID \
-                    --target $CI_REGISTRY_IMAGE/$IMAGE_NAME:$TAG
-
-Build extctl-sim sha manifest:
-  extends: .Build manifest
-  variables:
-    IMAGE_NAME: extctl-sim
-    TAG: $CI_COMMIT_SHORT_SHA
-  needs:
-    - Build extctl-sim image - amd64
-
-Build extctl-sim ref manifest:
-  extends: .Build manifest
-  variables:
-    IMAGE_NAME: extctl-sim
-    TAG: $CI_COMMIT_REF_NAME
-  needs:
-    - Build extctl-sim image - amd64
-
-Build extctl-sim release manifest:
-  extends: .Build manifest
-  variables:
-    IMAGE_NAME: extctl-sim
-    TAG: $CI_COMMIT_TAG
-  needs:
-    - Build extctl-sim image - amd64
-  rules:
-    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+(\.[0-9]+)*(-.*)?$/'
-
-Build extctl-sim latest manifest:
-  extends: .Build manifest
-  variables:
-    IMAGE_NAME: extctl-sim
-    TAG: latest
-  needs:
-    - Check if latest release
-    - Build extctl-sim image - amd64
-  rules:
-    - if: '($CI_COMMIT_TAG =~ /^v[0-9]+(\.[0-9]+)*(-.*)?$/) && ($TAG_AS_LATEST == "yes")'
-
-
-Build extctl-serial sha manifest:
-  extends: .Build manifest
-  variables:
-    IMAGE_NAME: extctl-serial
-    TAG: $CI_COMMIT_SHORT_SHA
-  needs:
-    - Build extctl-serial image - amd64
-    - Build extctl-serial image - arm64
-
-Build extctl-serial ref manifest:
-  extends: .Build manifest
-  variables:
-    IMAGE_NAME: extctl-serial
-    TAG: $CI_COMMIT_REF_NAME
-  needs:
-    - Build extctl-serial image - amd64
-    - Build extctl-serial image - arm64
-
-Build extctl-serial release manifest:
-  extends: .Build manifest
-  variables:
-    IMAGE_NAME: extctl-serial
-    TAG: $CI_COMMIT_TAG
-  needs:
-    - Build extctl-serial image - amd64
-    - Build extctl-serial image - arm64
-  rules:
-    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+(\.[0-9]+)*(-.*)?$/'
-
-Build extctl-serial latest manifest:
-  extends: .Build manifest
-  variables:
-    IMAGE_NAME: extctl-serial
-    TAG: latest
-  needs:
-    - Check if latest release
-    - Build extctl-serial image - amd64
-    - Build extctl-serial image - arm64
-  rules:
-    - if: '($CI_COMMIT_TAG =~ /^v[0-9]+(\.[0-9]+)*(-.*)?$/) && ($TAG_AS_LATEST == "yes")'
-
-Build mission-controller sha manifest:
-  extends: .Build manifest
-  variables:
-    IMAGE_NAME: mission-controller
-    TAG: $CI_COMMIT_SHORT_SHA
-  needs:
-    - Build mission-controller image - amd64
-    - Build mission-controller image - arm64
-
-Build mission-controller ref manifest:
-  extends: .Build manifest
-  variables:
-    IMAGE_NAME: mission-controller
-    TAG: $CI_COMMIT_REF_NAME
-  needs:
-    - Build mission-controller image - amd64
-    - Build mission-controller image - arm64
-
-Build mission-controller release manifest:
-  extends: .Build manifest
-  variables:
-    IMAGE_NAME: mission-controller
-    TAG: $CI_COMMIT_TAG
-  needs:
-    - Build mission-controller image - amd64
-    - Build mission-controller image - arm64
-  rules:
-    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+(\.[0-9]+)*(-.*)?$/'
-
-Build mission-controller latest manifest:
-  extends: .Build manifest
-  variables:
-    IMAGE_NAME: mission-controller
-    TAG: latest
-  needs:
-    - Check if latest release
-    - Build mission-controller image - amd64
-    - Build mission-controller image - arm64
-  rules:
-    - if: '($CI_COMMIT_TAG =~ /^v[0-9]+(\.[0-9]+)*(-.*)?$/) && ($TAG_AS_LATEST == "yes")'
-
-Release:
-  stage: Release
-  image: registry.gitlab.com/gitlab-org/release-cli:latest
-  rules:
-    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+(\.[0-9]+)*(-.*)?$/'
-  script:
-    - "true"
-  release:
-    name: 'Slocum Glider $CI_COMMIT_TAG'
-    description: 'Slocum Glider ROS package $CI_COMMIT_TAG'
-    tag_name: '$CI_COMMIT_TAG'
-    ref: '$CI_COMMIT_TAG'
