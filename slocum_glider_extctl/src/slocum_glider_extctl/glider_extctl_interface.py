@@ -201,6 +201,8 @@ class GliderExtctlInterface(object):
         return res.success, res.contents
 
     def send_file(self, name, contents, block=True):
+        if not isinstance(contents, bytes):
+            contents = contents.encode('utf-8')
         res = self._send_file_srv(SendFileRequest(name=name,
                                                   contents=contents,
                                                   block=block))
