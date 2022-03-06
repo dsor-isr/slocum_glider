@@ -79,7 +79,7 @@ class GetFileService:
             raise FileTransferFailed('transfer corrupted')
 
         # Takes the base64 message and decodes it
-        s64 = b''.join(map(base64.b64decode, self.base64)).decode('utf-8')
+        s64 = b''.join(map(base64.b64decode, self.base64))
         # Return the results.
         return s64
 

@@ -293,7 +293,7 @@ class Extctl:
 
         """
 
-        return self.file_getter.get_file('extctl.ini', True)
+        return self.file_getter.get_file('extctl.ini', True).decode('utf-8')
 
     def handle_serial_msg(self, msg):
         if msg.startswith(b'SD,'):

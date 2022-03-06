@@ -40,7 +40,7 @@ class SendFileService:
         self.ser.send_message(b'FW,'+file_name)
 
         # Encode
-        s64 = base64.b64encode(contents.encode())
+        s64 = base64.b64encode(contents)
         while s64 != b'':
             self.ser.send_message(b'FO,'+s64[:256])
             s64 = s64[256:]
