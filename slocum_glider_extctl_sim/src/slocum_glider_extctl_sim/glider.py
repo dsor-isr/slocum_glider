@@ -206,8 +206,8 @@ class Glider:
     def run_one_cycle(self):
         start_time = rospy.get_time()
         state = self.state
-        state.m_present_secs_into_mission = (start_time -
-                                             state.m_mission_start_time)
+        state.m_present_secs_into_mission = (start_time
+                                             - state.m_mission_start_time)
         state.m_present_time = start_time
         state.m_cycle_number += 1
 

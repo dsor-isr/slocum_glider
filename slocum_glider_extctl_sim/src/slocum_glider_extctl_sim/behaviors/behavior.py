@@ -150,8 +150,8 @@ class Behavior(object):
 
     def set_state(self, new_state):
         self.g.log('behavior ' + self.behavior_name + ': STATE '
-                   + state_name(self.state) + ' -> ' +
-                   state_name(new_state))
+                   + state_name(self.state) + ' -> '
+                   + state_name(new_state))
         if self.state == BEHAVIOR_STATE_UNINITED:
             self.print_args()
         self.time_entered_state = self.g.state.m_present_secs_into_mission
