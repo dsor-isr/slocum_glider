@@ -8,6 +8,7 @@ import serial
 from six import byte2int, ensure_binary, iterbytes
 from slocum_glider_msgs.msg import (Extctl as ExtctlMsg, ExtctlEntry)
 
+from .clear_cached_modes_service import ClearCachedModesService
 from .clear_cached_values_service import ClearCachedValuesService
 from .get_file_service import GetFileService
 from .send_file_service import SendFileService
@@ -127,6 +128,11 @@ class SerialInterface:
             self.mode_mask = 0
             self.mode_value = 0
             self.sensor_values = {}
+
+    def clear_cached_modes(self):
+        with self.value_lock:
+            self.mode_mask = 0
+            self.mode_value = 0
 
     def writer(self):
         try:
@@ -248,8 +254,9 @@ class Extctl:
         # Start the string setting service for debugging purposes
         self.string_setter = SetStringService(self.ser)
 
-        # Start the service to clear cached values.
+        # Start the services to clear cached values.
         self.clear_cached_values_service = ClearCachedValuesService(self.ser)
+        self.clear_cached_modes_service = ClearCachedModesService(self.ser)
 
         # The publisher for the extctl.ini file.
         self.extctl_pub = rospy.Publisher('extctl/ini', ExtctlMsg,
