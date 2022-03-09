@@ -12,6 +12,7 @@ from slocum_glider_msgs.srv import (GetFile, GetFileRequest, SendFile,
                                     SendFileRequest, SetByte, SetFloat32,
                                     SetFloat64, SetMode)
 from std_msgs.msg import Byte, Float64, Float32
+from std_srvs.srv import Trigger, TriggerRequest
 from ds_sensor_msgs.msg import Dvl
 
 # Translation from glider "units" to ROS message types.
@@ -103,6 +104,10 @@ class GliderExtctlInterface(object):
         self._have_extctl = False
         self._have_extctl_condition = Condition(self._lock)
         self._mode_srv = rospy.ServiceProxy('extctl/set_mode', SetMode)
+        self._clear_cached_modes_srv = rospy.ServiceProxy(
+            'extctl/clear_cached_modes',
+            Trigger
+        )
         self._get_file_srv = rospy.ServiceProxy('extctl/get_file', GetFile)
         self._send_file_srv = rospy.ServiceProxy('extctl/send_file', SendFile)
         self._altitude_source = 'altimeter'
@@ -195,6 +200,10 @@ class GliderExtctlInterface(object):
 
     def change_modes(self, enable, disable):
         self._mode_srv(enable, disable)
+
+    def clear_cached_modes(self):
+        res = self._clear_cached_modes_srv(TriggerRequest())
+        return res.success
 
     def get_file(self, name, block=True):
         res = self._get_file_srv(GetFileRequest(name=name, block=block))
