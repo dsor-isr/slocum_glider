@@ -82,6 +82,11 @@ Future iterations will likely also sprial in place and set the thruster to max.
                     g = self.extctl.snapshot()
                     # Tell the user that we're ready!
                     g.state.u_mission_param_k = 1
+                    # Clear the cached modes from the serial driver if the user
+                    # has also asked the glider to clear them.
+                    if g.state.u_mission_mode_clear:
+                        g.clear_cached_modes()
+
                     if (not g.state.x_in_gliderdos) \
                        and g.state.u_mission_param_l == 1:
                         # We are in a mission that we can control. Start a
