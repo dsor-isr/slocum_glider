@@ -90,7 +90,7 @@ Future iterations will likely also sprial in place and set the thruster to max.
                             rospy.loginfo('Beginning mission')
                             n = g.state.u_mission_param_n
                             _, mission_str = g.get_file('backse%02d.ini' % n)
-                            print(mission_str)
+                            rospy.loginfo('mission: %s', mission_str)
                             self.mission = mission_from_yaml_string(
                                 mission_str
                             )
