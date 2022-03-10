@@ -252,9 +252,6 @@ class Extctl:
         self.file_getter = GetFileService(self.ser)
         self.file_sender = SendFileService(self.ser)
 
-        # Start the logger service.
-        self.log_service = Logger(self.file_sender)
-
         # Start the sciense mission mode service
         self.mode_setter = SetModeService(self.ser)
 
