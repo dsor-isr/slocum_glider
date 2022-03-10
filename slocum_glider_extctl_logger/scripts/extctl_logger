@@ -43,7 +43,7 @@ class RateLimiter:
 
 
 rospy.wait_for_service('extctl/send_file')
-send_file = rospy.ServiveProxy('extctl/send_file', SendFile, persistent=True)
+send_file = rospy.ServiceProxy('extctl/send_file', SendFile, persistent=True)
 
 
 def rosout_handler(msg):
