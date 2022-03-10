@@ -60,9 +60,10 @@ Writes will be proxied to the appropriate extctl service. Reads are cached
 from extctl topics.
 
     """
-    def __init__(self, parent, values={}):
+    def __init__(self, parent, values={}, times={}):
         super(GliderState, self).__setattr__('_parent', parent)
         super(GliderState, self).__setattr__('_values', values)
+        super(GliderState, self).__setattr__('_times', times)
 
     def __delitem__(self, item):
         pass
@@ -85,6 +86,9 @@ from extctl topics.
     def __getattr__(self, name):
         return self._values[name]
 
+    def time_of(self, sensor):
+        return self._times[name]
+
 
 class GliderExtctlInterface(object):
     """A Pythonic interface to the ROS extctl interface.
@@ -96,6 +100,7 @@ class GliderExtctlInterface(object):
                                             self._extctl_cb)
         self._dvl_sub = rospy.Subscriber('/devices/dvl/dvl', Dvl, self._dvl_cb)
         self._values = {}
+        self._value_times = {}
         self._backseat_inputs = {}
         self._backseat_outputs = {}
         self._lock = Lock()
@@ -111,16 +116,20 @@ class GliderExtctlInterface(object):
         self._get_file_srv = rospy.ServiceProxy('extctl/get_file', GetFile)
         self._send_file_srv = rospy.ServiceProxy('extctl/send_file', SendFile)
         self._altitude_source = 'altimeter'
-        self.state = GliderState(self, self._values)
+        self.state = GliderState(self, self._values, self._value_times)
 
     def _dvl_cb(self, msg):
         with self._lock:
             if self._altitude_source == 'dvl':
                 if msg.num_good_beams > 0:
+                    time = rospy.get_time()
                     self._values['altitude'] = msg.altitude
                     self._values['altimeter_status'] = 0
+                    self._value_times['altitude'] = time
+                    self._value_times['altimeter_status'] = time
                 else:
                     self._values['altimeter_status'] = 1
+                    self._value_times['altimeter_status'] = time
             self._check_all_inputs_received()
 
     def _extctl_cb(self, msg):
@@ -152,7 +161,9 @@ class GliderExtctlInterface(object):
     def _make_topic_cb(self, name):
         def cb(msg):
             with self._lock:
+                time = rospy.get_time()
                 self._values[name] = msg.data
+                self._value_times[name] = time
                 # Ugggghhh. There's got to be a better way of doing this. We
                 # know what the name is when we construct this closure, so we
                 # should be able to elide irrelevent pieces
@@ -160,9 +171,11 @@ class GliderExtctlInterface(object):
                 if name == 'm_altitude':
                     if self._altitude_source == 'altimeter':
                         self._values['altitude'] = msg.data
+                        self._value_times['altitude'] = time
                 elif name == 'm_altimeter_status':
                     if self._altitude_source == 'altimeter':
                         self._values['altimeter_status'] = msg.data
+                        self._value_times['altimeter_status'] = time
                 elif name == 'u_mission_param_m':
                     if msg.data == 1:
                         self._altitude_source = 'dvl'
@@ -178,6 +191,7 @@ class GliderExtctlInterface(object):
                 del self.backseat_intputs[name]
                 if name in self._values:
                     del self._values[name]
+                    del self._value_times[name]
         for (name, msg_type) in iteritems(_backseat_inputs):
             if name not in self._backseat_inputs:
                 self._backseat_inputs[name] = rospy.Subscriber(
@@ -224,7 +238,11 @@ class GliderExtctlInterface(object):
         with self._lock:
             return GliderExtctlProxy(
                 self,
-                GliderState(self, self._values.copy())
+                GliderState(
+                    self,
+                    self._values.copy(),
+                    self._value_times.copy()
+                )
             )
 
     def wait_for_all_inputs(self, timeout=None):
