@@ -5,7 +5,6 @@ from threading import Lock
 
 import rospy
 from rosgraph_msgs.msg import Log
-from slocum_glider_extctl import GliderExtctlInterface
 from slocum_glider_msgs.srv import SendFile
 
 MIN_LEVEL = Log.WARN
@@ -47,10 +46,6 @@ rospy.wait_for_service('extctl/send_file')
 send_file = rospy.ServiceProxy('extctl/send_file', SendFile, persistent=True)
 
 
-extctl = GliderExtctlInterface()
-extctl.wait_for_extctl()
-extctl.wait_for_all_inputs()
-
 def rosout_handler(msg):
     # Strip out the leading / from name
     config = PARAMS.get(msg.name[1:], DEFAULT_CONFIG)
@@ -85,16 +80,7 @@ def rosout_handler(msg):
 
     s = dumps(m, separators=(',', ':'))
 
-    g = extctl.snapshot()
-    if g.state.x_in_gliderdos:
-        filename = 'unknown.ros'
-    else:
-        filename = '{:04d}{:04d}.ros'.format(
-            int(min(9999, g.state.x_dbd_mission_number)),
-            int(min(9999, g.state.x_dbd_segment_number))
-        )
-
-    send_file(name=filename,
+    send_file(name='bsdros.log',
               block=True,
               contents=s.encode('utf-8') + b'\n')
 

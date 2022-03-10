@@ -15,7 +15,6 @@
   <build_depend>roslint</build_depend>
 
   <exec_depend>message_runtime</exec_depend>
-  <exec_depend>slocum_glider_extctl</exec_depend>
   <exec_depend>slocum_glider_msgs</exec_depend>
   <exec_depend>rosgraph_msgs</exec_depend>
 
