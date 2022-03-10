@@ -47,7 +47,8 @@ send_file = rospy.ServiceProxy('extctl/send_file', SendFile, persistent=True)
 
 
 def rosout_handler(msg):
-    config = PARAMS.get(msg.name, DEFAULT_CONFIG)
+    # Strip out the leading / from name
+    config = PARAMS.get(msg.name[1:], DEFAULT_CONFIG)
 
     if msg.level < config['min_level']:
         return
