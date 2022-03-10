@@ -96,7 +96,7 @@ by a specific behavior).
 processing it.
 
         """
-        rospy.loginfo('Firing event: %s', event)
+        rospy.logdebug('Firing event: %s', event)
         # We currently don't allow nesting event handlers. Once we start
         # responding to one we need to finish it before responding to another.
         if self.active_event_handler:

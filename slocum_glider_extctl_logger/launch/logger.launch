@@ -1,0 +1,7 @@
+<launch>
+    <node name="extctl_logger" pkg="slocum_glider_extctl_logger" type="extctl_logger"
+          respawn="false" output="screen" >
+      <param name="config/slocum_glider_mission_controller/min_level" value="2" />
+      <param name="config/slocum_glider_mission_controller/node_rate_limit" value="4" />
+    </node>
+</launch>

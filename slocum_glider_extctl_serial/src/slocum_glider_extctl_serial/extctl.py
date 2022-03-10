@@ -238,6 +238,10 @@ def parse_extctl_ini(s):
 
 class Extctl:
     def __init__(self):
+        # Keep track of if extctl is sending us stuff. Starts True because the
+        # blocker waits for a $HI message.
+        self.active = True
+
         # Create the serial interface to the glider.
         serial_port_name = rospy.get_param('~serial_port/device')
         self.serial_port_name = serial_port_name
@@ -316,6 +320,12 @@ class Extctl:
             serial_console.run()
             self.ser.ser = serial.Serial(self.serial_port_name, baudrate=9600,
                                          timeout=1.0)
+        elif msg == b'HI':
+            self.active = True
+            rospy.loginfo('extctl sent a $HI')
+        elif msg == b'BY':
+            self.active = False
+            rospy.loginfo('extctl sent a $BY')
         else:
             rospy.logwarn('Ignoring unknown sentence: %s', msg)
 

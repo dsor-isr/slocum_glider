@@ -106,7 +106,7 @@ Future iterations will likely also sprial in place and set the thruster to max.
                         is_safe = mission.is_safe()
                         if (is_finished or not is_safe):
                             if is_finished:
-                                rospy.logwarn('Mission finished')
+                                rospy.loginfo('Mission finished')
                             else:
                                 rospy.logerr('Mission is unsafe')
                             self.mission = None
@@ -115,7 +115,7 @@ Future iterations will likely also sprial in place and set the thruster to max.
                           and g.state.u_mission_param_l == 2):
                         # user has asked for a status update!
                         if gave_status:
-                            rospy.loginfo(
+                            rospy.logdebug(
                                 'Already provided status, continuing'
                             )
                             continue
