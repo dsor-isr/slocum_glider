@@ -28,6 +28,7 @@ added or removed depending on the policies of the concrete implementations.
 starts every behavior.
 
         """
+        rospy.loginfo('Starting mission with behaviors %s', self.behaviors)
         self.last_time_on_surface = g.state.m_present_time
         enabled_modes = set()
         disabled_modes = set()
@@ -38,6 +39,11 @@ starts every behavior.
             enabled_modes.update(modes_to_enable)
             disabled_modes.update(modes_to_disable)
 
+        rsopy.loginfo(
+            'initial mode enable list: %s\ninitial mode disable list: %s',
+            enabled_modes,
+            disabled_modes
+        )
         g.change_modes(list(enabled_modes), list(disabled_modes))
         self.last_enabled_modes = enabled_modes
         self.last_disabled_modes = disabled_modes
@@ -60,11 +66,16 @@ into the STOPPED state.
             if b.state == 'STOPPED':
                 to_remove.append(b)
         for b in to_remove:
-            rospy.loginfo('Removing behavior %s', b)
+            rospy.loginfo('Removing behavior (state is stopped) %s', b)
             self.behaviors.remove(b)
 
         if self.last_enabled_modes != enabled_modes \
            or self.last_disabled_modes != disabled_modes:
+            rospy.loginfo(
+                'Enabling modes %s\nDisabling modes %s',
+                enabled_modes,
+                disabled_modes
+            )
             g.change_modes(list(enabled_modes), list(disabled_modes))
             self.last_enabled_modes = enabled_modes
             self.last_disabled_modes = disabled_modes
