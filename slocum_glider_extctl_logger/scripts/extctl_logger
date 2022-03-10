@@ -69,8 +69,8 @@ def rosout_handler(msg):
     # Assemble the message.
     m = {
         'level': msg.level,
-        'sec': msg.header.stamp.sec,
-        'nsec': msg.header.stamp.nsec,
+        'sec': msg.header.stamp.secs,
+        'nsec': msg.header.stamp.nsecs,
         'name': msg.name,
         'msg': msg.msg,
         'file': msg.file,
