@@ -1,0 +1,4 @@
+#+TITLE: Extctl Logger
+
+This is a very simple node that listens to /rosout_agg and forwards any message
+meeting certain criteria to the glider for logging.

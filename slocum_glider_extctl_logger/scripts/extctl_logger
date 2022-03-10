@@ -1,0 +1,91 @@
+#!/usr/bin/env python
+
+from json import dumps
+from threading import Lock
+
+import rospy
+from rosgraph_msgs.msg import Log
+from slocum_glider_msgs.srv import SendFile
+
+MIN_LEVEL = Log.WARN
+
+
+rospy.init_node('slocum_glider_extctl_logger')
+
+PARAMS = rospy.get_param('~/config', {})
+
+
+DEFAULT_CONFIG = {
+    'min_level': Log.WARN,
+    'node_rate_limit': 4
+}
+
+
+RATE_LIMITERS = {}
+
+
+class RateLimiter:
+    def __init__(self, limit):
+        self.limit = limit
+        self.msg_times = []
+        self.lock = Lock()
+
+    def should_send(self):
+        with self.lock:
+            time = rospy.get_time()
+            self.msg_times = list(filter(lambda x: x >= time - 1,
+                                         self.msg_times))
+            if len(self.msg_times) < self.limit:
+                self.msg_times.push(time)
+                return True
+            else:
+                return False
+
+
+rospy.wait_for_service('extctl/send_file')
+send_file = rospy.ServiveProxy('extctl/send_file', SendFile, persistent=True)
+
+
+def rosout_handler(msg):
+    config = PARAMS.get(msg.name, DEFAULT_CONFIG)
+
+    if msg.level < config['min_level']:
+        return
+
+    node_rate_limiter = RATE_LIMITERS.get(msg.name, None)
+
+    if node_rate_limiter is None:
+        # NOTE: This could result in multiple rate limiters being constructed
+        # for a single node if it's spamming. But I'd rather not lock here;
+        # seems like it'd be slow. It'll eventually all sort itself out.
+        node_rate_limiter = RateLimiter(limit=config['node_rate_limit'])
+        RATE_LIMITERS[msg.name] = node_rate_limiter
+
+    if not node_rate_limiter.should_send():
+        rospy.logwarn_throttle(20, 'throttling msg from %s', msg.name)
+        return
+
+    # Assemble the message.
+    m = {
+        'level': msg.level,
+        'sec': msg.header.stamp.sec,
+        'nsec': msg.header.stamp.nsec,
+        'name': msg.name,
+        'msg': msg.msg,
+        'file': msg.file,
+        'fun': msg.function,
+        'line': msg.line
+    }
+
+    s = dumps(m, separators=(',', ':'))
+
+    send_file(file_name='bsdros.log',
+              block=True,
+              contents=s.encode('utf-8'))
+
+
+rosout_sub = rospy.Subscriber('/rosout_agg',
+                              Log,
+                              rosout_handler)
+
+rospy.spin()

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>slocum_glider_extctl_logger</name>
+  <version>0.2.0</version>
+  <description>The slocum_glider_extctl_logger package</description>
+
+  <maintainer email="mers-scouts@mit.edu">MIT MERS Scouts Team</maintainer>
+
+  <license>BSD-2</license>
+
+  <author email="etimmons@mit.edu">Eric Timmons</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roslint</build_depend>
+
+  <exec_depend>message_runtime</exec_depend>
+  <exec_depend>slocum_glider_msgs</exec_depend>
+  <exec_depend>rosgraph_msgs</exec_depend>
+
+  <export/>
+</package>

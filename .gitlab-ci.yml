@@ -1,5 +1,5 @@
 variables:
-  PACKAGES: "slocum_glider_msgs slocum_glider_extctl_serial slocum_glider_extctl slocum_glider_mission_controller slocum_glider_pwrctl"
+  PACKAGES: "slocum_glider_msgs slocum_glider_extctl_serial slocum_glider_extctl slocum_glider_mission_controller slocum_glider_pwrctl slocum_glider_extctl_logger"
   THIRD_PARTY_DEBS: "https://gitlab.com/sentinel-aug/ds_msgs/-/jobs/artifacts/master/raw/ros-ROSDIST-ds-core-msgs_ARCH.deb?job=collect-artifacts https://gitlab.com/sentinel-aug/ds_msgs/-/jobs/artifacts/master/raw/ros-ROSDIST-ds-nmea-msgs_ARCH.deb?job=collect-artifacts https://gitlab.com/sentinel-aug/ds_msgs/-/jobs/artifacts/master/raw/ros-ROSDIST-ds-sensor-msgs_ARCH.deb?job=collect-artifacts"
 
 # This section is not strictly required, but prevents Gitlab CI from launching
