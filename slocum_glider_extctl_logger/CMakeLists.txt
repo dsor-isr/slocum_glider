@@ -9,10 +9,6 @@ find_package(
 
 catkin_package()
 
-catkin_python_setup()
-
-roslint_python(scripts/slocum_glider_extctl_logger)
-
 #############
 ## Install ##
 #############
