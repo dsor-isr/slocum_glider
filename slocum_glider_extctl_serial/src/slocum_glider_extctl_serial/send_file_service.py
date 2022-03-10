@@ -8,9 +8,6 @@ import base64
 
 class SendFileService:
     def __init__(self, ser):
-        self.s = rospy.Service('extctl/send_file',
-                               SendFile,
-                               self.send_file)
         # Save a reference to the serial port object.
         self.ser = ser
 
@@ -18,13 +15,16 @@ class SendFileService:
         # transfers happen.
         self.transfer_semaphore = Semaphore(1)
 
+        self.s = rospy.Service('extctl/send_file',
+                               SendFile,
+                               self.send_file)
+
     def send_file(self, req):
 
         file_name = ensure_binary(req.name)
         block = req.block
         contents = req.contents
 
-        rospy.logwarn('Got request: %s, %s', file_name, block)
         acquired = self.transfer_semaphore.acquire(block)
 
         if not acquired:
@@ -45,7 +45,7 @@ class SendFileService:
             self.ser.send_message(b'FO,'+s64[:256])
             s64 = s64[256:]
             # TODO: adjust this sleep time based on testing.
-            rospy.sleep(0.25)
+            rospy.sleep(0.1)
 
         self.ser.send_message(b'FC')
 
