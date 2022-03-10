@@ -80,7 +80,7 @@ size. Abnormally terminates if the constraints cannot be met.
         self.last_climb_depth = climb_depth
 
         if depth_band < self.min_depth_band:
-            rospy.loginfo(
+            rospy.logwarn(
                 'Aborting follow_bottom. Depth band too small: %s < %s',
                 depth_band,
                 self.min_depth_band
