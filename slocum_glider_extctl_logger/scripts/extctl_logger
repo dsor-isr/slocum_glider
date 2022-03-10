@@ -80,7 +80,7 @@ def rosout_handler(msg):
 
     s = dumps(m, separators=(',', ':'))
 
-    send_file(file_name='bsdros.log',
+    send_file(name='bsdros.log',
               block=True,
               contents=s.encode('utf-8'))
 
