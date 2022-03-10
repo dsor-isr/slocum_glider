@@ -11,7 +11,6 @@ from slocum_glider_msgs.msg import (Extctl as ExtctlMsg, ExtctlEntry)
 from .clear_cached_modes_service import ClearCachedModesService
 from .clear_cached_values_service import ClearCachedValuesService
 from .get_file_service import GetFileService
-from .logger import Logger
 from .send_file_service import SendFileService
 from .sensors import SensorInterface
 from .tty import SerialConsole
@@ -252,9 +251,6 @@ class Extctl:
         # information in extctl.ini
         self.file_getter = GetFileService(self.ser)
         self.file_sender = SendFileService(self.ser)
-
-        # Start the logger service.
-        self.log_service = Logger(self.file_sender)
 
         # Start the sciense mission mode service
         self.mode_setter = SetModeService(self.ser)

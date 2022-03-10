@@ -13,7 +13,6 @@ find_package(catkin REQUIRED
   actionlib
   message_generation
   std_msgs
-  diagnostic_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -53,7 +52,6 @@ find_package(catkin REQUIRED
 add_message_files(
   FILES
   ActiveSensors.msg
-  Log.msg
   SensorDescription.msg
   StampedByte.msg
   StampedFloat32.msg
