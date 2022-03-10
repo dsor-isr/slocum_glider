@@ -39,7 +39,7 @@ starts every behavior.
             enabled_modes.update(modes_to_enable)
             disabled_modes.update(modes_to_disable)
 
-        rsopy.loginfo(
+        rospy.loginfo(
             'initial mode enable list: %s\ninitial mode disable list: %s',
             enabled_modes,
             disabled_modes
