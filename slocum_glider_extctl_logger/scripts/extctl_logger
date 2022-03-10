@@ -88,4 +88,5 @@ rosout_sub = rospy.Subscriber('/rosout_agg',
                               Log,
                               rosout_handler)
 
+rospy.loginfo('Logging with config: %s', PARAMS)
 rospy.spin()
