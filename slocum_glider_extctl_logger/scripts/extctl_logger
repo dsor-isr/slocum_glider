@@ -12,7 +12,7 @@ MIN_LEVEL = Log.WARN
 
 rospy.init_node('slocum_glider_extctl_logger')
 
-PARAMS = rospy.get_param('~/config', {})
+PARAMS = rospy.get_param('~config', {})
 
 
 DEFAULT_CONFIG = {
