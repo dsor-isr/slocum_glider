@@ -82,7 +82,7 @@ def rosout_handler(msg):
 
     send_file(name='bsdros.log',
               block=True,
-              contents=s.encode('utf-8'))
+              contents=s.encode('utf-8') + b'\n')
 
 
 rosout_sub = rospy.Subscriber('/rosout_agg',
