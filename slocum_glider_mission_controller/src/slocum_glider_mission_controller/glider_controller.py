@@ -84,7 +84,9 @@ Future iterations will likely also sprial in place and set the thruster to max.
                     g.state.u_mission_param_k = 1
                     # Clear the cached modes from the serial driver if the user
                     # has also asked the glider to clear them.
-                    if g.state.u_mission_mode_clear:
+                    if g.state.u_mission_mode_clear \
+                       or g.state.u_mission_param_o:
+                        g.change_modes([], [i for i in range(8)])
                         g.clear_cached_modes()
 
                     if (not g.state.x_in_gliderdos) \
