@@ -65,6 +65,7 @@ size. Abnormally terminates if the constraints cannot be met.
         depth = g.state.m_depth
 
         if g.state.altimeter_status == 0:
+            rospy.loginfo('Measured altitude: %f', alt)
             dive_depth = depth + alt - self.min_altitude
             climb_depth = depth + alt - self.max_altitude
         else:
