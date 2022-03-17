@@ -49,7 +49,7 @@ size. Abnormally terminates if the constraints cannot be met.
                    max_altitude=goal.max_altitude,
                    min_depth_band=goal.min_depth_band,
                    dive_pitch=goal.dive_pitch,
-                   climp_pitch=goal.climb_pitch,
+                   climb_pitch=goal.climb_pitch,
                    use_altimeter=goal.use_altimeter,
                    server=server)
 
