@@ -1,3 +1,4 @@
+import rospy
 from slocum_glider_msgs.msg import YoAction, YoResult
 
 from .base import Behavior
@@ -57,6 +58,7 @@ Takes 5 parameters.
         # If param m==1, then using DVL which glider has no knowledge of
         if g.state.u_mission_param_m == 1:
             if g.state.altimeter_status == 0:
+                rospy.loginfo('Measured altitude: %f', alt)
                 if alt < self.dive_altitude:
                     dive_depth = depth + alt - (self.dive_altitude + self.safety_factor)
                     g.state.u_mission_param_c = dive_depth
