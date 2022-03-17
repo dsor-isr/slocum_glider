@@ -1,4 +1,6 @@
+import rospy
 from six import string_types
+from std_msgs.msg import Bool
 
 from ..behaviors import behavior_class_for_name
 from .mission import Mission
@@ -24,6 +26,23 @@ class DynamicMission(Mission):
 runtime, typically by some onboard planning and execution process.
 
     """
+
+    def __init__(self, behaviors, event_handlers=[]):
+        super(DynamicMission, self).__init__(behaviors, event_handlers)
+        self.dynamic_mission_running_pub = rospy.Publisher(
+            'dynamic_mission_running',
+            Bool,
+            queue_size=1,
+            latch=True
+        )
+
+    def step(self, g):
+        self.dynamic_mission_running_pub.publish(True)
+        super(DynamicMission, self).step(g)
+
+    def stop(self, g):
+        self.dynamic_mission_running_pub.publish(False)
+        super(DynamicMission, self).stop(g)
 
     def is_finished(self, g):
         return False

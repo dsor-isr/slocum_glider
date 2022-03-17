@@ -48,6 +48,9 @@ starts every behavior.
         self.last_enabled_modes = enabled_modes
         self.last_disabled_modes = disabled_modes
 
+    def stop(self, g):
+        pass
+
     def step(self, g):
         """Move the mission along. g is a reference to the glider's extctl
 interface. Steps every behavior and removes the ones that have transitioned
