@@ -1,0 +1,7 @@
+<!-- Launch file for the simple dynamic mission in Puerto Rico 2022. -->
+<launch>
+    <!-- Launch the mission controller. -->
+    <node name="slocum_glider_simple_dynamic_mission" pkg="slocum_glider_mission_controller" type="simple_dynamic_mission"
+          respawn="false" output="screen" >
+    </node>
+</launch>

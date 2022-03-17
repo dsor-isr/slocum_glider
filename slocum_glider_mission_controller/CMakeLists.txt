@@ -23,11 +23,13 @@ roslint_python(${${PROJECT_NAME}_PYTHON_SRCS} scripts/mission_controller)
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
   scripts/mission_controller
+  scripts/simple_dynamic_mission
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 install(FILES
   launch/mission_controller.launch
   launch/sim_mission_controller.launch
+  launch/simple_dynamic_mission.launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
