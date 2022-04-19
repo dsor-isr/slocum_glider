@@ -1,0 +1,205 @@
+#!/usr/bin/env python
+
+from math import copysign, pi, trunc
+from threading import Thread
+
+from pyproj import Geod
+
+import actionlib
+import rospy
+from slocum_glider_extctl import GliderExtctlInterface
+
+
+from slocum_glider_msgs.msg import (FollowBottomAction, FollowBottomGoal,
+                                    GoToWaypointListAction,
+                                    GoToWaypointListGoal,
+                                    SurfaceAction, SurfaceGoal,
+                                    ThrusterConstantPowerAction,
+                                    ThrusterConstantPowerGoal,
+                                    Waypoint)
+from std_msgs.msg import Bool
+
+
+def decimal_mins_to_decimal_degs(x):
+    degs = trunc(x / 100)
+    minutes = x % copysign(100, x)
+    return degs + (minutes / 60)
+
+
+class Mission(Thread):
+    def __init__(self):
+        Thread.__init__(self)
+
+        self.follow_bottom_client = actionlib.SimpleActionClient(
+            'follow_bottom',
+            FollowBottomAction
+        )
+        self.follow_bottom_client.wait_for_server()
+
+        self.thruster_constant_power_client = actionlib.SimpleActionClient(
+            'thruster_constant_power',
+            ThrusterConstantPowerAction
+        )
+        self.thruster_constant_power_client.wait_for_server()
+
+        self.goto_waypoint_list_client = actionlib.SimpleActionClient(
+            'go_to_waypoint_list',
+            GoToWaypointListAction
+        )
+        self.goto_waypoint_list_client.wait_for_server()
+
+        self.surface_client = actionlib.SimpleActionClient(
+            'surface',
+            SurfaceAction
+        )
+        self.surface_client.wait_for_server()
+
+        self.geod = Geod(ellps='WGS84')
+        self.start_time = rospy.get_time()
+        self.started = False
+        self.shutdown = False
+
+        self.extctl = GliderExtctlInterface()
+
+    def distance_to_end(self, g):
+        lat = g.state.m_lat
+        lon = g.state.m_lon
+
+        end_lat = 1757.59
+        end_lon = -6701.1869
+
+        lat = decimal_mins_to_decimal_degs(lat)
+        lon = decimal_mins_to_decimal_degs(lon)
+        end_lat = decimal_mins_to_decimal_degs(end_lat)
+        end_lon = decimal_mins_to_decimal_degs(end_lon)
+
+        _, _, distance = self.geod.inv(lon, lat, end_lon, end_lat)
+        rospy.loginfo('Distance to target: %s', distance)
+        return distance
+
+    def run(self):
+        rospy.loginfo('Starting dynamic mission')
+        self.extctl.wait_for_extctl()
+        rospy.loginfo('Have all sensors')
+
+        thruster_goal = ThrusterConstantPowerGoal(power=7)
+        follow_bottom_goal = FollowBottomGoal(
+            min_depth=1,
+            max_depth=20,
+            min_altitude=5,
+            max_altitude=12,
+            min_depth_band=5,
+            use_altimeter=True,
+            dive_pitch=-12*pi/180.0,
+            climb_pitch=12*pi/180.0
+        )
+        goto_waypoint_goal = GoToWaypointListGoal(
+            waypoints=[
+                Waypoint(
+                    units=Waypoint.DECIMAL_MINUTES,
+                    x=-6701.6465,
+                    y=1757.302,
+                    dist=20
+                ),
+                Waypoint(
+                    units=Waypoint.DECIMAL_MINUTES,
+                    x=-6701.2167,
+                    y=1757.33,
+                    dist=20
+                ),
+                Waypoint(
+                    units=Waypoint.DECIMAL_MINUTES,
+                    x=-6701.355,
+                    y=1757.382,
+                    dist=20
+                ),
+                Waypoint(
+                    units=Waypoint.DECIMAL_MINUTES,
+                    x=-6701.429,
+                    y=1757.258,
+                    dist=20
+                ),
+                Waypoint(
+                    units=Waypoint.DECIMAL_MINUTES,
+                    x=-6701.568,
+                    y=1757.348,
+                    dist=20
+                ),
+                Waypoint(
+                    units=Waypoint.DECIMAL_MINUTES,
+                    x=-6701.1869,
+                    y=1757.59,
+                    dist=20
+                )
+            ]
+        )
+
+        self.follow_bottom_client.send_goal(follow_bottom_goal)
+        self.thruster_constant_power_client.send_goal(thruster_goal)
+        self.goto_waypoint_list_client.send_goal(goto_waypoint_goal)
+
+        # Run every 30 seconds
+        r = rospy.Rate(1/30.0)
+        aborted = False
+        while not rospy.is_shutdown() and not self.shutdown:
+            r.sleep()
+            g = self.extctl.snapshot()
+            distance_to_end = self.distance_to_end(g)
+            time_to_end = distance_to_end / 0.32
+            # 15% wiggle room
+            time_to_end *= 1.15
+            time_so_far = rospy.get_time() - self.start_time
+            time_left = 9000 - time_so_far  # 2.5 hours
+
+            if distance_to_end <= 20:
+                # SURFACE!
+                rospy.loginfo('Surfacing')
+                surface_goal = SurfaceGoal(
+                    climb_pitch=12*pi/180.0,
+                    climb_depth=2
+                )
+                self.surface_client.send_goal(surface_goal)
+                break
+
+            if time_to_end >= time_left and not aborted:
+                # Go straight to the goal
+                rospy.logwarn(
+                    'Aborting rest of waypoints, going straight to goal'
+                )
+                # self.goto_waypoint_list_client.cancel_goal()
+                goto_waypoint_goal = GoToWaypointListGoal(
+                    waypoints=[
+                        Waypoint(
+                            units=Waypoint.DECIMAL_MINUTES,
+                            x=-6701.1869,
+                            y=1757.59,
+                            dist=20
+                        )
+                    ]
+                )
+                self.goto_waypoint_list_client.send_goal(goto_waypoint_goal)
+                aborted = True
+        self.follow_bottom_client.cancel_goal()
+        self.thruster_constant_power_client.cancel_goal()
+        self.goto_waypoint_list_client.cancel_goal()
+        self.surface_client.cancel_goal()
+
+
+mission = None
+
+
+def go(msg):
+    global mission
+    if msg.data and not mission.started:
+        mission.started = True
+        mission.start()
+    elif not msg.data and mission.started:
+        mission.shutdown = True
+        mission = Mission()
+
+
+if __name__ == '__main__':
+    rospy.init_node('simple_dynamic_mission')
+    mission = Mission()
+    sub = rospy.Subscriber('dynamic_mission_running', Bool, go)
+    rospy.spin()

@@ -29,14 +29,15 @@ if __name__ == '__main__':
     set_interactive(True)
     rospy.init_node('slocum_glider_sim_console', anonymous=True)
     console = rospy.Subscriber('console', String, print_msg)
-    cmd_pub = rospy.Publisher('console_cmd', String, queue_size=10)
+    cmd_pub = rospy.Publisher('console_cmd', String, queue_size=0)
     msg = b''
     while not rospy.is_shutdown():
         try:
             # TODO: This is line buffered (ugh) and echos to screen. Need to
             # decide if that's acceptable and if not, fix (likely with some
             # combination of curses and tty modules).
-            char = stdin.read(1)
+            char = stdin.buffer.read(1)
+            # print(char)
             if char == b'':
                 rospy.signal_shutdown('Ctrl-D')
             # Convert ctrl chars to Ctrl-*
@@ -65,9 +66,9 @@ if __name__ == '__main__':
                 msg += char
 
             if send_message:
-                cmd_pub.publish(msg)
+                cmd_pub.publish(msg.decode('utf-8'))
                 msg = b''
         except KeyboardInterrupt:
             msg += b'Ctrl-C'
-            cmd_pub.publish(msg)
+            cmd_pub.publish(msg.decode('utf-8'))
             msg = b''
