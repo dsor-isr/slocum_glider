@@ -18,7 +18,7 @@ class RosSensorsTopic(object):
         self.gps_msg = None
 
         self.sim_status_sub = rospy.Subscriber(
-            'glider_hybrid_whoi/kinematics/UwGliderStatus',
+            'kinematics/UwGliderStatus',
             UwGliderStatus,
             self.handle_status_msg
         )
@@ -28,12 +28,12 @@ class RosSensorsTopic(object):
             self.handle_dead_reckon_msg
         )
         self.gps_sub = rospy.Subscriber(
-            'glider_hybrid_whoi/hector_gps',
+            'hector_gps',
             NavSatFix,
             self.handle_gps_msg
         )
         self.altimeter_sub = rospy.Subscriber(
-            'glider_hybrid_whoi/altimeter',
+            'altimeter',
             DVL,
             self.handle_altimeter_msg
         )

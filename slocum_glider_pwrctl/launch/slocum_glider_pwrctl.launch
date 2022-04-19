@@ -1,13 +1,17 @@
+<?xml version="1.0"?>
 <!-- Launch file for the Backseat Driver<->Raspberry Pi 4 GliderHat Power Control -->
 <launch>
-    <arg name="serial_port_device" doc="Serial port designator." />
+  <arg name="serial_port_device" doc="Serial port designator." />
+  <arg name="glider_name" doc="Name of the glider." default="glider" />
 
-    <!-- Launch the power control interface -->
+  <!-- Launch the power control interface -->
+  <group ns="$(arg glider_name)">
     <node name="glider_pwrctl" pkg="slocum_glider_pwrctl" type="slocum_glider_pwrctl"
           respawn="true" output="screen" >
-        <param name="dvl/enabled" value="true" />
-        <param name="micron/enabled" value="true" />
-        <param name="usb1/enabled" value="true" />
-        <param name="usb2/enabled" value="true" />
+      <param name="dvl/enabled" value="true" />
+      <param name="micron/enabled" value="true" />
+      <param name="usb1/enabled" value="true" />
+      <param name="usb2/enabled" value="true" />
     </node>
+  </group>
 </launch>
