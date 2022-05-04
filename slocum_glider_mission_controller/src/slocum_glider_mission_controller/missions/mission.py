@@ -212,4 +212,4 @@ behavior.
             return True
         else:
             diff = current_time - self.last_safe_time
-            return diff > self.MAX_UNSAFE_DURATION
+            return diff < self.MAX_UNSAFE_DURATION

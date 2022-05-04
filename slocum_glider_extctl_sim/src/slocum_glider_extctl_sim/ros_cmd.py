@@ -39,7 +39,7 @@ RUDDER_CMD_MAP = {
 class RosCmdTopic(object):
     def __init__(self):
         self.sim_command_pub = rospy.Publisher(
-            '/glider_hybrid_whoi/kinematics/UwGliderCommand',
+            'kinematics/UwGliderCommand',
             UwGliderCommand,
             queue_size=10
         )

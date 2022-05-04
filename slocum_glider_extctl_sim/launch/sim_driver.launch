@@ -1,11 +1,15 @@
+<?xml version="1.0"?>
 <!-- Launch file for the Slocum Glider Simulator Driver. -->
 <launch>
-    <arg name="data_dir" doc="Directory where all glider files are stored." />
+  <arg name="data_dir" doc="Directory where all glider files are stored." />
+  <arg name="glider_name" doc="Name of the glider." default="glider" />
 
-    <param name="/use_sim_time" value="true" />
-    <!-- Launch the sim driver. -->
+  <param name="/use_sim_time" value="true" />
+  <!-- Launch the sim driver. -->
+  <group ns="$(arg glider_name)">
     <node name="slocum_glider_extctl_sim" pkg="slocum_glider_extctl_sim" type="slocum_glider_extctl_sim"
           respawn="true" output="screen" >
-        <param name="data_dir" value="$(arg data_dir)" />
+      <param name="data_dir" value="$(arg data_dir)" />
     </node>
+  </group>
 </launch>

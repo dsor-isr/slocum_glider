@@ -1,12 +1,16 @@
+<?xml version="1.0"?>
 <!-- Launch file for the Slocum Glider Serial<->ROS interface. -->
 <launch>
-    <arg name="serial_port_device" doc="Serial port designator." />
+  <arg name="serial_port_device" doc="Serial port designator." />
+  <arg name="glider_name" doc="Name of the glider." default="glider" />
 
-    <!-- Launch the serial interface. -->
+  <!-- Launch the serial interface. -->
+  <group ns="$(arg glider_name)">
     <node name="glider_serial_backseat_interface" pkg="slocum_glider_extctl_serial" type="slocum_glider_extctl_serial"
           respawn="true" output="screen" >
-        <param name="extctl/enabled" value="true" />
-        <param name="extctl/auto/when_missing" value="true" />
-        <param name="serial_port/device" value="$(arg serial_port_device)" />
+      <param name="extctl/enabled" value="true" />
+      <param name="extctl/auto/when_missing" value="true" />
+      <param name="serial_port/device" value="$(arg serial_port_device)" />
     </node>
+  </group>
 </launch>
