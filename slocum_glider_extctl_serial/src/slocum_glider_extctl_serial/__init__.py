@@ -11,7 +11,8 @@ class BackseatInterface:
     def start(self):
         if rospy.get_param('~extctl/enabled'):
             serial_port_name = rospy.get_param('~serial_port/device')
-            block_until_start(serial_port_name)
+# Don't wait for $HI (needs a reboot of glider or extctl)
+#            block_until_start(serial_port_name)
             self.extctl_interface = Extctl()
             self.extctl_interface.start()
 

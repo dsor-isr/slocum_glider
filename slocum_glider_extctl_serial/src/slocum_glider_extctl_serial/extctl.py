@@ -176,6 +176,7 @@ class SerialInterface:
         with self.value_lock:
             self.sensor_values[index] = data
         self.send_message(b'SW,%d:%f' % (index, data))
+        # rospy.logwarn(b'SW,%d:%f' % (index, data))
 
     def send_all_sensor_values(self):
         with self.value_lock:
@@ -223,14 +224,23 @@ def parse_extctl_ini(s):
     out = []
     for rline in s.splitlines():
         line = rline.strip()
-        if line == 'os' or line == 'is':
+        if(line==''):
+          continue
+        if(line[0]=='#'):
+          continue
+        if line[0:2] == 'os' or line[0:2] == 'is' or line[0:2] == 'mp':
             # This is a section header.
-            state = line
+            state = line[0:2]
         elif state:
-            name, units = line.split()
+            try:
+              name, units = line.split()
+            except ValueError:	# Assume the error is due to only one parameter (as is the case for 'mp')
+              name = line
+              units = 'nodim'
+
             out.append({'name': name,
                         'units': units,
-                        'writeable': state == 'os'})
+                        'writeable': state == 'os' or state == 'mp'})
         else:
             raise ValueError('Invalid extctl.ini file')
     return out

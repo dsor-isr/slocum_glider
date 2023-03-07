@@ -74,6 +74,7 @@ class WriteableSensor:
 
         """
         data = req.data
+        # rospy.logwarn(f"data = '{data}'")
         self.ser.send_sensor_value(self.index, data)
         return self.response_type(success=True)
 
@@ -104,4 +105,5 @@ class SensorInterface:
             sensor = self.sensors[index]
             if get_msg_type(sensor.units) is Byte:
                 value = int(value)
+            # rospy.logwarn('fields: ' + repr(fields))
             sensor.publish(value)
