@@ -17,6 +17,8 @@ from .tty import SerialConsole
 from .set_mode_service import SetModeService
 from .set_string_service import SetStringService
 
+import os     
+import sys
 
 serial_logger = logging.getLogger('serial').info
 
@@ -93,8 +95,14 @@ class SerialInterface:
             if not line:
                 continue
             line = line.strip()
-            rospy.logdebug('Received serial message: %s', line)
+            rospy.logwarn('Received serial message: %s', line)
             serial_logger('received: %s', line)
+
+            if line.startswith(b'\x00$FI'):
+                line = line[1:]
+                print(line)
+                rospy.logwarn('Changed line due to initial character \\x00')
+
             is_valid = is_valid_nmea_sentence(line)
             if not is_valid:
                 # This is primarily here for startup. During boot, the Glider
@@ -104,6 +112,8 @@ class SerialInterface:
                 last_index = line.rfind(b'$')
                 if last_index > 0:
                     line = line[last_index:]
+                    print("SELECTED:")
+                    print(line)
                     is_valid = is_valid_nmea_sentence(line)
             if not is_valid:
                 # HACK: the extctl proglet sometimes has trouble transferring
@@ -111,6 +121,10 @@ class SerialInterface:
                 # it is a timing issue. Therefore, we don't reject any of the
                 # file transfer messages for being invalid and just let the
                 # file transfer code handle the restarts.
+                
+                print("LINE:")
+                print(line)
+
                 if line.startswith(b'$FI'):
                     rospy.logwarn('Timing condition in file transfer '
                                   'triggered! Got sentence: %s', line)
@@ -120,6 +134,8 @@ class SerialInterface:
                     rospy.logwarn('Rejecting invalid NMEA sentence: %s', line)
                 continue
             body = line[1:-3]
+            print("BODY:")
+            print(body)
             for cb in self.message_cbs:
                 cb(body)
 
@@ -304,6 +320,8 @@ class Extctl:
         if not rospy.has_param('~extctl/mappings'):
             if rospy.get_param('~extctl/auto/when_missing'):
                 temp = self.fetch_extctl_ini()
+                print("##### FILE: #####")
+                print(temp)
                 return parse_extctl_ini(temp)
             else:
                 raise ValueError()
@@ -314,7 +332,28 @@ class Extctl:
 
         """
 
-        return self.file_getter.get_file('extctl.ini', True).decode('utf-8')
+        # FILES COMING FROM GLIDER SEEM TO BE READ BADLY
+        # DOES NOT READ FILES BIGGER THAN 764 CHARACTERS ( ser.readLine() )
+        # SO WE ARE READING THE FILE FROM THE RASPBERRY PI, WHICH HOPEFULLY IS
+        # ALWAYS THE SAME AS THE FILE IN THE SCIENCE COMPUTER IN THE GLIDER
+        file_from_pi = True
+
+        if file_from_pi:
+            return self.get_file_from_pi('extctl.ini')
+        else:
+            return self.file_getter.get_file('extctl.ini', True).decode('utf-8')
+
+    def get_file_from_pi(self, file):
+        data = ''
+        print("Banana")
+        for root, dirs, files in os.walk("../../../../../", topdown=False):
+            for name in files:
+                if file in name and "catkin" not in os.path.join(root, name):
+                    print("Found extctl.ini file in RPi: ", os.path.join(root, name))
+                    with open(os.path.join(root, name), 'r') as f:
+                        data = f.read()
+        
+        return data
 
     def handle_serial_msg(self, msg):
         if msg.startswith(b'SD,'):
@@ -344,6 +383,9 @@ class Extctl:
         # Almost everything is spun up except the sensor interface. Before we
         # can do that we need to make sure we have a valid extctl.ini file.
         sensor_descriptions = self.ensure_extctl_ini()
+
+        print("SENSOR DESCRIPTIONS")
+        print(sensor_descriptions)
 
         msg = ExtctlMsg()
         # Now instantiate the sensor handler

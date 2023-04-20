@@ -48,6 +48,7 @@ class GetFileService:
 
     def get_file(self, file_name, block):
         rospy.logdebug('Got request: %s, %s', file_name, block)
+        rospy.logwarn('Got request: %s, %s', file_name, block)
         acquired = self.transfer_semaphore.acquire(block)
 
         if not acquired:
@@ -62,6 +63,8 @@ class GetFileService:
         self.corrupted_transfer_counter = 0
         self.corrupted_transfer_timer = None
 
+        rospy.logwarn("test1")
+
         # If we get here, then there is no file transfer in progress. Send a
         # request to the glider to start a transfer, wait on it to finish,
         # release the semaphore, and return the result.
@@ -71,15 +74,27 @@ class GetFileService:
         # Wait for the transfer to finish
         self.transfer_finished_event.wait()
 
+        rospy.logwarn("test2")
+
         # Release the semaphore.
         self.transfer_semaphore.release()
+
+        rospy.logwarn("test3") 
 
         # Check if we were successful
         if self.current_transfer_corrupted:
             raise FileTransferFailed('transfer corrupted')
 
+        rospy.logwarn("test4")
+
+        print("RIGHT BEFORE DECODING:")
+        print(self.base64)
+
         # Takes the base64 message and decodes it
         s64 = b''.join(map(base64.b64decode, self.base64))
+
+        rospy.logwarn("test5")
+
         # Return the results.
         return s64
 
@@ -147,4 +162,20 @@ class GetFileService:
             # requirements will result in an = character in the
             # message. Python's base64 decoder will then stop decoding once it
             # hits the first =.
-            self.base64.append(msg[3:])
+            
+            # remove unwanted $FI
+            if msg.endswith(b'$FI'):
+                msg = msg[:-3]
+
+            print("MESSAGE BEFORE DECODING:")
+            print(msg[3:])
+            print(len(msg[3:]))
+
+            # add ='s for padding
+            padding = (((4-(len(msg[3:])%4))%4)*b'=')
+            print("PADDING")
+            print(msg[3:] + padding)
+            print(len(msg[3:] + padding))
+
+            self.base64.append(msg[3:] + padding)
+            self.transfer_finished_event.set()
