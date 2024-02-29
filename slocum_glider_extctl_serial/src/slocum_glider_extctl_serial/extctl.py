@@ -134,8 +134,8 @@ class SerialInterface:
                     rospy.logwarn('Rejecting invalid NMEA sentence: %s', line)
                 continue
             body = line[1:-3]
-            print("BODY:")
-            print(body)
+            # print("BODY:")
+            # print(body)
             for cb in self.message_cbs:
                 cb(body)
 
@@ -185,6 +185,7 @@ class SerialInterface:
         if mask != 0:
             rospy.loginfo('Sending mode message mask %s and value %s',
                           mask, value)
+            rospy.logwarn('Sending mode message')
             self.send_message(ensure_binary('MD,{},{}'.format(mask, value)))
 
     def send_sensor_value(self, index, data):
@@ -193,6 +194,7 @@ class SerialInterface:
             self.sensor_values[index] = data
         self.send_message(b'SW,%d:%f' % (index, data))
         # rospy.logwarn(b'SW,%d:%f' % (index, data))
+        rospy.logwarn('Sending sensor value: ' + 'SW,%d:%f', index, data)
 
     def send_all_sensor_values(self):
         with self.value_lock:
@@ -203,6 +205,7 @@ class SerialInterface:
                 for index, value in chunk:
                     msg += b',%d:%f' % (index, value)
                 self.send_message(msg)
+                rospy.logwarn('Sending all sensor values: %s', msg)
 
     def send_message(self, msg):
         sentence = nmea(msg)
@@ -345,10 +348,10 @@ class Extctl:
 
     def get_file_from_pi(self, file):
         data = ''
-        print("Banana")
+        print("Reading file from Pi.")
         for root, dirs, files in os.walk("../../../../../", topdown=False):
             for name in files:
-                if file in name and "catkin" not in os.path.join(root, name):
+                if file in name and "from_glider" in os.path.join(root, name):
                     print("Found extctl.ini file in RPi: ", os.path.join(root, name))
                     with open(os.path.join(root, name), 'r') as f:
                         data = f.read()
@@ -364,6 +367,7 @@ class Extctl:
             self.file_getter.handle_serial_msg(msg)
         elif msg == b'TT':
             self.ser.send_message(b'TS,S')
+            rospy.logwarn('Sending TS,S message')
             serial_console = SerialConsole(self.serial_port_name)
             self.ser.ser.close()
             serial_console.run()
